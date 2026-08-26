@@ -23,6 +23,8 @@ class AdminDashboardPage extends StatefulWidget {
 
 class _AdminDashboardPageState extends State<AdminDashboardPage> {
   int _currentIndex = 0;
+  String _currentStore = 'Frisby Parque Arboleda';
+  final String _currentZone = 'Zona Eje Cafetero';
 
   // Real-time / Mock data for Admin Operations
   final int _activeEmployees = 24;
@@ -68,6 +70,33 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     },
   ];
 
+  final List<Map<String, dynamic>> _approvalHistory = [
+    {
+      'name': 'Laura Morales',
+      'action': 'Turno Extra Aprobado',
+      'details': 'Caja (18:00 - 22:00)',
+      'date': 'Ayer 7:30 PM',
+      'status': 'Aprobada',
+      'isApproved': true,
+    },
+    {
+      'name': 'Andrés Castro',
+      'action': 'Permiso Personal Rechazado',
+      'details': 'Calamidad no justificada',
+      'date': '24 Ago 3:15 PM',
+      'status': 'Rechazada',
+      'isApproved': false,
+    },
+    {
+      'name': 'María Gómez',
+      'action': 'Cambio de Turno Aprobado',
+      'details': 'Intercambio con Carlos Ruiz',
+      'date': '23 Ago 11:00 AM',
+      'status': 'Aprobada',
+      'isApproved': true,
+    },
+  ];
+
   List<Map<String, dynamic>> _teamMembers = [
     {
       'name': 'María Gómez',
@@ -76,6 +105,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       'team': 'Cocina A',
       'status': 'En turno',
       'shift': '08:00 - 16:00',
+      'skills': ['Freidoras', 'Armado', 'Plancha'],
     },
     {
       'name': 'Carlos Ruiz',
@@ -84,6 +114,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       'team': 'Cocina A',
       'status': 'En turno',
       'shift': '14:00 - 22:00',
+      'skills': ['Plancha', 'Freidoras'],
     },
     {
       'name': 'Laura Morales',
@@ -92,6 +123,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       'team': 'Servicio',
       'status': 'Descanso',
       'shift': 'Libre',
+      'skills': ['Caja', 'Domicilios', 'Armado'],
     },
     {
       'name': 'Juan Pérez',
@@ -100,6 +132,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       'team': 'Cocina B',
       'status': 'Próximo',
       'shift': '16:00 - 00:00',
+      'skills': ['Armado', 'Freidoras'],
     },
     {
       'name': 'Andrés Castro',
@@ -108,6 +141,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       'team': 'Logística',
       'status': 'En turno',
       'shift': '11:00 - 19:00',
+      'skills': ['Domicilios', 'Caja'],
     },
   ];
 
@@ -131,6 +165,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               'team': p['equipo'] ?? 'Operaciones',
               'status': p['rol'] == 'administrador' ? 'Admin' : 'Activo',
               'shift': '08:00 - 16:00',
+              'skills': ['Freidoras', 'Plancha', 'Caja'],
             };
           }).toList();
         });
@@ -154,12 +189,70 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     }
   }
 
+  void _confirmSignOut(bool isDark) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            const Icon(Icons.logout, color: Color(0xFFBA1A1A)),
+            const SizedBox(width: 8),
+            Text(
+              'Cerrar Sesión',
+              style: GoogleFonts.hankenGrotesk(
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white : const Color(0xFF191C1E),
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          '¿Estás seguro de que deseas salir del panel de administración?',
+          style: GoogleFonts.hankenGrotesk(
+            color: isDark ? Colors.white70 : Colors.grey[700],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(
+              'Cancelar',
+              style: GoogleFonts.hankenGrotesk(color: Colors.grey[600]),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              _handleSignOut();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFBA1A1A),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            ),
+            child: const Text('Salir'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _handleApproveRequest(Map<String, dynamic> request) {
     setState(() {
       _pendingRequests.removeWhere((r) => r['id'] == request['id']);
       if (request['typeKey'] == 'permiso') {
         if (_pendingAbsences > 0) _pendingAbsences--;
       }
+      _approvalHistory.insert(0, {
+        'name': request['name'],
+        'action': '${request['type']} Aprobado',
+        'details': request['details'],
+        'date': 'Hace un momento',
+        'status': 'Aprobada',
+        'isApproved': true,
+      });
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -177,6 +270,14 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   void _handleRejectRequest(Map<String, dynamic> request) {
     setState(() {
       _pendingRequests.removeWhere((r) => r['id'] == request['id']);
+      _approvalHistory.insert(0, {
+        'name': request['name'],
+        'action': '${request['type']} Rechazado',
+        'details': request['details'],
+        'date': 'Hace un momento',
+        'status': 'Rechazada',
+        'isApproved': false,
+      });
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -192,8 +293,12 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   }
 
   void _showNotificationDialog(bool isIOS, bool isDark) {
-    final titleColor = isIOS ? (isDark ? const Color(0xFFFBDBD8) : const Color(0xFF410003)) : (isDark ? Colors.white : const Color(0xFF191C1E));
-    final subtextColor = isIOS ? (isDark ? const Color(0xFFE5BDBA) : const Color(0xFF5C403D)) : (isDark ? Colors.white70 : Colors.grey[600]!);
+    final titleColor = isIOS
+        ? (isDark ? const Color(0xFFFBDBD8) : const Color(0xFF410003))
+        : (isDark ? Colors.white : const Color(0xFF191C1E));
+    final subtextColor = isIOS
+        ? (isDark ? const Color(0xFFE5BDBA) : const Color(0xFF5C403D))
+        : (isDark ? Colors.white70 : Colors.grey[600]!);
 
     showDialog(
       context: context,
@@ -671,7 +776,833 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     );
   }
 
-  // TAB 0: RESUMEN OPERATIVO + ACCIONES RÁPIDAS + SOLICITUDES
+  // --- SIDEBAR MODAL IMPLEMENTATIONS ---
+
+  void _showSwitchStoreDialog(bool isDark) {
+    final stores = [
+      'Frisby Parque Arboleda',
+      'Frisby Victoria Plaza',
+      'Frisby Unicentro Pereira',
+      'Frisby Av. Circunvalar',
+      'Frisby Cerritos Mall',
+    ];
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Row(
+            children: [
+              const Icon(Icons.store, color: Color(0xFFAC0017)),
+              const SizedBox(width: 8),
+              Text(
+                'Cambiar de Sucursal',
+                style: GoogleFonts.hankenGrotesk(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: isDark ? Colors.white : const Color(0xFF191C1E),
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: stores.map((s) {
+              final isSelected = _currentStore == s;
+              return ListTile(
+                title: Text(
+                  s,
+                  style: GoogleFonts.hankenGrotesk(
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    color: isSelected ? const Color(0xFFAC0017) : (isDark ? Colors.white : Colors.black87),
+                  ),
+                ),
+                leading: Icon(
+                  isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
+                  color: isSelected ? const Color(0xFFAC0017) : Colors.grey,
+                ),
+                onTap: () {
+                  setState(() {
+                    _currentStore = s;
+                  });
+                  Navigator.pop(ctx);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Sucursal activa cambiada a: $s'),
+                      backgroundColor: const Color(0xFFAC0017),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                },
+              );
+            }).toList(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showWeeklyScheduleModal(bool isDark) {
+    final days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => DraggableScrollableSheet(
+        initialChildSize: 0.85,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        expand: false,
+        builder: (context, scrollController) => Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Malla Semanal Completa',
+                        style: GoogleFonts.hankenGrotesk(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white : const Color(0xFF191C1E),
+                        ),
+                      ),
+                      Text(
+                        '$_currentStore • Semana en curso',
+                        style: GoogleFonts.hankenGrotesk(
+                          fontSize: 13,
+                          color: isDark ? Colors.white60 : Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Expanded(
+                child: ListView.builder(
+                  controller: scrollController,
+                  itemCount: days.length,
+                  itemBuilder: (context, index) {
+                    final day = days[index];
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: isDark ? Colors.white10 : const Color(0xFFF8F9FB),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: isDark ? Colors.white12 : const Color(0xFFE0E0E0),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                day,
+                                style: GoogleFonts.hankenGrotesk(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: const Color(0xFFAC0017),
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFAC0017).withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  '5 Asignados',
+                                  style: GoogleFonts.hankenGrotesk(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                    color: const Color(0xFFAC0017),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          ..._teamMembers.take(3).map((m) => Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 2.0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      m['name'],
+                                      style: GoogleFonts.hankenGrotesk(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                        color: isDark ? Colors.white70 : Colors.black87,
+                                      ),
+                                    ),
+                                    Text(
+                                      '${m['station']} (${m['shift']})',
+                                      style: GoogleFonts.hankenGrotesk(
+                                        fontSize: 12,
+                                        color: isDark ? Colors.white38 : Colors.grey[600],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showShiftTemplatesModal(bool isDark) {
+    final templates = [
+      {
+        'title': 'Día Frisby / Alto Tráfico',
+        'desc': 'Refuerzo de 4 en Freidoras, 3 en Plancha, 4 en Caja y 2 Domicilios.',
+        'tag': 'Pico de Venta',
+        'color': const Color(0xFFAC0017),
+      },
+      {
+        'title': 'Fin de Semana Estándar',
+        'desc': 'Cobertura completa de 12 colaboradores por jornada.',
+        'tag': 'Sáb - Dom',
+        'color': const Color(0xFF545D80),
+      },
+      {
+        'title': 'Lunes a Jueves Ordinario',
+        'desc': 'Plantilla base optimizada de 8 colaboradores con turnos rotativos.',
+        'tag': 'Regular',
+        'color': const Color(0xFF966100),
+      },
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Plantillas de Turno Predefinidas',
+                  style: GoogleFonts.hankenGrotesk(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : const Color(0xFF191C1E),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            ...templates.map((tpl) => Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.white10 : const Color(0xFFF8F9FB),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: isDark ? Colors.white12 : const Color(0xFFE0E0E0),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  tpl['title'] as String,
+                                  style: GoogleFonts.hankenGrotesk(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                    color: isDark ? Colors.white : const Color(0xFF191C1E),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: (tpl['color'] as Color).withValues(alpha: 0.15),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    tpl['tag'] as String,
+                                    style: GoogleFonts.hankenGrotesk(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      color: tpl['color'] as Color,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              tpl['desc'] as String,
+                              style: GoogleFonts.hankenGrotesk(
+                                fontSize: 12,
+                                color: isDark ? Colors.white60 : Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Plantilla "${tpl['title']}" aplicada exitosamente a la semana.'),
+                              backgroundColor: const Color(0xFF2E7D32),
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFAC0017),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        ),
+                        child: const Text('Aplicar'),
+                      ),
+                    ],
+                  ),
+                )),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showRegisterEmployeeModal(bool isDark) {
+    final nameCtrl = TextEditingController();
+    final cedulaCtrl = TextEditingController();
+    String station = 'Freidoras';
+    String team = 'Cocina A';
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setModalState) => Padding(
+          padding: EdgeInsets.fromLTRB(24, 24, 24, MediaQuery.of(context).viewInsets.bottom + 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Registrar Nuevo Colaborador',
+                style: GoogleFonts.hankenGrotesk(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : const Color(0xFF191C1E),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: nameCtrl,
+                style: GoogleFonts.hankenGrotesk(color: isDark ? Colors.white : Colors.black87),
+                decoration: InputDecoration(
+                  labelText: 'Nombre Completo',
+                  filled: true,
+                  fillColor: isDark ? Colors.white10 : Colors.grey[100],
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: cedulaCtrl,
+                keyboardType: TextInputType.number,
+                style: GoogleFonts.hankenGrotesk(color: isDark ? Colors.white : Colors.black87),
+                decoration: InputDecoration(
+                  labelText: 'Número de Cédula',
+                  filled: true,
+                  fillColor: isDark ? Colors.white10 : Colors.grey[100],
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                ),
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                initialValue: station,
+                dropdownColor: isDark ? const Color(0xFF2C2C2C) : Colors.white,
+                style: GoogleFonts.hankenGrotesk(color: isDark ? Colors.white : Colors.black87),
+                decoration: InputDecoration(
+                  labelText: 'Estación Principal',
+                  filled: true,
+                  fillColor: isDark ? Colors.white10 : Colors.grey[100],
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                ),
+                items: ['Freidoras', 'Plancha', 'Caja', 'Armado', 'Domicilios']
+                    .map((s) => DropdownMenuItem(value: s, child: Text(s)))
+                    .toList(),
+                onChanged: (v) {
+                  if (v != null) setModalState(() => station = v);
+                },
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton(
+                  onPressed: () {
+                    final name = nameCtrl.text.trim();
+                    final cedula = cedulaCtrl.text.trim();
+                    if (name.isNotEmpty && cedula.isNotEmpty) {
+                      setState(() {
+                        _teamMembers.add({
+                          'name': name,
+                          'cedula': cedula,
+                          'station': station,
+                          'team': team,
+                          'status': 'Activo',
+                          'shift': '08:00 - 16:00',
+                          'skills': [station],
+                        });
+                      });
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Colaborador $name registrado exitosamente.'),
+                          backgroundColor: const Color(0xFF2E7D32),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFAC0017),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                  ),
+                  child: const Text('Registrar en Sistema', style: TextStyle(fontWeight: FontWeight.bold)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showSkillsMatrixModal(bool isDark) {
+    final stationsList = ['Freidoras', 'Plancha', 'Caja', 'Armado', 'Domicilios'];
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => DraggableScrollableSheet(
+        initialChildSize: 0.75,
+        minChildSize: 0.4,
+        maxChildSize: 0.9,
+        expand: false,
+        builder: (context, scrollController) => Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Matriz de Polivalencia',
+                        style: GoogleFonts.hankenGrotesk(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white : const Color(0xFF191C1E),
+                        ),
+                      ),
+                      Text(
+                        'Certificaciones y estaciones por colaborador',
+                        style: GoogleFonts.hankenGrotesk(
+                          fontSize: 13,
+                          color: isDark ? Colors.white60 : Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                  IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Expanded(
+                child: ListView.builder(
+                  controller: scrollController,
+                  itemCount: _teamMembers.length,
+                  itemBuilder: (context, i) {
+                    final m = _teamMembers[i];
+                    final skills = (m['skills'] as List<dynamic>?) ?? [m['station']];
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: isDark ? Colors.white10 : const Color(0xFFF8F9FB),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: isDark ? Colors.white12 : const Color(0xFFE0E0E0)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            m['name'],
+                            style: GoogleFonts.hankenGrotesk(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: isDark ? Colors.white : const Color(0xFF191C1E),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Wrap(
+                            spacing: 6,
+                            runSpacing: 6,
+                            children: stationsList.map((st) {
+                              final hasSkill = skills.contains(st);
+                              return Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: hasSkill
+                                      ? const Color(0xFF2E7D32).withValues(alpha: 0.15)
+                                      : (isDark ? Colors.white12 : Colors.grey[200]),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      hasSkill ? Icons.check_circle : Icons.circle_outlined,
+                                      size: 14,
+                                      color: hasSkill ? const Color(0xFF2E7D32) : Colors.grey,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      st,
+                                      style: GoogleFonts.hankenGrotesk(
+                                        fontSize: 11,
+                                        fontWeight: hasSkill ? FontWeight.bold : FontWeight.normal,
+                                        color: hasSkill ? const Color(0xFF2E7D32) : Colors.grey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showAttendanceReportModal(bool isDark) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Reporte de Asistencia y Horas',
+                  style: GoogleFonts.hankenGrotesk(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : const Color(0xFF191C1E),
+                  ),
+                ),
+                IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF2E7D32).withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Column(
+                      children: [
+                        Text('96.4%', style: GoogleFonts.hankenGrotesk(fontSize: 24, fontWeight: FontWeight.bold, color: const Color(0xFF2E7D32))),
+                        Text('Puntualidad', style: GoogleFonts.hankenGrotesk(fontSize: 12, color: const Color(0xFF2E7D32))),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFAC0017).withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Column(
+                      children: [
+                        Text('384 hrs', style: GoogleFonts.hankenGrotesk(fontSize: 24, fontWeight: FontWeight.bold, color: const Color(0xFFAC0017))),
+                        Text('Horas Cumplidas', style: GoogleFonts.hankenGrotesk(fontSize: 12, color: const Color(0xFFAC0017))),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text('Últimos Registros Biométricos', style: GoogleFonts.hankenGrotesk(fontWeight: FontWeight.bold, fontSize: 14)),
+            const SizedBox(height: 8),
+            ..._teamMembers.take(3).map((m) => ListTile(
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.fingerprint, color: Color(0xFFAC0017)),
+                  title: Text(m['name'], style: GoogleFonts.hankenGrotesk(fontWeight: FontWeight.w600)),
+                  subtitle: const Text('Ingreso: 07:58 AM • En turno'),
+                  trailing: const Icon(Icons.check_circle, color: Color(0xFF2E7D32), size: 18),
+                )),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _handleExportSchedule() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Generando archivo PDF y Excel de la malla semanal...'),
+        backgroundColor: Color(0xFF545D80),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('✅ Reporte descargado: Malla_${_currentStore.replaceAll(' ', '_')}.pdf'),
+            backgroundColor: const Color(0xFF2E7D32),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    });
+  }
+
+  void _showApprovalHistoryModal(bool isDark) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Historial de Aprobaciones',
+                  style: GoogleFonts.hankenGrotesk(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : const Color(0xFF191C1E),
+                  ),
+                ),
+                IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
+              ],
+            ),
+            const SizedBox(height: 16),
+            if (_approvalHistory.isEmpty)
+              const Center(child: Text('No hay historial de solicitudes registradas.'))
+            else
+              ..._approvalHistory.map((item) => Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: isDark ? Colors.white10 : const Color(0xFFF8F9FB),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: isDark ? Colors.white12 : const Color(0xFFE0E0E0)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item['name'] as String,
+                              style: GoogleFonts.hankenGrotesk(fontWeight: FontWeight.bold, fontSize: 14),
+                            ),
+                            Text(
+                              item['action'] as String,
+                              style: GoogleFonts.hankenGrotesk(fontSize: 12, color: Colors.grey[600]),
+                            ),
+                            Text(
+                              item['date'] as String,
+                              style: GoogleFonts.hankenGrotesk(fontSize: 11, color: Colors.grey[500]),
+                            ),
+                          ],
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: (item['isApproved'] as bool)
+                                ? const Color(0xFF2E7D32).withValues(alpha: 0.15)
+                                : const Color(0xFFBA1A1A).withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            item['status'] as String,
+                            style: GoogleFonts.hankenGrotesk(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: (item['isApproved'] as bool) ? const Color(0xFF2E7D32) : const Color(0xFFBA1A1A),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showZoneManagerContactModal(bool isDark) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            const Icon(Icons.phone_in_talk, color: Color(0xFFAC0017)),
+            const SizedBox(width: 8),
+            Text(
+              'Jefe de Zona Regional',
+              style: GoogleFonts.hankenGrotesk(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: isDark ? Colors.white : const Color(0xFF191C1E),
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Ing. Carlos Mendoza', style: GoogleFonts.hankenGrotesk(fontSize: 16, fontWeight: FontWeight.bold)),
+            Text('Supervisión Eje Cafetero • Frisby Colombia', style: GoogleFonts.hankenGrotesk(fontSize: 12, color: Colors.grey[600])),
+            const SizedBox(height: 16),
+            ListTile(
+              dense: true,
+              leading: const Icon(Icons.phone, color: Color(0xFF2E7D32)),
+              title: const Text('+57 (300) 456-7890'),
+              subtitle: const Text('Línea Directa Operaciones'),
+              onTap: () {
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Marcando a Jefe de Zona...')),
+                );
+              },
+            ),
+            ListTile(
+              dense: true,
+              leading: const Icon(Icons.chat, color: Color(0xFF25D366)),
+              title: const Text('Enviar WhatsApp'),
+              subtitle: const Text('Escalar contingencia de personal'),
+              onTap: () {
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Abriendo canal WhatsApp con Jefe de Zona...')),
+                );
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cerrar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- TAB CONTENT BUILDERS ---
+
   Widget _buildTurnosTab(bool isIOS, bool isDark) {
     final titleColor = isIOS
         ? (isDark ? const Color(0xFFFBDBD8) : const Color(0xFF410003))
@@ -704,6 +1635,46 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
         100,
       ),
       children: [
+        // Store Indicator Header Banner
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          margin: const EdgeInsets.only(bottom: 16),
+          decoration: BoxDecoration(
+            color: isDark ? Colors.white10 : const Color(0xFFEDEFE0),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.store, color: Color(0xFFAC0017), size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    _currentStore,
+                    style: GoogleFonts.hankenGrotesk(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                      color: titleColor,
+                    ),
+                  ),
+                ],
+              ),
+              InkWell(
+                onTap: () => _showSwitchStoreDialog(isDark),
+                child: Text(
+                  'Cambiar',
+                  style: GoogleFonts.hankenGrotesk(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                    color: const Color(0xFFAC0017),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
         // Section 1: Resumen Operativo (Bento Grid)
         Text(
           'Resumen Operativo',
@@ -850,8 +1821,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                           children: [
                             Row(
                               children: [
-                                Icon(Icons.schedule,
-                                    color: const Color(0xFF966100), size: 16),
+                                const Icon(Icons.schedule,
+                                    color: Color(0xFF966100), size: 16),
                                 const SizedBox(width: 4),
                                 Text(
                                   'Cobertura',
@@ -933,6 +1904,15 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                 isIOS: isIOS,
                 isDark: isDark,
                 onTap: () => _showBroadcastNoticeModal(isIOS, isDark),
+              ),
+              const SizedBox(width: 12),
+              _buildQuickActionBtn(
+                icon: Icons.calendar_view_week,
+                label: 'Malla\nSemanal',
+                color: const Color(0xFF2E7D32),
+                isIOS: isIOS,
+                isDark: isDark,
+                onTap: () => _showWeeklyScheduleModal(isDark),
               ),
             ],
           ),
@@ -1411,7 +2391,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               ],
             ),
             IconButton(
-              onPressed: () => _showCreateShiftModal(isIOS, isDark),
+              onPressed: () => _showRegisterEmployeeModal(isDark),
               icon: Icon(Icons.person_add_alt_1_outlined, color: primaryRed),
             ),
           ],
@@ -1515,6 +2495,193 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
           );
         }),
       ],
+    );
+  }
+
+  // --- DRAWER (SIDEBAR) BUILDER ---
+
+  Widget _buildAdminSidebar(bool isIOS, bool isDark) {
+    final drawerBg = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+    final sectionTitleColor = const Color(0xFFAC0017);
+    final textColor = isDark ? Colors.white : const Color(0xFF191C1E);
+    final subtextColor = isDark ? Colors.white60 : Colors.grey[600];
+
+    Widget sectionHeader(String title) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 6),
+        child: Text(
+          title,
+          style: GoogleFonts.hankenGrotesk(
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.1,
+            color: sectionTitleColor,
+          ),
+        ),
+      );
+    }
+
+    Widget drawerItem({
+      required IconData icon,
+      required String title,
+      String? subtitle,
+      required VoidCallback onTap,
+      Color? iconColor,
+    }) {
+      return ListTile(
+        dense: true,
+        leading: Icon(icon, color: iconColor ?? (isDark ? Colors.white70 : const Color(0xFF545D80)), size: 22),
+        title: Text(
+          title,
+          style: GoogleFonts.hankenGrotesk(
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+            color: textColor,
+          ),
+        ),
+        subtitle: subtitle != null
+            ? Text(subtitle, style: GoogleFonts.hankenGrotesk(fontSize: 11, color: subtextColor))
+            : null,
+        onTap: () {
+          Navigator.pop(context);
+          onTap();
+        },
+      );
+    }
+
+    return Drawer(
+      backgroundColor: drawerBg,
+      child: Column(
+        children: [
+          UserAccountsDrawerHeader(
+            decoration: const BoxDecoration(
+              color: Color(0xFFAC0017),
+            ),
+            accountName: Row(
+              children: [
+                Text(
+                  widget.profileName ?? 'Administrador General',
+                  style: GoogleFonts.hankenGrotesk(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.white24,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    'ADMIN',
+                    style: GoogleFonts.hankenGrotesk(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            accountEmail: Text(
+              '${widget.username} • $_currentZone',
+              style: GoogleFonts.hankenGrotesk(fontSize: 12),
+            ),
+            currentAccountPicture: const CircleAvatar(
+              backgroundImage: NetworkImage(
+                'https://lh3.googleusercontent.com/aida-public/AB6AXuDMgkhhPX8XzsxpqFFykCvHkvJhpP4XCWw8TmC9gw8HQzfAtsWnU96wdFRn0TK-k12jMCkVzTzRg0lknWMdZRkCC4i8mIDsHfKlEuL5tqs_8A2BYRdiwZQ885poamygDvFIbvHiCh1JwmgrzF1uBlqFLtnfKTOUJfIVusON856L9gf2pFxIlrSDTOd51irguRlRY0ayiE3q-SZMFV9NAIS_pcAy0hmQybPk9_XtRRRE1yD8xL30gQovmg',
+              ),
+            ),
+          ),
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                // 1. OPERACIÓN
+                sectionHeader('OPERACIÓN'),
+                drawerItem(
+                  icon: Icons.storefront,
+                  title: 'Cambiar Sucursal',
+                  subtitle: _currentStore,
+                  onTap: () => _showSwitchStoreDialog(isDark),
+                  iconColor: const Color(0xFFAC0017),
+                ),
+                drawerItem(
+                  icon: Icons.calendar_view_week,
+                  title: 'Malla Semanal Completa',
+                  subtitle: 'Lunes a Domingo',
+                  onTap: () => _showWeeklyScheduleModal(isDark),
+                ),
+                drawerItem(
+                  icon: Icons.auto_awesome,
+                  title: 'Plantillas de Turno',
+                  subtitle: 'Cargar presets de horarios',
+                  onTap: () => _showShiftTemplatesModal(isDark),
+                ),
+
+                const Divider(height: 1),
+
+                // 2. PERSONAL
+                sectionHeader('PERSONAL'),
+                drawerItem(
+                  icon: Icons.person_add_alt_1,
+                  title: 'Registrar Colaborador',
+                  subtitle: 'Dar de alta nuevo empleado',
+                  onTap: () => _showRegisterEmployeeModal(isDark),
+                ),
+                drawerItem(
+                  icon: Icons.verified_user_outlined,
+                  title: 'Matriz de Habilidades',
+                  subtitle: 'Polivalencia y estaciones',
+                  onTap: () => _showSkillsMatrixModal(isDark),
+                ),
+
+                const Divider(height: 1),
+
+                // 3. REPORTES
+                sectionHeader('REPORTES Y NÓMINA'),
+                drawerItem(
+                  icon: Icons.analytics_outlined,
+                  title: 'Reporte de Asistencia',
+                  subtitle: 'Horas laboradas y puntualidad',
+                  onTap: () => _showAttendanceReportModal(isDark),
+                ),
+                drawerItem(
+                  icon: Icons.download,
+                  title: 'Exportar Turnos (PDF/Excel)',
+                  subtitle: 'Descargar reporte para cartelera',
+                  onTap: _handleExportSchedule,
+                ),
+                drawerItem(
+                  icon: Icons.history,
+                  title: 'Historial de Aprobaciones',
+                  subtitle: 'Registro de solicitudes',
+                  onTap: () => _showApprovalHistoryModal(isDark),
+                ),
+
+                const Divider(height: 1),
+
+                // 4. SOPORTE Y SISTEMA
+                sectionHeader('SOPORTE Y SISTEMA'),
+                drawerItem(
+                  icon: Icons.support_agent,
+                  title: 'Contactar Jefe de Zona',
+                  subtitle: 'Supervisión regional',
+                  onTap: () => _showZoneManagerContactModal(isDark),
+                ),
+                drawerItem(
+                  icon: Icons.logout,
+                  title: 'Cerrar Sesión',
+                  onTap: () => _confirmSignOut(isDark),
+                  iconColor: const Color(0xFFBA1A1A),
+                ),
+                const SizedBox(height: 24),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1723,57 +2890,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       return Scaffold(
         backgroundColor: Colors.transparent,
         appBar: mobileAppBarAndroid(),
-        drawer: Drawer(
-          backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-          child: Column(
-            children: [
-              UserAccountsDrawerHeader(
-                decoration: const BoxDecoration(
-                  color: Color(0xFFAC0017),
-                ),
-                accountName: Text(
-                  widget.profileName ?? 'Administrador General',
-                  style: GoogleFonts.hankenGrotesk(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-                accountEmail: Text(
-                  '${widget.username} (Rol: Administrador)',
-                  style: GoogleFonts.hankenGrotesk(fontSize: 12),
-                ),
-                currentAccountPicture: const CircleAvatar(
-                  backgroundImage: NetworkImage(
-                    'https://lh3.googleusercontent.com/aida-public/AB6AXuDMgkhhPX8XzsxpqFFykCvHkvJhpP4XCWw8TmC9gw8HQzfAtsWnU96wdFRn0TK-k12jMCkVzTzRg0lknWMdZRkCC4i8mIDsHfKlEuL5tqs_8A2BYRdiwZQ885poamygDvFIbvHiCh1JwmgrzF1uBlqFLtnfKTOUJfIVusON856L9gf2pFxIlrSDTOd51irguRlRY0ayiE3q-SZMFV9NAIS_pcAy0hmQybPk9_XtRRRE1yD8xL30gQovmg',
-                  ),
-                ),
-              ),
-              ListTile(
-                leading: const Icon(Icons.store, color: Color(0xFFAC0017)),
-                title: Text(
-                  'Sucursal: Parque Arboleda',
-                  style: GoogleFonts.hankenGrotesk(fontWeight: FontWeight.w600),
-                ),
-                subtitle: Text(
-                  'Zona Eje Cafetero',
-                  style: GoogleFonts.hankenGrotesk(fontSize: 12),
-                ),
-              ),
-              const Divider(),
-              ListTile(
-                leading: const Icon(Icons.logout, color: Color(0xFFBA1A1A)),
-                title: Text(
-                  'Cerrar Sesión',
-                  style: GoogleFonts.hankenGrotesk(
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFFBA1A1A),
-                  ),
-                ),
-                onTap: _handleSignOut,
-              ),
-            ],
-          ),
-        ),
+        drawer: _buildAdminSidebar(isIOS, isDark),
         body: Stack(
           children: [
             activeTabContent(),
