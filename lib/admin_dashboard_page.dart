@@ -22,17 +22,85 @@ class AdminDashboardPage extends StatefulWidget {
   State<AdminDashboardPage> createState() => _AdminDashboardPageState();
 }
 
-class _AdminDashboardPageState extends State<AdminDashboardPage> {
+class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTickerProviderStateMixin {
   int _currentIndex = 0;
   String _currentStore = 'Frisby Parque Arboleda';
   final String _currentZone = 'Zona Eje Cafetero';
   bool? _isDarkModeOverride;
   bool? _isIOSOverride;
 
+  late AnimationController _alertPulseController;
+  late Animation<double> _pulseScaleAnimation;
+  late Animation<double> _pulseGlowAnimation;
+
   bool _isIOS(BuildContext context) {
     if (_isIOSOverride != null) return _isIOSOverride!;
     return Theme.of(context).platform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.iOS;
   }
+
+  // Real-time Operational Alerts & AI Scheduling Suggestions
+  final List<Map<String, dynamic>> _operationalAlerts = [
+    {
+      'id': 'alt-1',
+      'level': 'critical',
+      'title': 'Déficit de Cobertura en Horas Pico',
+      'station': 'Freidoras & Cocina',
+      'time': 'Hoy • 12:30 PM - 02:30 PM',
+      'description': 'Proyección de alta demanda (+40% pedidos) con solo 2 colaboradores asignados en freidoras. Se requiere al menos 1 refuerzo.',
+      'suggestion': 'Asignar turno de refuerzo de 4 horas a Mateo Gómez o Carlos Mendoza.',
+      'actionLabel': 'Programar Refuerzo Inmediato',
+      'actionStation': 'Freidoras',
+      'actionStart': '12:00',
+      'actionEnd': '16:00',
+      'icon': Icons.local_fire_department,
+      'color': const Color(0xFFD2232A),
+    },
+    {
+      'id': 'alt-2',
+      'level': 'warning',
+      'title': 'Riesgo de Horas Extras Excesivas',
+      'station': 'Caja Principal',
+      'time': 'Semana en Curso',
+      'description': 'Carlos Mendoza acumula 46 horas laboradas. Un turno adicional superará el límite legal de 48h semanales.',
+      'suggestion': 'Rotar el turno de cierre con Laura Restrepo para balancear la carga horaria.',
+      'actionLabel': 'Ajustar Cuadrilla',
+      'actionStation': 'Caja',
+      'actionStart': '14:00',
+      'actionEnd': '22:00',
+      'icon': Icons.access_time_filled,
+      'color': const Color(0xFFE65100),
+    },
+    {
+      'id': 'alt-3',
+      'level': 'urgent',
+      'title': 'Ausencia Programada Sin Suplencia',
+      'station': 'Armado & Empaque',
+      'time': 'Mañana • 08:00 AM - 12:00 PM',
+      'description': 'Permiso médico aprobado para Sofía Morales sin reemplazo confirmado en la estación de armado.',
+      'suggestion': 'Publicar vacante en el Mercado de Turnos o asignar a colaborador en descanso disponible.',
+      'actionLabel': 'Asignar Suplente',
+      'actionStation': 'Armado',
+      'actionStart': '08:00',
+      'actionEnd': '12:00',
+      'icon': Icons.medical_services,
+      'color': const Color(0xFF0288D1),
+    },
+    {
+      'id': 'alt-4',
+      'level': 'info',
+      'title': 'Optimización: Descansos Dominicales',
+      'station': 'Toda la Cuadrilla',
+      'time': 'Fin de Semana',
+      'description': 'Cumplimiento del 100% en descansos dominicales consecutivos según la normativa laboral Frisby.',
+      'suggestion': 'Mantener la plantilla actual sin modificaciones para el domingo.',
+      'actionLabel': 'Ver Malla Semanal',
+      'actionStation': 'General',
+      'actionStart': '08:00',
+      'actionEnd': '16:00',
+      'icon': Icons.verified,
+      'color': const Color(0xFF2E7D32),
+    },
+  ];
 
   // Real-time / Mock data for Admin Operations
   final int _activeEmployees = 24;
@@ -156,7 +224,26 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   @override
   void initState() {
     super.initState();
+    _alertPulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    )..repeat(reverse: true);
+
+    _pulseScaleAnimation = Tween<double>(begin: 0.92, end: 1.08).animate(
+      CurvedAnimation(parent: _alertPulseController, curve: Curves.easeInOut),
+    );
+
+    _pulseGlowAnimation = Tween<double>(begin: 0.35, end: 1.0).animate(
+      CurvedAnimation(parent: _alertPulseController, curve: Curves.easeInOut),
+    );
+
     _fetchSupabaseData();
+  }
+
+  @override
+  void dispose() {
+    _alertPulseController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchSupabaseData() async {
@@ -435,6 +522,372 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                     const SnackBar(content: Text('Vista cambiada a: Detección Automática'), behavior: SnackBarBehavior.floating),
                   );
                 },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // --- BOTÓN Y MODAL DE ALERTAS OPERATIVAS PARPADEANTE ---
+
+  Widget _buildPulsingAlertButton({required bool isIOS, required bool isDark, bool isCompact = false}) {
+    final criticalCount = _operationalAlerts.where((a) => a['level'] == 'critical' || a['level'] == 'urgent').length;
+
+    return AnimatedBuilder(
+      animation: _alertPulseController,
+      builder: (context, child) {
+        final scale = _pulseScaleAnimation.value;
+        final glow = _pulseGlowAnimation.value;
+        const alertRed = Color(0xFFD2232A);
+
+        if (isCompact) {
+          return InkWell(
+            onTap: () => _showOperationalAlertsModal(isIOS, isDark),
+            borderRadius: BorderRadius.circular(30),
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Transform.scale(
+                  scale: scale,
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: alertRed.withValues(alpha: 0.12 * glow),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: alertRed.withValues(alpha: 0.4 * glow),
+                          blurRadius: 10 * glow,
+                          spreadRadius: 2 * glow,
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      Icons.warning_amber_rounded,
+                      color: alertRed,
+                      size: isIOS ? 22 : 24,
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: -2,
+                  right: -2,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: alertRed,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: isDark ? Colors.black : Colors.white, width: 1.5),
+                    ),
+                    child: Text(
+                      '$criticalCount',
+                      style: GoogleFonts.hankenGrotesk(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return InkWell(
+          onTap: () => _showOperationalAlertsModal(isIOS, isDark),
+          borderRadius: BorderRadius.circular(20),
+          child: Transform.scale(
+            scale: scale,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(
+                color: isDark
+                    ? alertRed.withValues(alpha: 0.2 * glow)
+                    : const Color(0xFFFFEBEE).withValues(alpha: 0.8 + 0.2 * glow),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: alertRed.withValues(alpha: 0.5 + 0.5 * glow),
+                  width: 1.5,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: alertRed.withValues(alpha: 0.35 * glow),
+                    blurRadius: 12 * glow,
+                    spreadRadius: 1,
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: alertRed,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: alertRed.withValues(alpha: glow),
+                          blurRadius: 6,
+                          spreadRadius: 2,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Icon(Icons.warning_amber_rounded, color: alertRed, size: 18),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Alertas Operativas (${_operationalAlerts.length})',
+                    style: GoogleFonts.hankenGrotesk(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                      color: isDark ? const Color(0xFFFF8A8A) : alertRed,
+                      letterSpacing: 0.1,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showOperationalAlertsModal(bool isIOS, bool isDark) {
+    final titleColor = isIOS
+        ? (isDark ? const Color(0xFFFBDBD8) : const Color(0xFF410003))
+        : (isDark ? Colors.white : const Color(0xFF191C1E));
+    final subtextColor = isIOS
+        ? (isDark ? const Color(0xFFE5BDBA) : const Color(0xFF5C403D))
+        : (isDark ? Colors.white70 : Colors.grey[600]!);
+    final modalBg = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: modalBg,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setModalState) => Container(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.85,
+            maxWidth: 700,
+          ),
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Drag indicator
+              Center(
+                child: Container(
+                  width: 44,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.white24 : Colors.grey[300],
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Title Header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFD2232A).withValues(alpha: 0.15),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.crisis_alert, color: Color(0xFFD2232A), size: 24),
+                      ),
+                      const SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Centro de Alertas y Sugerencias',
+                            style: GoogleFonts.hankenGrotesk(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: titleColor,
+                            ),
+                          ),
+                          Text(
+                            'Optimizaciones en tiempo real para $_currentStore',
+                            style: GoogleFonts.hankenGrotesk(
+                              fontSize: 12,
+                              color: subtextColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.close, color: subtextColor),
+                    onPressed: () => Navigator.pop(ctx),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              const Divider(height: 1),
+              const SizedBox(height: 12),
+
+              // Alerts List
+              Expanded(
+                child: ListView.separated(
+                  itemCount: _operationalAlerts.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 14),
+                  itemBuilder: (context, index) {
+                    final alert = _operationalAlerts[index];
+                    final alertColor = alert['color'] as Color;
+
+                    return Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFF9FAFB),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: alertColor.withValues(alpha: isDark ? 0.35 : 0.25),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: alertColor.withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Icon(alert['icon'] as IconData, color: alertColor, size: 20),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            alert['title'] as String,
+                                            style: GoogleFonts.hankenGrotesk(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 15,
+                                              color: titleColor,
+                                            ),
+                                          ),
+                                        ),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                          decoration: BoxDecoration(
+                                            color: alertColor.withValues(alpha: 0.15),
+                                            borderRadius: BorderRadius.circular(20),
+                                          ),
+                                          child: Text(
+                                            (alert['level'] as String).toUpperCase(),
+                                            style: GoogleFonts.hankenGrotesk(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w800,
+                                              color: alertColor,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      '${alert['station']} • ${alert['time']}',
+                                      style: GoogleFonts.hankenGrotesk(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: subtextColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            alert['description'] as String,
+                            style: GoogleFonts.hankenGrotesk(
+                              fontSize: 13,
+                              color: titleColor.withValues(alpha: 0.9),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: isDark ? Colors.black26 : Colors.white,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: isDark ? Colors.white12 : Colors.grey[200]!,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.lightbulb_outline, size: 16, color: Color(0xFFF7B640)),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    alert['suggestion'] as String,
+                                    style: GoogleFonts.hankenGrotesk(
+                                      fontSize: 12,
+                                      fontStyle: FontStyle.italic,
+                                      color: isDark ? Colors.white70 : const Color(0xFF424242),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                Navigator.pop(ctx);
+                                _navigateToCreateShiftPage();
+                              },
+                              icon: const Icon(Icons.bolt, size: 16),
+                              label: Text(alert['actionLabel'] as String),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: alertColor,
+                                foregroundColor: Colors.white,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ),
             ],
           ),
@@ -1663,6 +2116,97 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               ),
             ],
           ),
+        ),
+
+        // Pulsing Operational Alert Banner
+        AnimatedBuilder(
+          animation: _alertPulseController,
+          builder: (context, child) {
+            final glow = _pulseGlowAnimation.value;
+            const alertRed = Color(0xFFD2232A);
+
+            return InkWell(
+              onTap: () => _showOperationalAlertsModal(isIOS, isDark),
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 14),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? alertRed.withValues(alpha: 0.15 + 0.1 * glow)
+                      : const Color(0xFFFFEBEE).withValues(alpha: 0.8 + 0.2 * glow),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: alertRed.withValues(alpha: 0.4 + 0.5 * glow),
+                    width: 1.5,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: alertRed.withValues(alpha: 0.25 * glow),
+                      blurRadius: 10 * glow,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: alertRed.withValues(alpha: glow),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 20),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                '3 Alertas Operativas Críticas',
+                                style: GoogleFonts.hankenGrotesk(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                  color: isDark ? const Color(0xFFFFB3AD) : alertRed,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Container(
+                                width: 8,
+                                height: 8,
+                                decoration: BoxDecoration(
+                                  color: alertRed,
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: alertRed.withValues(alpha: glow),
+                                      blurRadius: 4,
+                                      spreadRadius: 1,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            'Déficit en Freidoras 12:30 PM • 1 colaborador con exceso de horas.',
+                            style: GoogleFonts.hankenGrotesk(
+                              fontSize: 11,
+                              color: subtextColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.chevron_right, color: alertRed, size: 20),
+                  ],
+                ),
+              ),
+            );
+          },
         ),
 
         // Action Banner: Crear Turno
@@ -3063,6 +3607,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                       // Right Header Actions
                       Row(
                         children: [
+                          _buildPulsingAlertButton(isIOS: false, isDark: isDark),
+                          const SizedBox(width: 14),
                           ElevatedButton.icon(
                             onPressed: () => _showCreateShiftModal(false, isDark),
                             icon: const Icon(Icons.add, size: 18),
@@ -3550,6 +4096,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                   ),
                   Row(
                     children: [
+                      _buildPulsingAlertButton(isIOS: true, isDark: isDark, isCompact: true),
+                      const SizedBox(width: 4),
                       IconButton(
                         icon: Icon(Icons.add_circle_outline, color: accentIconColor),
                         tooltip: 'Crear Turno',
@@ -3598,6 +4146,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
           ),
         ),
         actions: [
+          _buildPulsingAlertButton(isIOS: false, isDark: isDark, isCompact: true),
+          const SizedBox(width: 4),
           IconButton(
             icon: const Icon(Icons.add_circle_outline, color: Colors.white),
             tooltip: 'Crear Turno',

@@ -949,6 +949,44 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Smart AI Shift Assistant Suggestion
+          Container(
+            margin: const EdgeInsets.only(bottom: 18),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFD2232A).withValues(alpha: isDark ? 0.15 : 0.08),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: const Color(0xFFD2232A).withValues(alpha: isDark ? 0.35 : 0.2),
+              ),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.auto_awesome, color: Color(0xFFD2232A), size: 20),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Sugerencia Operativa Frisby:',
+                        style: GoogleFonts.hankenGrotesk(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? const Color(0xFFFFB3AD) : const Color(0xFFD2232A),
+                        ),
+                      ),
+                      Text(
+                        'Alta demanda proyectada en Freidoras (12:00 - 16:00). Programar un refuerzo optimizará la atención en horas pico.',
+                        style: GoogleFonts.hankenGrotesk(fontSize: 11, color: subtextColor),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
           // 1. Colaborador Field
           _buildFieldLabel('Colaborador', titleColor),
           const SizedBox(height: 6),
