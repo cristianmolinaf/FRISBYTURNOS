@@ -1587,6 +1587,68 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
           ),
         ),
 
+        // Action Banner: Crear Turno
+        Container(
+          margin: const EdgeInsets.only(bottom: 18),
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: isIOS
+                ? (isDark ? const Color(0xFFD2232A).withValues(alpha: 0.15) : const Color(0xFFAC0017).withValues(alpha: 0.08))
+                : (isDark ? Colors.white10 : const Color(0xFFFFF0F2)),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: const Color(0xFFAC0017).withValues(alpha: isDark ? 0.3 : 0.2),
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFAC0017),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.edit_calendar, color: Colors.white, size: 20),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Programar Jornada',
+                      style: GoogleFonts.hankenGrotesk(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        color: titleColor,
+                      ),
+                    ),
+                    Text(
+                      'Asigna horarios y estaciones a tu equipo.',
+                      style: GoogleFonts.hankenGrotesk(fontSize: 12, color: subtextColor),
+                    ),
+                  ],
+                ),
+              ),
+              ElevatedButton.icon(
+                onPressed: _navigateToCreateShiftPage,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFAC0017),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  elevation: 0,
+                ),
+                icon: const Icon(Icons.add, size: 16),
+                label: Text(
+                  'Crear Turno',
+                  style: GoogleFonts.hankenGrotesk(fontSize: 12, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+        ),
+
         // Section 1: Resumen Operativo (Bento Grid)
         Text(
           'Resumen Operativo',

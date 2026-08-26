@@ -1,5 +1,3 @@
-import 'dart:ui';
-import 'package:flutter/foundation.dart' show defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -346,7 +344,7 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
         'estado': 'programado',
       }).timeout(const Duration(milliseconds: 1500));
     } catch (_) {
-      // Fallback to local state if Supabase table is not pre-populated
+      // Fallback to local state
     }
 
     if (widget.onShiftCreated != null) {
@@ -384,17 +382,20 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
     final isDesktop = mediaQuery.size.width > 800;
+    final isIOS = Theme.of(context).platform == TargetPlatform.iOS;
     final isDark = _isDarkMode(context);
 
     if (isDesktop) {
       return _buildDesktopLayout(isDark);
+    } else if (isIOS) {
+      return _buildIOSLayout(isDark);
     } else {
-      return _buildMobileLayout(isDark);
+      return _buildAndroidLayout(isDark);
     }
   }
 
   // ==========================================
-  // 1. DESKTOP LAYOUT
+  // 1. DESKTOP WEB / ESCRITORIO LAYOUT
   // ==========================================
   Widget _buildDesktopLayout(bool isDark) {
     const primaryRed = Color(0xFFAC0017);
@@ -410,7 +411,7 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
       backgroundColor: surfaceBg,
       body: Row(
         children: [
-          // 1. DESKTOP SIDEBAR (270px)
+          // Sidebar (270px)
           Container(
             width: 270,
             decoration: BoxDecoration(
@@ -427,7 +428,6 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Brand Header
                 Padding(
                   padding: const EdgeInsets.all(24),
                   child: Column(
@@ -464,7 +464,6 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
                         ],
                       ),
                       const SizedBox(height: 16),
-                      // Admin Profile Card
                       Row(
                         children: [
                           Container(
@@ -515,7 +514,6 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
 
                 const Divider(height: 1, color: Colors.white10),
 
-                // Navigation Links
                 Expanded(
                   child: ListView(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
@@ -559,7 +557,6 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
                   ),
                 ),
 
-                // Bottom Theme & Back Action
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: Row(
@@ -582,11 +579,10 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
             ),
           ),
 
-          // 2. MAIN CONTENT AREA
+          // Main Area
           Expanded(
             child: Column(
               children: [
-                // Top Header Bar
                 Container(
                   height: 64,
                   padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -597,7 +593,6 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Breadcrumb
                       Row(
                         children: [
                           InkWell(
@@ -616,8 +611,6 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
                           ),
                         ],
                       ),
-
-                      // Store badge & Theme toggle
                       Row(
                         children: [
                           Container(
@@ -649,7 +642,6 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
                   ),
                 ),
 
-                // Form Canvas (Scrollable)
                 Expanded(
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 28),
@@ -659,7 +651,6 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Page Header
                             Row(
                               children: [
                                 InkWell(
@@ -697,10 +688,7 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
                                 ),
                               ],
                             ),
-
                             const SizedBox(height: 24),
-
-                            // Main Card Container
                             Container(
                               padding: const EdgeInsets.all(32),
                               decoration: BoxDecoration(
@@ -715,308 +703,7 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
                                   ),
                                 ],
                               ),
-                              child: Form(
-                                key: _formKey,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // 1. Colaborador Field
-                                    _buildFieldLabel('Colaborador', titleColor),
-                                    const SizedBox(height: 6),
-                                    InkWell(
-                                      onTap: () => _showCollaboratorSearchDialog(isDark),
-                                      borderRadius: BorderRadius.circular(12),
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                                        decoration: BoxDecoration(
-                                          color: fieldBg,
-                                          borderRadius: BorderRadius.circular(12),
-                                          border: Border.all(color: borderColor),
-                                        ),
-                                        child: Row(
-                                          children: [
-                                            Icon(Icons.person_outline, color: subtextColor, size: 22),
-                                            const SizedBox(width: 12),
-                                            Expanded(
-                                              child: Text(
-                                                _selectedCollaborator?['name'] ?? 'Seleccionar colaborador...',
-                                                style: GoogleFonts.hankenGrotesk(
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: _selectedCollaborator != null ? titleColor : Colors.grey,
-                                                ),
-                                              ),
-                                            ),
-                                            Container(
-                                              padding: const EdgeInsets.all(6),
-                                              decoration: BoxDecoration(
-                                                color: primaryRed.withValues(alpha: 0.1),
-                                                borderRadius: BorderRadius.circular(8),
-                                              ),
-                                              child: const Icon(Icons.search, color: primaryRed, size: 18),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-
-                                    const SizedBox(height: 20),
-
-                                    // 2. Fecha del Turno
-                                    _buildFieldLabel('Fecha del Turno', titleColor),
-                                    const SizedBox(height: 6),
-                                    InkWell(
-                                      onTap: _selectDate,
-                                      borderRadius: BorderRadius.circular(12),
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                                        decoration: BoxDecoration(
-                                          color: fieldBg,
-                                          borderRadius: BorderRadius.circular(12),
-                                          border: Border.all(color: borderColor),
-                                        ),
-                                        child: Row(
-                                          children: [
-                                            Icon(Icons.calendar_month_outlined, color: subtextColor, size: 22),
-                                            const SizedBox(width: 12),
-                                            Expanded(
-                                              child: Text(
-                                                _formatDate(_selectedDate),
-                                                style: GoogleFonts.hankenGrotesk(
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: titleColor,
-                                                ),
-                                              ),
-                                            ),
-                                            const Icon(Icons.arrow_drop_down, color: Colors.grey),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-
-                                    const SizedBox(height: 20),
-
-                                    // 3. Horario Grid (Inicio y Fin)
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              _buildFieldLabel('Hora Inicio', titleColor),
-                                              const SizedBox(height: 6),
-                                              InkWell(
-                                                onTap: () => _selectTime(isStart: true),
-                                                borderRadius: BorderRadius.circular(12),
-                                                child: Container(
-                                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-                                                  decoration: BoxDecoration(
-                                                    color: fieldBg,
-                                                    borderRadius: BorderRadius.circular(12),
-                                                    border: Border.all(color: borderColor),
-                                                  ),
-                                                  child: Row(
-                                                    children: [
-                                                      Icon(Icons.schedule, color: subtextColor, size: 20),
-                                                      const SizedBox(width: 8),
-                                                      Text(
-                                                        _formatTime(_horaInicio),
-                                                        style: GoogleFonts.hankenGrotesk(
-                                                          fontSize: 14,
-                                                          fontWeight: FontWeight.w600,
-                                                          color: titleColor,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        const SizedBox(width: 16),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              _buildFieldLabel('Hora Fin', titleColor),
-                                              const SizedBox(height: 6),
-                                              InkWell(
-                                                onTap: () => _selectTime(isStart: false),
-                                                borderRadius: BorderRadius.circular(12),
-                                                child: Container(
-                                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-                                                  decoration: BoxDecoration(
-                                                    color: fieldBg,
-                                                    borderRadius: BorderRadius.circular(12),
-                                                    border: Border.all(color: borderColor),
-                                                  ),
-                                                  child: Row(
-                                                    children: [
-                                                      Icon(Icons.schedule, color: subtextColor, size: 20),
-                                                      const SizedBox(width: 8),
-                                                      Text(
-                                                        _formatTime(_horaFin),
-                                                        style: GoogleFonts.hankenGrotesk(
-                                                          fontSize: 14,
-                                                          fontWeight: FontWeight.w600,
-                                                          color: titleColor,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-
-                                    // Duration preview badge
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 8),
-                                      child: Row(
-                                        children: [
-                                          const Icon(Icons.info_outline, size: 14, color: primaryRed),
-                                          const SizedBox(width: 6),
-                                          Text(
-                                            'Duración total: ${_calculateHours()} horas programadas',
-                                            style: GoogleFonts.hankenGrotesk(
-                                              fontSize: 12,
-                                              color: subtextColor,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-
-                                    const SizedBox(height: 24),
-
-                                    // 4. Estación Asignada (Segmented Filter Chips)
-                                    _buildFieldLabel('Estación Asignada', titleColor),
-                                    const SizedBox(height: 10),
-                                    Wrap(
-                                      spacing: 10,
-                                      runSpacing: 10,
-                                      children: _stations.map((s) {
-                                        final isSelected = _selectedStation == s['name'];
-                                        return InkWell(
-                                          onTap: () => setState(() => _selectedStation = s['name'] as String),
-                                          borderRadius: BorderRadius.circular(30),
-                                          child: AnimatedContainer(
-                                            duration: const Duration(milliseconds: 150),
-                                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                                            decoration: BoxDecoration(
-                                              color: isSelected ? const Color(0xFFD2232A) : fieldBg,
-                                              borderRadius: BorderRadius.circular(30),
-                                              border: Border.all(
-                                                color: isSelected ? primaryRed : borderColor,
-                                                width: isSelected ? 1.5 : 1.0,
-                                              ),
-                                              boxShadow: isSelected
-                                                  ? [
-                                                      BoxShadow(
-                                                        color: primaryRed.withValues(alpha: 0.3),
-                                                        blurRadius: 8,
-                                                        offset: const Offset(0, 2),
-                                                      ),
-                                                    ]
-                                                  : null,
-                                            ),
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Icon(
-                                                  s['icon'] as IconData,
-                                                  size: 18,
-                                                  color: isSelected ? Colors.white : subtextColor,
-                                                ),
-                                                const SizedBox(width: 8),
-                                                Text(
-                                                  s['name'] as String,
-                                                  style: GoogleFonts.hankenGrotesk(
-                                                    fontSize: 13,
-                                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                                                    color: isSelected ? Colors.white : titleColor,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        );
-                                      }).toList(),
-                                    ),
-
-                                    const SizedBox(height: 24),
-
-                                    // 5. Notas Adicionales
-                                    _buildFieldLabel('Notas Adicionales (Opcional)', titleColor),
-                                    const SizedBox(height: 6),
-                                    TextField(
-                                      controller: _notasController,
-                                      maxLines: 3,
-                                      style: GoogleFonts.hankenGrotesk(color: titleColor),
-                                      decoration: InputDecoration(
-                                        hintText: 'Ej. Cubrir turno por capacitación, horario especial...',
-                                        hintStyle: GoogleFonts.hankenGrotesk(color: Colors.grey, fontSize: 13),
-                                        filled: true,
-                                        fillColor: fieldBg,
-                                        contentPadding: const EdgeInsets.all(16),
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                          borderSide: BorderSide(color: borderColor),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                          borderSide: BorderSide(color: borderColor),
-                                        ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                          borderSide: const BorderSide(color: primaryRed, width: 1.5),
-                                        ),
-                                      ),
-                                    ),
-
-                                    const SizedBox(height: 32),
-
-                                    // Submit Button
-                                    SizedBox(
-                                      width: double.infinity,
-                                      height: 52,
-                                      child: ElevatedButton.icon(
-                                        onPressed: _isLoading ? null : _submitCreateShift,
-                                        icon: _isLoading
-                                            ? const SizedBox(
-                                                width: 20,
-                                                height: 20,
-                                                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                                              )
-                                            : const Icon(Icons.add_task, size: 20),
-                                        label: Text(
-                                          _isLoading ? 'Creando Turno...' : 'Crear Turno',
-                                          style: GoogleFonts.hankenGrotesk(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            letterSpacing: 0.2,
-                                          ),
-                                        ),
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: primaryRed,
-                                          foregroundColor: Colors.white,
-                                          elevation: 0,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(30),
-                                          ),
-                                          shadowColor: primaryRed.withValues(alpha: 0.4),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                              child: _buildFormContent(titleColor, subtextColor, fieldBg, borderColor, primaryRed),
                             ),
                           ],
                         ),
@@ -1025,6 +712,531 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
                   ),
                 ),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ==========================================
+  // 2. iOS NATIVE LAYOUT (Flat / Glassmorphism)
+  // ==========================================
+  Widget _buildIOSLayout(bool isDark) {
+    const primaryRed = Color(0xFFC8102E);
+    final surfaceBg = isDark ? const Color(0xFF1A1A1A) : const Color(0xFFF9F9F9);
+    final cardBg = isDark ? const Color(0xFF2C2C2E) : Colors.white;
+    final titleColor = isDark ? Colors.white : const Color(0xFF1A1A1A);
+    final subtextColor = isDark ? const Color(0xFFB0B0B0) : const Color(0xFF757575);
+    final borderColor = isDark ? Colors.white12 : const Color(0xFFE0E0E0);
+    final fieldBg = isDark ? Colors.white10 : const Color(0xFFF2F2F7);
+
+    return Scaffold(
+      backgroundColor: surfaceBg,
+      appBar: AppBar(
+        backgroundColor: isDark ? const Color(0xFF1C1C1E) : Colors.white,
+        foregroundColor: isDark ? Colors.white : const Color(0xFF1A1A1A),
+        elevation: 0.5,
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          'Crear Nuevo Turno',
+          style: GoogleFonts.sora(
+            fontSize: 17,
+            fontWeight: FontWeight.bold,
+            color: titleColor,
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode, color: primaryRed),
+            onPressed: _toggleTheme,
+            tooltip: 'Cambiar Tema',
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(16, 20, 16, 40),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // iOS Section Header
+            Padding(
+              padding: const EdgeInsets.only(left: 4, bottom: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'DETALLES DE LA JORNADA',
+                    style: GoogleFonts.sora(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.8,
+                      color: subtextColor,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    widget.currentStore,
+                    style: GoogleFonts.sora(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: titleColor,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+
+            // iOS Form Card (White with 14px radius and drop shadow)
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: cardBg,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: borderColor),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
+                    blurRadius: 12,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: _buildFormContent(titleColor, subtextColor, fieldBg, borderColor, primaryRed),
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: cardBg,
+          border: Border(top: BorderSide(color: borderColor)),
+        ),
+        child: SafeArea(
+          child: BottomNavigationBar(
+            currentIndex: 0,
+            backgroundColor: cardBg,
+            selectedItemColor: primaryRed,
+            unselectedItemColor: subtextColor,
+            type: BottomNavigationBarType.fixed,
+            selectedLabelStyle: GoogleFonts.sora(fontSize: 11, fontWeight: FontWeight.bold),
+            unselectedLabelStyle: GoogleFonts.sora(fontSize: 11),
+            items: const [
+              BottomNavigationBarItem(icon: Icon(Icons.event_note), label: 'Turnos'),
+              BottomNavigationBarItem(icon: Icon(Icons.swap_horiz), label: 'Cambios'),
+              BottomNavigationBarItem(icon: Icon(Icons.medical_services_outlined), label: 'Permisos'),
+              BottomNavigationBarItem(icon: Icon(Icons.group_outlined), label: 'Equipo'),
+            ],
+            onTap: (_) => Navigator.pop(context),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ==========================================
+  // 3. ANDROID NATIVE LAYOUT (Material Red)
+  // ==========================================
+  Widget _buildAndroidLayout(bool isDark) {
+    const primaryRed = Color(0xFFAC0017);
+    final surfaceBg = isDark ? const Color(0xFF121212) : const Color(0xFFF8F9FB);
+    final cardBg = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+    final titleColor = isDark ? const Color(0xFFE1E2E4) : const Color(0xFF191C1E);
+    final subtextColor = isDark ? const Color(0xFFC6C6C7) : const Color(0xFF545D80);
+    final borderColor = isDark ? Colors.white12 : const Color(0xFFE5BDBA).withValues(alpha: 0.3);
+    final fieldBg = isDark ? Colors.white10 : const Color(0xFFF3F4F6);
+
+    return Scaffold(
+      backgroundColor: surfaceBg,
+      appBar: AppBar(
+        backgroundColor: isDark ? const Color(0xFF1F1F1F) : primaryRed,
+        foregroundColor: Colors.white,
+        elevation: 1,
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          'Crear Nuevo Turno',
+          style: GoogleFonts.hankenGrotesk(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined),
+            onPressed: _toggleTheme,
+            tooltip: 'Cambiar Tema',
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(16, 20, 16, 100),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Información de la Jornada',
+              style: GoogleFonts.hankenGrotesk(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: titleColor,
+              ),
+            ),
+            Text(
+              'Asigna horario y estación en ${widget.currentStore}',
+              style: GoogleFonts.hankenGrotesk(fontSize: 13, color: subtextColor),
+            ),
+            const SizedBox(height: 16),
+
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: cardBg,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: borderColor),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: _buildFormContent(titleColor, subtextColor, fieldBg, borderColor, primaryRed),
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: cardBg,
+          border: Border(top: BorderSide(color: borderColor)),
+        ),
+        child: BottomNavigationBar(
+          currentIndex: 0,
+          backgroundColor: cardBg,
+          selectedItemColor: primaryRed,
+          unselectedItemColor: subtextColor,
+          type: BottomNavigationBarType.fixed,
+          items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.event_note), label: 'Turnos'),
+            BottomNavigationBarItem(icon: Icon(Icons.swap_horiz), label: 'Cambios'),
+            BottomNavigationBarItem(icon: Icon(Icons.medical_services_outlined), label: 'Permisos'),
+            BottomNavigationBarItem(icon: Icon(Icons.group_outlined), label: 'Equipo'),
+          ],
+          onTap: (_) => Navigator.pop(context),
+        ),
+      ),
+    );
+  }
+
+  // ==========================================
+  // SHARED FORM CONTENT COMPONENT
+  // ==========================================
+  Widget _buildFormContent(Color titleColor, Color subtextColor, Color fieldBg, Color borderColor, Color primaryRed) {
+    final isDark = _isDarkMode(context);
+
+    return Form(
+      key: _formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 1. Colaborador Field
+          _buildFieldLabel('Colaborador', titleColor),
+          const SizedBox(height: 6),
+          InkWell(
+            onTap: () => _showCollaboratorSearchDialog(isDark),
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              decoration: BoxDecoration(
+                color: fieldBg,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: borderColor),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.person_outline, color: subtextColor, size: 22),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      _selectedCollaborator?['name'] ?? 'Seleccionar colaborador...',
+                      style: GoogleFonts.hankenGrotesk(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: _selectedCollaborator != null ? titleColor : Colors.grey,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: primaryRed.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(Icons.search, color: primaryRed, size: 18),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // 2. Fecha del Turno
+          _buildFieldLabel('Fecha del Turno', titleColor),
+          const SizedBox(height: 6),
+          InkWell(
+            onTap: _selectDate,
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              decoration: BoxDecoration(
+                color: fieldBg,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: borderColor),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.calendar_month_outlined, color: subtextColor, size: 22),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      _formatDate(_selectedDate),
+                      style: GoogleFonts.hankenGrotesk(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: titleColor,
+                      ),
+                    ),
+                  ),
+                  const Icon(Icons.arrow_drop_down, color: Colors.grey),
+                ],
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // 3. Horario Grid (Inicio y Fin)
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildFieldLabel('Hora Inicio', titleColor),
+                    const SizedBox(height: 6),
+                    InkWell(
+                      onTap: () => _selectTime(isStart: true),
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                        decoration: BoxDecoration(
+                          color: fieldBg,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: borderColor),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.schedule, color: subtextColor, size: 20),
+                            const SizedBox(width: 8),
+                            Text(
+                              _formatTime(_horaInicio),
+                              style: GoogleFonts.hankenGrotesk(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: titleColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildFieldLabel('Hora Fin', titleColor),
+                    const SizedBox(height: 6),
+                    InkWell(
+                      onTap: () => _selectTime(isStart: false),
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                        decoration: BoxDecoration(
+                          color: fieldBg,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: borderColor),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.schedule, color: subtextColor, size: 20),
+                            const SizedBox(width: 8),
+                            Text(
+                              _formatTime(_horaFin),
+                              style: GoogleFonts.hankenGrotesk(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: titleColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Row(
+              children: [
+                Icon(Icons.info_outline, size: 14, color: primaryRed),
+                const SizedBox(width: 6),
+                Text(
+                  'Duración: ${_calculateHours()} horas programadas',
+                  style: GoogleFonts.hankenGrotesk(
+                    fontSize: 12,
+                    color: subtextColor,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
+          // 4. Estación Asignada
+          _buildFieldLabel('Estación Asignada', titleColor),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: _stations.map((s) {
+              final isSelected = _selectedStation == s['name'];
+              return InkWell(
+                onTap: () => setState(() => _selectedStation = s['name'] as String),
+                borderRadius: BorderRadius.circular(30),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: isSelected ? const Color(0xFFD2232A) : fieldBg,
+                    borderRadius: BorderRadius.circular(30),
+                    border: Border.all(
+                      color: isSelected ? primaryRed : borderColor,
+                      width: isSelected ? 1.5 : 1.0,
+                    ),
+                    boxShadow: isSelected
+                        ? [
+                            BoxShadow(
+                              color: primaryRed.withValues(alpha: 0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ]
+                        : null,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        s['icon'] as IconData,
+                        size: 18,
+                        color: isSelected ? Colors.white : subtextColor,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        s['name'] as String,
+                        style: GoogleFonts.hankenGrotesk(
+                          fontSize: 13,
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                          color: isSelected ? Colors.white : titleColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+
+          const SizedBox(height: 24),
+
+          // 5. Notas Adicionales
+          _buildFieldLabel('Notas Adicionales (Opcional)', titleColor),
+          const SizedBox(height: 6),
+          TextField(
+            controller: _notasController,
+            maxLines: 3,
+            style: GoogleFonts.hankenGrotesk(color: titleColor),
+            decoration: InputDecoration(
+              hintText: 'Observaciones del turno...',
+              hintStyle: GoogleFonts.hankenGrotesk(color: Colors.grey, fontSize: 13),
+              filled: true,
+              fillColor: fieldBg,
+              contentPadding: const EdgeInsets.all(16),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: borderColor),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: borderColor),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: primaryRed, width: 1.5),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 32),
+
+          // Submit Button
+          SizedBox(
+            width: double.infinity,
+            height: 52,
+            child: ElevatedButton.icon(
+              onPressed: _isLoading ? null : _submitCreateShift,
+              icon: _isLoading
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                    )
+                  : const Icon(Icons.add_task, size: 20),
+              label: Text(
+                _isLoading ? 'Creando Turno...' : 'Crear Turno',
+                style: GoogleFonts.hankenGrotesk(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.2,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primaryRed,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                shadowColor: primaryRed.withValues(alpha: 0.4),
+              ),
             ),
           ),
         ],
@@ -1075,376 +1287,6 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
           ),
         ),
         onTap: onTap,
-      ),
-    );
-  }
-
-  // ==========================================
-  // 2. MOBILE LAYOUT (iOS Glass / Android Material)
-  // ==========================================
-  Widget _buildMobileLayout(bool isDark) {
-    final isIOS = defaultTargetPlatform == TargetPlatform.iOS;
-    const primaryRed = Color(0xFFAC0017);
-    final surfaceBg = isIOS
-        ? (isDark ? const Color(0xFF190A09) : const Color(0xFFFFF8F7))
-        : (isDark ? const Color(0xFF121212) : const Color(0xFFF8F9FB));
-    final cardBg = isIOS
-        ? (isDark ? Colors.white.withValues(alpha: 0.06) : Colors.white.withValues(alpha: 0.75))
-        : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
-    final titleColor = isIOS
-        ? (isDark ? const Color(0xFFFBDBD8) : const Color(0xFF410003))
-        : (isDark ? const Color(0xFFE1E2E4) : const Color(0xFF191C1E));
-    final subtextColor = isIOS
-        ? (isDark ? const Color(0xFFE5BDBA) : const Color(0xFF5C403D))
-        : (isDark ? const Color(0xFFC6C6C7) : const Color(0xFF545D80));
-    final borderColor = isIOS
-        ? (isDark ? Colors.white.withValues(alpha: 0.15) : Colors.black.withValues(alpha: 0.08))
-        : (isDark ? Colors.white12 : const Color(0xFFE5BDBA).withValues(alpha: 0.3));
-    final fieldBg = isIOS
-        ? (isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.04))
-        : (isDark ? Colors.white10 : const Color(0xFFF3F4F6));
-
-    Widget mobileCard({required Widget child}) {
-      if (isIOS) {
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: cardBg,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: borderColor),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.05),
-                    blurRadius: 16,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: child,
-            ),
-          ),
-        );
-      } else {
-        return Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: cardBg,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: borderColor),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
-                blurRadius: 10,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: child,
-        );
-      }
-    }
-
-    return Scaffold(
-      backgroundColor: surfaceBg,
-      appBar: AppBar(
-        backgroundColor: isIOS
-            ? (isDark ? const Color(0xFF1E1E1E) : Colors.white)
-            : (isDark ? const Color(0xFF1F1F1F) : primaryRed),
-        foregroundColor: isIOS
-            ? (isDark ? Colors.white : const Color(0xFF191C1E))
-            : Colors.white,
-        elevation: isIOS ? 0 : 1,
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          'Crear Nuevo Turno',
-          style: GoogleFonts.hankenGrotesk(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: isIOS
-                ? (isDark ? Colors.white : const Color(0xFF191C1E))
-                : Colors.white,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined),
-            onPressed: _toggleTheme,
-            tooltip: 'Cambiar Tema',
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 20, 16, 100),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Información de la Jornada',
-              style: GoogleFonts.hankenGrotesk(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: titleColor,
-              ),
-            ),
-            Text(
-              'Asigna horario y estación en ${widget.currentStore}',
-              style: GoogleFonts.hankenGrotesk(fontSize: 13, color: subtextColor),
-            ),
-            const SizedBox(height: 16),
-
-            // Form Card
-            mobileCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Colaborador
-                  _buildFieldLabel('Colaborador', titleColor),
-                  const SizedBox(height: 6),
-                  InkWell(
-                    onTap: () => _showCollaboratorSearchDialog(isDark),
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: fieldBg,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: borderColor),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.person, color: subtextColor, size: 20),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              _selectedCollaborator?['name'] ?? 'Seleccionar...',
-                              style: GoogleFonts.hankenGrotesk(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: titleColor,
-                              ),
-                            ),
-                          ),
-                          const Icon(Icons.search, color: primaryRed, size: 20),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Fecha
-                  _buildFieldLabel('Fecha del Turno', titleColor),
-                  const SizedBox(height: 6),
-                  InkWell(
-                    onTap: _selectDate,
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: fieldBg,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: borderColor),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.calendar_month, color: subtextColor, size: 20),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              _formatDate(_selectedDate),
-                              style: GoogleFonts.hankenGrotesk(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: titleColor,
-                              ),
-                            ),
-                          ),
-                          const Icon(Icons.edit_calendar, color: Colors.grey, size: 18),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Horario Grid
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildFieldLabel('Inicio', titleColor),
-                            const SizedBox(height: 6),
-                            InkWell(
-                              onTap: () => _selectTime(isStart: true),
-                              borderRadius: BorderRadius.circular(12),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                                decoration: BoxDecoration(
-                                  color: fieldBg,
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: borderColor),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.schedule, color: subtextColor, size: 18),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      _formatTime(_horaInicio),
-                                      style: GoogleFonts.hankenGrotesk(fontSize: 13, fontWeight: FontWeight.bold, color: titleColor),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildFieldLabel('Fin', titleColor),
-                            const SizedBox(height: 6),
-                            InkWell(
-                              onTap: () => _selectTime(isStart: false),
-                              borderRadius: BorderRadius.circular(12),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                                decoration: BoxDecoration(
-                                  color: fieldBg,
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: borderColor),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.schedule, color: subtextColor, size: 18),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      _formatTime(_horaFin),
-                                      style: GoogleFonts.hankenGrotesk(fontSize: 13, fontWeight: FontWeight.bold, color: titleColor),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // Estación
-                  _buildFieldLabel('Estación Asignada', titleColor),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: _stations.map((s) {
-                      final isSelected = _selectedStation == s['name'];
-                      return ChoiceChip(
-                        selected: isSelected,
-                        label: Text(s['name'] as String),
-                        avatar: Icon(
-                          s['icon'] as IconData,
-                          size: 16,
-                          color: isSelected ? Colors.white : subtextColor,
-                        ),
-                        selectedColor: primaryRed,
-                        backgroundColor: fieldBg,
-                        labelStyle: GoogleFonts.hankenGrotesk(
-                          fontSize: 13,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                          color: isSelected ? Colors.white : titleColor,
-                        ),
-                        onSelected: (_) => setState(() => _selectedStation = s['name'] as String),
-                      );
-                    }).toList(),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // Notas
-                  _buildFieldLabel('Notas Adicionales (Opcional)', titleColor),
-                  const SizedBox(height: 6),
-                  TextField(
-                    controller: _notasController,
-                    maxLines: 2,
-                    style: GoogleFonts.hankenGrotesk(color: titleColor),
-                    decoration: InputDecoration(
-                      hintText: 'Observaciones del turno...',
-                      hintStyle: GoogleFonts.hankenGrotesk(color: Colors.grey, fontSize: 13),
-                      filled: true,
-                      fillColor: fieldBg,
-                      contentPadding: const EdgeInsets.all(12),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: borderColor),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // Submit Button
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton.icon(
-                onPressed: _isLoading ? null : _submitCreateShift,
-                icon: _isLoading
-                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                    : const Icon(Icons.add_task),
-                label: Text(
-                  _isLoading ? 'Creando...' : 'Crear Turno',
-                  style: GoogleFonts.hankenGrotesk(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryRed,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: cardBg,
-          border: Border(top: BorderSide(color: borderColor)),
-        ),
-        child: BottomNavigationBar(
-          currentIndex: 0,
-          backgroundColor: cardBg,
-          selectedItemColor: primaryRed,
-          unselectedItemColor: subtextColor,
-          type: BottomNavigationBarType.fixed,
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.event_note), label: 'Turnos'),
-            BottomNavigationBarItem(icon: Icon(Icons.swap_horiz), label: 'Cambios'),
-            BottomNavigationBarItem(icon: Icon(Icons.medical_services_outlined), label: 'Permisos'),
-            BottomNavigationBarItem(icon: Icon(Icons.group_outlined), label: 'Equipo'),
-          ],
-          onTap: (index) {
-            Navigator.pop(context);
-          },
-        ),
       ),
     );
   }
