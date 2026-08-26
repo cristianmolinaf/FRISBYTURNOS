@@ -384,19 +384,19 @@ class _LoginPageState extends State<LoginPage> {
 
                             // Feature Pills
                             _buildHeroFeatureItem(
-                              icon: Icons.calendar_today,
+                              type: 'calendar',
                               title: 'Malla y Turnos en Tiempo Real',
                               desc: 'Consulta tu horario semanal y estaciones de trabajo asignadas.',
                             ),
                             const SizedBox(height: 16),
                             _buildHeroFeatureItem(
-                              icon: Icons.sync_alt,
+                              type: 'swap',
                               title: 'Mercado de Intercambio Ágil',
                               desc: 'Cede y solicita turnos con aprobación directa de tu supervisor.',
                             ),
                             const SizedBox(height: 16),
                             _buildHeroFeatureItem(
-                              icon: Icons.analytics,
+                              type: 'chart',
                               title: 'Control y Cobertura Operativa',
                               desc: 'Monitoreo de puntualidad y horas programadas por sucursal.',
                             ),
@@ -724,7 +724,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _buildHeroFeatureItem({
-    required IconData icon,
+    required String type,
     required String title,
     required String desc,
   }) {
@@ -732,12 +732,17 @@ class _LoginPageState extends State<LoginPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          padding: const EdgeInsets.all(8),
+          width: 38,
+          height: 38,
+          padding: const EdgeInsets.all(7),
           decoration: BoxDecoration(
             color: Colors.white.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
           ),
-          child: Icon(icon, color: Colors.white, size: 20),
+          child: CustomPaint(
+            painter: _FeatureIconPainter(type: type, color: Colors.white),
+          ),
         ),
         const SizedBox(width: 14),
         Expanded(
@@ -1076,4 +1081,97 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
+}
+
+class _FeatureIconPainter extends CustomPainter {
+  final String type;
+  final Color color;
+
+  _FeatureIconPainter({required this.type, required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.8
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    final fillPaint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    final w = size.width;
+    final h = size.height;
+
+    if (type == 'calendar') {
+      // Calendar body
+      final rrect = RRect.fromRectAndRadius(
+        Rect.fromLTWH(w * 0.1, h * 0.2, w * 0.8, h * 0.72),
+        const Radius.circular(3),
+      );
+      canvas.drawRRect(rrect, paint);
+      // Top bar line
+      canvas.drawLine(Offset(w * 0.1, h * 0.44), Offset(w * 0.9, h * 0.44), paint);
+      // Binder rings
+      canvas.drawLine(Offset(w * 0.32, h * 0.08), Offset(w * 0.32, h * 0.24), paint);
+      canvas.drawLine(Offset(w * 0.68, h * 0.08), Offset(w * 0.68, h * 0.24), paint);
+      // Grid dots
+      canvas.drawCircle(Offset(w * 0.32, h * 0.6), 1.3, fillPaint);
+      canvas.drawCircle(Offset(w * 0.5, h * 0.6), 1.3, fillPaint);
+      canvas.drawCircle(Offset(w * 0.68, h * 0.6), 1.3, fillPaint);
+      canvas.drawCircle(Offset(w * 0.32, h * 0.76), 1.3, fillPaint);
+      canvas.drawCircle(Offset(w * 0.5, h * 0.76), 1.3, fillPaint);
+    } else if (type == 'swap') {
+      // Top arrow (pointing right)
+      canvas.drawLine(Offset(w * 0.15, h * 0.35), Offset(w * 0.82, h * 0.35), paint);
+      final path1 = Path()
+        ..moveTo(w * 0.62, h * 0.18)
+        ..lineTo(w * 0.84, h * 0.35)
+        ..lineTo(w * 0.62, h * 0.52);
+      canvas.drawPath(path1, paint);
+
+      // Bottom arrow (pointing left)
+      canvas.drawLine(Offset(w * 0.85, h * 0.65), Offset(w * 0.18, h * 0.65), paint);
+      final path2 = Path()
+        ..moveTo(w * 0.38, h * 0.48)
+        ..lineTo(w * 0.16, h * 0.65)
+        ..lineTo(w * 0.38, h * 0.82);
+      canvas.drawPath(path2, paint);
+    } else if (type == 'chart') {
+      // 3 ascending rounded bars
+      final barWidth = w * 0.2;
+      // Bar 1
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(w * 0.12, h * 0.52, barWidth, h * 0.38),
+          const Radius.circular(2),
+        ),
+        fillPaint,
+      );
+      // Bar 2
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(w * 0.4, h * 0.3, barWidth, h * 0.6),
+          const Radius.circular(2),
+        ),
+        fillPaint,
+      );
+      // Bar 3
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(w * 0.68, h * 0.12, barWidth, h * 0.78),
+          const Radius.circular(2),
+        ),
+        fillPaint,
+      );
+      // Baseline
+      canvas.drawLine(Offset(w * 0.08, h * 0.92), Offset(w * 0.92, h * 0.92), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _FeatureIconPainter oldDelegate) =>
+      oldDelegate.type != type || oldDelegate.color != color;
 }
