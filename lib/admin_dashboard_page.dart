@@ -173,8 +173,83 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     } catch (_) {}
   }
 
+  bool? _isDarkModeOverride;
+
   bool _isDarkMode(BuildContext context) {
+    if (_isDarkModeOverride != null) {
+      return _isDarkModeOverride!;
+    }
     return MediaQuery.of(context).platformBrightness == Brightness.dark;
+  }
+
+  void _showThemeSelectorDialog(bool isDark) {
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Row(
+            children: [
+              const Icon(Icons.palette_outlined, color: Color(0xFFAC0017)),
+              const SizedBox(width: 8),
+              Text(
+                'Tema de la Aplicación',
+                style: GoogleFonts.hankenGrotesk(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: isDark ? Colors.white : const Color(0xFF191C1E),
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: Text('Automático (Del Sistema)', style: GoogleFonts.hankenGrotesk(fontWeight: _isDarkModeOverride == null ? FontWeight.bold : FontWeight.normal)),
+                subtitle: Text('Sigue el tema configurado en tu dispositivo', style: GoogleFonts.hankenGrotesk(fontSize: 12)),
+                leading: const Icon(Icons.brightness_auto, color: Color(0xFFAC0017)),
+                trailing: _isDarkModeOverride == null ? const Icon(Icons.check, color: Color(0xFF2E7D32)) : null,
+                onTap: () {
+                  setState(() => _isDarkModeOverride = null);
+                  Navigator.pop(ctx);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Tema cambiado a: Del Sistema'), behavior: SnackBarBehavior.floating),
+                  );
+                },
+              ),
+              ListTile(
+                title: Text('Modo Claro', style: GoogleFonts.hankenGrotesk(fontWeight: _isDarkModeOverride == false ? FontWeight.bold : FontWeight.normal)),
+                subtitle: Text('Fondos claros y alto contraste', style: GoogleFonts.hankenGrotesk(fontSize: 12)),
+                leading: const Icon(Icons.light_mode, color: Color(0xFF966100)),
+                trailing: _isDarkModeOverride == false ? const Icon(Icons.check, color: Color(0xFF2E7D32)) : null,
+                onTap: () {
+                  setState(() => _isDarkModeOverride = false);
+                  Navigator.pop(ctx);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Tema cambiado a: Modo Claro'), behavior: SnackBarBehavior.floating),
+                  );
+                },
+              ),
+              ListTile(
+                title: Text('Modo Oscuro', style: GoogleFonts.hankenGrotesk(fontWeight: _isDarkModeOverride == true ? FontWeight.bold : FontWeight.normal)),
+                subtitle: Text('Tema profundo Liquid Glass y ahorro de batería', style: GoogleFonts.hankenGrotesk(fontSize: 12)),
+                leading: const Icon(Icons.dark_mode, color: Color(0xFF545D80)),
+                trailing: _isDarkModeOverride == true ? const Icon(Icons.check, color: Color(0xFF2E7D32)) : null,
+                onTap: () {
+                  setState(() => _isDarkModeOverride = true);
+                  Navigator.pop(ctx);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Tema cambiado a: Modo Oscuro'), behavior: SnackBarBehavior.floating),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   void _handleSignOut() async {
@@ -2664,6 +2739,17 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
 
                 // 4. SOPORTE Y SISTEMA
                 sectionHeader('SOPORTE Y SISTEMA'),
+                drawerItem(
+                  icon: _isDarkModeOverride == null
+                      ? Icons.brightness_auto
+                      : (_isDarkModeOverride! ? Icons.dark_mode : Icons.light_mode),
+                  title: 'Apariencia / Tema',
+                  subtitle: _isDarkModeOverride == null
+                      ? 'Automático (Del Sistema)'
+                      : (_isDarkModeOverride! ? 'Modo Oscuro' : 'Modo Claro'),
+                  onTap: () => _showThemeSelectorDialog(isDark),
+                  iconColor: const Color(0xFFAC0017),
+                ),
                 drawerItem(
                   icon: Icons.support_agent,
                   title: 'Contactar Jefe de Zona',
