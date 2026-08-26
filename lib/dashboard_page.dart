@@ -3730,161 +3730,162 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  Widget buildAppDrawer(bool isIOS, bool isDark) {
-    final cleanName = widget.username.split('@').first;
-    final titleColor = isIOS
-        ? (isDark ? const Color(0xFFFBDBD8) : const Color(0xFF410003))
-        : (isDark ? const Color(0xFFE1E2E4) : const Color(0xFF191C1E));
-    final subtextColor = isIOS
-        ? (isDark ? const Color(0xFFE5BDBA) : const Color(0xFF5C403D))
-        : (isDark ? const Color(0xFFC6C6C7) : const Color(0xFF545D80));
+  void _showChangePolicyDialog(bool isIOS, bool isDark) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        final dialogBgColor = isIOS
+            ? (isDark ? const Color(0xFF2C1B1A) : const Color(0xFFFFF1F0))
+            : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
+        final dialogTextColor = isIOS
+            ? (isDark ? const Color(0xFFFBDBD8) : const Color(0xFF410003))
+            : (isDark ? const Color(0xFFE1E2E4) : const Color(0xFF121C3B));
+        final dialogSubtextColor = isIOS
+            ? (isDark ? const Color(0xFFE5BDBA) : const Color(0xFF5C403D))
+            : (isDark ? const Color(0xFFC6C6C7) : const Color(0xFF5C403D));
 
-    final drawerBgColor = isIOS ? Colors.transparent : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
-
-    void showChangePolicyDialog() {
-      showDialog(
-        context: context,
-        builder: (context) {
-          final dialogBgColor = isIOS
-              ? (isDark ? const Color(0xFF2C1B1A) : const Color(0xFFFFF1F0))
-              : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
-          final dialogTextColor = isIOS
-              ? (isDark ? const Color(0xFFFBDBD8) : const Color(0xFF410003))
-              : (isDark ? const Color(0xFFE1E2E4) : const Color(0xFF121C3B));
-          final dialogSubtextColor = isIOS
-              ? (isDark ? const Color(0xFFE5BDBA) : const Color(0xFF5C403D))
-              : (isDark ? const Color(0xFFC6C6C7) : const Color(0xFF5C403D));
-
-          return AlertDialog(
-            backgroundColor: dialogBgColor,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-              side: (isIOS || isDark) ? const BorderSide(color: Colors.white12) : BorderSide.none,
+        return AlertDialog(
+          backgroundColor: dialogBgColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: (isIOS || isDark) ? const BorderSide(color: Colors.white12) : BorderSide.none,
+          ),
+          title: Text(
+            'Políticas de Cambios',
+            style: GoogleFonts.hankenGrotesk(
+              color: dialogTextColor,
+              fontWeight: FontWeight.bold,
             ),
-            title: Text(
-              'Políticas de Cambios',
-              style: GoogleFonts.hankenGrotesk(
-                color: dialogTextColor,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            content: SingleChildScrollView(
-              child: ListBody(
-                children: [
-                  Text(
-                    '1. Plazo Límite:',
-                    style: GoogleFonts.hankenGrotesk(fontWeight: FontWeight.bold, color: dialogTextColor),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Las solicitudes de cambio deben enviarse con al menos 24 horas de anticipación a la jornada programada.',
-                    style: GoogleFonts.hankenGrotesk(color: dialogSubtextColor),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    '2. Aprobación del Supervisor:',
-                    style: GoogleFonts.hankenGrotesk(fontWeight: FontWeight.bold, color: dialogTextColor),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Cualquier intercambio o cesión de turno está sujeto a la revisión y aprobación final del supervisor a cargo.',
-                    style: GoogleFonts.hankenGrotesk(color: dialogSubtextColor),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    '3. Límite de Cambios:',
-                    style: GoogleFonts.hankenGrotesk(fontWeight: FontWeight.bold, color: dialogTextColor),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Se permite un máximo de 3 intercambios de turno aprobados por mes para garantizar la estabilidad del servicio.',
-                    style: GoogleFonts.hankenGrotesk(color: dialogSubtextColor),
-                  ),
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(
-                  'Entendido',
-                  style: GoogleFonts.hankenGrotesk(
-                    color: isIOS ? const Color(0xFFD2232A) : const Color(0xFFAC0017),
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          );
-        },
-      );
-    }
-
-    void showSupportDialog() {
-      showDialog(
-        context: context,
-        builder: (context) {
-          final dialogBgColor = isIOS
-              ? (isDark ? const Color(0xFF2C1B1A) : const Color(0xFFFFF1F0))
-              : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
-          final dialogTextColor = isIOS
-              ? (isDark ? const Color(0xFFFBDBD8) : const Color(0xFF410003))
-              : (isDark ? const Color(0xFFE1E2E4) : const Color(0xFF121C3B));
-          final dialogSubtextColor = isIOS
-              ? (isDark ? const Color(0xFFE5BDBA) : const Color(0xFF5C403D))
-              : (isDark ? const Color(0xFFC6C6C7) : const Color(0xFF5C403D));
-
-          return AlertDialog(
-            backgroundColor: dialogBgColor,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-              side: (isIOS || isDark) ? const BorderSide(color: Colors.white12) : BorderSide.none,
-            ),
-            title: Text(
-              'Soporte Técnico',
-              style: GoogleFonts.hankenGrotesk(
-                color: dialogTextColor,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
+          ),
+          content: SingleChildScrollView(
+            child: ListBody(
               children: [
                 Text(
-                  '¿Tienes algún problema con la aplicación o tus horarios?',
-                  style: GoogleFonts.hankenGrotesk(color: dialogTextColor),
+                  '1. Plazo Límite:',
+                  style: GoogleFonts.hankenGrotesk(fontWeight: FontWeight.bold, color: dialogTextColor),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Las solicitudes de cambio deben enviarse con al menos 24 horas de anticipación a la jornada programada.',
+                  style: GoogleFonts.hankenGrotesk(color: dialogSubtextColor),
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Contacto del Supervisor:',
+                  '2. Aprobación del Supervisor:',
                   style: GoogleFonts.hankenGrotesk(fontWeight: FontWeight.bold, color: dialogTextColor),
                 ),
-                Text('María V. | mv.soporte@frisby.com', style: GoogleFonts.hankenGrotesk(color: dialogSubtextColor)),
-                const SizedBox(height: 8),
+                const SizedBox(height: 4),
                 Text(
-                  'Línea de Atención Interna:',
+                  'Cualquier intercambio o cesión de turno está sujeto a la revisión y aprobación final del supervisor a cargo.',
+                  style: GoogleFonts.hankenGrotesk(color: dialogSubtextColor),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  '3. Límite de Cambios:',
                   style: GoogleFonts.hankenGrotesk(fontWeight: FontWeight.bold, color: dialogTextColor),
                 ),
-                Text('+57 (606) 313-0000 Ext. 400', style: GoogleFonts.hankenGrotesk(color: dialogSubtextColor)),
+                const SizedBox(height: 4),
+                Text(
+                  'Se permite un máximo de 3 intercambios de turno aprobados por mes para garantizar la estabilidad del servicio.',
+                  style: GoogleFonts.hankenGrotesk(color: dialogSubtextColor),
+                ),
               ],
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(
-                  'Cerrar',
-                  style: GoogleFonts.hankenGrotesk(
-                    color: isIOS ? const Color(0xFFD2232A) : const Color(0xFFAC0017),
-                    fontWeight: FontWeight.bold,
-                  ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'Entendido',
+                style: GoogleFonts.hankenGrotesk(
+                  color: isIOS ? const Color(0xFFD2232A) : const Color(0xFFAC0017),
+                  fontWeight: FontWeight.bold,
                 ),
               ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showSupportDialog(bool isIOS, bool isDark) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        final dialogBgColor = isIOS
+            ? (isDark ? const Color(0xFF2C1B1A) : const Color(0xFFFFF1F0))
+            : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
+        final dialogTextColor = isIOS
+            ? (isDark ? const Color(0xFFFBDBD8) : const Color(0xFF410003))
+            : (isDark ? const Color(0xFFE1E2E4) : const Color(0xFF121C3B));
+        final dialogSubtextColor = isIOS
+            ? (isDark ? const Color(0xFFE5BDBA) : const Color(0xFF5C403D))
+            : (isDark ? const Color(0xFFC6C6C7) : const Color(0xFF5C403D));
+
+        return AlertDialog(
+          backgroundColor: dialogBgColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: (isIOS || isDark) ? const BorderSide(color: Colors.white12) : BorderSide.none,
+          ),
+          title: Text(
+            'Soporte Técnico',
+            style: GoogleFonts.hankenGrotesk(
+              color: dialogTextColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '¿Tienes algún problema con la aplicación o tus horarios?',
+                style: GoogleFonts.hankenGrotesk(color: dialogTextColor),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Contacto del Supervisor:',
+                style: GoogleFonts.hankenGrotesk(fontWeight: FontWeight.bold, color: dialogTextColor),
+              ),
+              Text('María V. | mv.soporte@frisby.com', style: GoogleFonts.hankenGrotesk(color: dialogSubtextColor)),
+              const SizedBox(height: 8),
+              Text(
+                'Línea de Atención Interna:',
+                style: GoogleFonts.hankenGrotesk(fontWeight: FontWeight.bold, color: dialogTextColor),
+              ),
+              Text('+57 (606) 313-0000 Ext. 400', style: GoogleFonts.hankenGrotesk(color: dialogSubtextColor)),
             ],
-          );
-        },
-      );
-    }
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'Cerrar',
+                style: GoogleFonts.hankenGrotesk(
+                  color: isIOS ? const Color(0xFFD2232A) : const Color(0xFFAC0017),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildDrawer(bool isIOS, bool isDark) {
+    final cleanName = widget.username.split('@').first;
+    final titleColor = isIOS
+        ? (isDark ? const Color(0xFFFBDBD8) : const Color(0xFF410003))
+        : (isDark ? const Color(0xFFE1E2E4) : const Color(0xFF121C3B));
+    final subtextColor = isIOS
+        ? (isDark ? const Color(0xFFE5BDBA) : const Color(0xFF5C403D))
+        : (isDark ? const Color(0xFFC6C6C7) : const Color(0xFF545D80));
+    final drawerBgColor = isIOS ? Colors.transparent : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
+
+
 
     Widget drawerHeader() {
       if (isIOS) {
@@ -4037,7 +4038,7 @@ class _DashboardPageState extends State<DashboardPage> {
           label: 'Políticas de Cambios',
           onTap: () {
             Navigator.pop(context);
-            showChangePolicyDialog();
+            _showChangePolicyDialog(isIOS, isDark);
           },
         ),
         drawerItem(
@@ -4045,7 +4046,7 @@ class _DashboardPageState extends State<DashboardPage> {
           label: 'Soporte Técnico',
           onTap: () {
             Navigator.pop(context);
-            showSupportDialog();
+            _showSupportDialog(isIOS, isDark);
           },
         ),
         const Divider(color: Colors.white12),
@@ -4093,13 +4094,19 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
-    final isDesktop = mediaQuery.size.width > 480;
+    final isDesktop = mediaQuery.size.width > 800;
+
+    // Evaluate dark mode state
+    final isDark = _isDarkMode(context);
+
+    // If running on desktop or wide web window, render the Desktop Collaborator Portal
+    if (isDesktop) {
+      return _buildDesktopCollaboratorPortal(isDark);
+    }
 
     // Active target platform is iOS
     final isIOS = !kIsWeb && Theme.of(context).platform == TargetPlatform.iOS;
-    
-    // Evaluate dark mode state
-    final isDark = _isDarkMode(context);
+
 
     // Android / Web solid App Bar
     PreferredSizeWidget? mobileAppBarAndroid() {
@@ -4366,7 +4373,7 @@ class _DashboardPageState extends State<DashboardPage> {
       return Scaffold(
         backgroundColor: Colors.transparent, // Handled by outer body background decoration
         appBar: mobileAppBarAndroid(),
-        drawer: buildAppDrawer(isIOS, isDark),
+        drawer: _buildDrawer(isIOS, isDark),
         body: Stack(
           children: [
             // Tab content
@@ -4472,30 +4479,360 @@ class _DashboardPageState extends State<DashboardPage> {
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF121212) : const Color(0xFFF4F5F7),
-      body: Center(
-        child: isDesktop
-            ? Container(
-                width: 375,
-                height: 812,
-                decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                  borderRadius: BorderRadius.circular(40),
-                  border: Border.all(
-                    color: isDark ? Colors.black26 : Colors.white,
-                    width: 8,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.3),
-                      blurRadius: 30,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
+      body: innerAppContainer(),
+    );
+  }
+
+  Widget _buildDesktopCollaboratorPortal(bool isDark) {
+    final bg = isDark ? const Color(0xFF141414) : const Color(0xFFF6F7F9);
+    final sidebarBg = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+    final borderColor = isDark ? Colors.white12 : const Color(0xFFE5E7EB);
+    final titleColor = isDark ? Colors.white : const Color(0xFF111827);
+    final subtextColor = isDark ? Colors.white60 : const Color(0xFF6B7280);
+    final primaryRed = const Color(0xFFAC0017);
+
+    final cleanUsername = widget.username.split('@')[0];
+
+    Widget navItem({
+      required int index,
+      required IconData icon,
+      required String title,
+      VoidCallback? customTap,
+    }) {
+      final isActive = _currentIndex == index && customTap == null;
+      return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
+        child: InkWell(
+          onTap: customTap ?? () => setState(() => _currentIndex = index),
+          borderRadius: BorderRadius.circular(10),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: isActive ? primaryRed.withValues(alpha: isDark ? 0.25 : 0.12) : Colors.transparent,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  icon,
+                  size: 20,
+                  color: isActive ? primaryRed : (isDark ? Colors.white70 : const Color(0xFF4B5563)),
                 ),
-                clipBehavior: Clip.antiAlias,
-                child: innerAppContainer(),
-              )
-            : innerAppContainer(),
+                const SizedBox(width: 12),
+                Text(
+                  title,
+                  style: GoogleFonts.hankenGrotesk(
+                    fontSize: 14,
+                    fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
+                    color: isActive ? primaryRed : (isDark ? Colors.white : const Color(0xFF1F2937)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    Widget sectionTitle(String text) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 6),
+        child: Text(
+          text,
+          style: GoogleFonts.hankenGrotesk(
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.1,
+            color: subtextColor,
+          ),
+        ),
+      );
+    }
+
+    Widget activeContent() {
+      switch (_currentIndex) {
+        case 0:
+          return _buildHomeTabAndroid(isDark);
+        case 1:
+          return _buildCalendarTabAndroid(isDark);
+        case 2:
+          return _buildMarketTab(false, isDark);
+        case 3:
+          return _buildProfileTab(false, isDark);
+        default:
+          return _buildHomeTabAndroid(isDark);
+      }
+    }
+
+    return Scaffold(
+      backgroundColor: bg,
+      body: Row(
+        children: [
+          // 1. LEFT SIDEBAR (260px)
+          Container(
+            width: 260,
+            decoration: BoxDecoration(
+              color: sidebarBg,
+              border: Border(right: BorderSide(color: borderColor)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Brand Header
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    border: Border(bottom: BorderSide(color: borderColor)),
+                  ),
+                  child: Row(
+                    children: [
+                      Image.network(
+                        'https://lh3.googleusercontent.com/aida-public/AB6AXuATkXAerVPsE2m4hfUiQnl2Y9rqFfI7Ps4kylZ4pKqTsLdljqPy3P98NcAsZSxf5IhL9PT0EuZTt6uWZCyEwE_d0EleeKeYd7eOti54uHUm05djF0vMkj200IOm-HymlHKOB1bF3OJNLf_BwQHd8Xi08O5wdJgwONmRr9t7QwTuRiigzmxj8wDxdOTExQV5qztVYJNP5jaE-OQsRnV5_zkiTrVLmwvYv0XeIEm_LEo0hkxVXoQTGx_frjCjDWomYU7yXM8',
+                        height: 28,
+                        errorBuilder: (c, e, s) => Text(
+                          'Frisby',
+                          style: GoogleFonts.sora(fontSize: 22, fontWeight: FontWeight.bold, color: primaryRed),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: primaryRed.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          'COLABORADOR',
+                          style: GoogleFonts.hankenGrotesk(fontSize: 10, fontWeight: FontWeight.bold, color: primaryRed),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Store badge
+                Container(
+                  margin: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.white10 : const Color(0xFFF3F4F6),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: borderColor),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.storefront, size: 18, color: Color(0xFFAC0017)),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Frisby Parque Arboleda',
+                              style: GoogleFonts.hankenGrotesk(fontSize: 12, fontWeight: FontWeight.w600, color: titleColor),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              'Estación: Freidoras',
+                              style: GoogleFonts.hankenGrotesk(fontSize: 11, color: subtextColor),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Navigation Items
+                Expanded(
+                  child: ListView(
+                    padding: EdgeInsets.zero,
+                    children: [
+                      sectionTitle('MI JORNADA'),
+                      navItem(index: 0, icon: Icons.home_outlined, title: 'Inicio / Mi Turno'),
+                      navItem(index: 1, icon: Icons.calendar_month_outlined, title: 'Mi Calendario'),
+                      navItem(index: 2, icon: Icons.swap_horiz_outlined, title: 'Mercado de Turnos'),
+                      navItem(index: 3, icon: Icons.person_outline, title: 'Mi Perfil y Horas'),
+
+                      sectionTitle('ACCIONES RÁPIDAS'),
+                      navItem(
+                        index: 99,
+                        icon: _isIngresoRegistrado ? Icons.check_circle_outline : Icons.fingerprint,
+                        title: _isIngresoRegistrado ? 'Ingreso Confirmado' : 'Registrar Ingreso',
+                        customTap: () => _handleRegistrarIngreso(false, isDark),
+                      ),
+                      navItem(
+                        index: 99,
+                        icon: Icons.gavel_outlined,
+                        title: 'Políticas de Cambios',
+                        customTap: () => _showChangePolicyDialog(false, isDark),
+                      ),
+                      navItem(
+                        index: 99,
+                        icon: Icons.support_agent,
+                        title: 'Soporte Técnico',
+                        customTap: () => _showSupportDialog(false, isDark),
+                      ),
+
+                      sectionTitle('SISTEMA'),
+                      navItem(
+                        index: 99,
+                        icon: Icons.palette_outlined,
+                        title: isDark ? 'Modo Claro' : 'Modo Oscuro',
+                        customTap: _toggleTheme,
+                      ),
+                    ],
+                  ),
+                ),
+
+                // User Profile footer
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    border: Border(top: BorderSide(color: borderColor)),
+                  ),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 18,
+                        backgroundColor: primaryRed.withValues(alpha: 0.12),
+                        child: Text(
+                          cleanUsername.length >= 2 ? cleanUsername.substring(0, 2).toUpperCase() : 'CO',
+                          style: GoogleFonts.hankenGrotesk(fontSize: 11, fontWeight: FontWeight.bold, color: primaryRed),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              cleanUsername,
+                              style: GoogleFonts.hankenGrotesk(fontWeight: FontWeight.bold, fontSize: 13, color: titleColor),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text('Colaborador Activo', style: GoogleFonts.hankenGrotesk(fontSize: 11, color: subtextColor)),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.logout, size: 18, color: Color(0xFFBA1A1A)),
+                        onPressed: _logout,
+                        tooltip: 'Cerrar Sesión',
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // 2. MAIN DESKTOP CONTENT AREA
+          Expanded(
+            child: Column(
+              children: [
+                // Top App Bar Header
+                Container(
+                  height: 64,
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  decoration: BoxDecoration(
+                    color: sidebarBg,
+                    border: Border(bottom: BorderSide(color: borderColor)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Breadcrumb
+                      Row(
+                        children: [
+                          Text('Frisby', style: GoogleFonts.hankenGrotesk(fontSize: 13, color: subtextColor)),
+                          const SizedBox(width: 6),
+                          const Icon(Icons.chevron_right, size: 16, color: Colors.grey),
+                          const SizedBox(width: 6),
+                          Text(
+                            _currentIndex == 0
+                                ? 'Inicio y Mi Turno'
+                                : (_currentIndex == 1
+                                    ? 'Mi Calendario'
+                                    : (_currentIndex == 2 ? 'Mercado de Turnos' : 'Mi Perfil')),
+                            style: GoogleFonts.hankenGrotesk(fontSize: 13, fontWeight: FontWeight.bold, color: titleColor),
+                          ),
+                        ],
+                      ),
+
+                      // Right Header Actions
+                      Row(
+                        children: [
+                          // Clock
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: isDark ? Colors.white10 : const Color(0xFFF3F4F6),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.schedule, size: 14, color: Color(0xFFAC0017)),
+                                const SizedBox(width: 6),
+                                Text(
+                                  _getCurrentDateString(),
+                                  style: GoogleFonts.hankenGrotesk(fontSize: 12, fontWeight: FontWeight.w500, color: titleColor),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          ElevatedButton.icon(
+                            onPressed: () => _handleRegistrarIngreso(false, isDark),
+                            icon: Icon(_isIngresoRegistrado ? Icons.check : Icons.fingerprint, size: 18),
+                            label: Text(_isIngresoRegistrado ? 'Ingreso Registrado' : 'Registrar Ingreso'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _isIngresoRegistrado ? const Color(0xFF2E7D32) : primaryRed,
+                              foregroundColor: Colors.white,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          IconButton(
+                            icon: Icon(isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined, color: titleColor),
+                            onPressed: _toggleTheme,
+                            tooltip: 'Cambiar Tema',
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.notifications_outlined, color: Color(0xFFAC0017)),
+                            onPressed: () {
+                              _showNotificationDialog(
+                                'Alertas Recientes',
+                                'Revisa tus turnos aprobados para la jornada de esta semana en tu historial.',
+                                'Actualizado hace 2 horas',
+                                false,
+                                isDark,
+                              );
+                            },
+                            tooltip: 'Notificaciones',
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Main Scrollable Canvas with responsive bounds
+                Expanded(
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 1100),
+                      child: activeContent(),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
