@@ -2513,6 +2513,13 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                 // 1. OPERACIÓN
                 sectionHeader('OPERACIÓN'),
                 drawerItem(
+                  icon: Icons.edit_calendar,
+                  title: 'Crear Nuevo Turno',
+                  subtitle: 'Asignar horario y estación',
+                  onTap: _navigateToCreateShiftPage,
+                  iconColor: const Color(0xFFAC0017),
+                ),
+                drawerItem(
                   icon: Icons.storefront,
                   title: 'Cambiar Sucursal',
                   subtitle: _currentStore,
@@ -3392,9 +3399,18 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                       ),
                     ),
                   ),
-                  IconButton(
-                    icon: Icon(Icons.notifications_outlined, color: accentIconColor),
-                    onPressed: () => _showNotificationDialog(true, isDark),
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.add_circle_outline, color: accentIconColor),
+                        tooltip: 'Crear Turno',
+                        onPressed: _navigateToCreateShiftPage,
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.notifications_outlined, color: accentIconColor),
+                        onPressed: () => _showNotificationDialog(true, isDark),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -3433,6 +3449,11 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
           ),
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.add_circle_outline, color: Colors.white),
+            tooltip: 'Crear Turno',
+            onPressed: _navigateToCreateShiftPage,
+          ),
           IconButton(
             icon: const Icon(Icons.notifications, color: Colors.white),
             onPressed: () => _showNotificationDialog(false, isDark),
@@ -3539,6 +3560,20 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
         backgroundColor: Colors.transparent,
         appBar: mobileAppBarAndroid(),
         drawer: _buildAdminSidebar(isIOS, isDark),
+        floatingActionButton: Padding(
+          padding: EdgeInsets.only(bottom: isIOS ? 76 : 68),
+          child: FloatingActionButton.extended(
+            onPressed: _navigateToCreateShiftPage,
+            backgroundColor: const Color(0xFFAC0017),
+            foregroundColor: Colors.white,
+            elevation: 4,
+            icon: const Icon(Icons.add_task),
+            label: Text(
+              'Crear Turno',
+              style: GoogleFonts.hankenGrotesk(fontWeight: FontWeight.bold, fontSize: 14),
+            ),
+          ),
+        ),
         body: Stack(
           children: [
             activeTabContent(),

@@ -1,3 +1,5 @@
+import 'dart:ui';
+import 'package:flutter/foundation.dart' show defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -67,7 +69,7 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
 
   @override
   void dispose() {
-    _colaboradorController.disposeValidate();
+    _colaboradorController.dispose();
     _notasController.dispose();
     super.dispose();
   }
@@ -468,8 +470,8 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
                           Container(
                             width: 44,
                             height: 44,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFD2232A),
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFD2232A),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(Icons.admin_panel_settings, color: Colors.white, size: 24),
@@ -1078,30 +1080,98 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
   }
 
   // ==========================================
-  // 2. MOBILE LAYOUT
+  // 2. MOBILE LAYOUT (iOS Glass / Android Material)
   // ==========================================
   Widget _buildMobileLayout(bool isDark) {
+    final isIOS = defaultTargetPlatform == TargetPlatform.iOS;
     const primaryRed = Color(0xFFAC0017);
-    final surfaceBg = isDark ? const Color(0xFF141414) : const Color(0xFFF8F9FB);
-    final cardBg = isDark ? const Color(0xFF1E1E1E) : Colors.white;
-    final titleColor = isDark ? const Color(0xFFE1E2E4) : const Color(0xFF191C1E);
-    final subtextColor = isDark ? const Color(0xFFC6C6C7) : const Color(0xFF545D80);
-    final borderColor = isDark ? Colors.white12 : const Color(0xFFE5BDBA).withValues(alpha: 0.3);
-    final fieldBg = isDark ? Colors.white10 : const Color(0xFFF3F4F6);
+    final surfaceBg = isIOS
+        ? (isDark ? const Color(0xFF190A09) : const Color(0xFFFFF8F7))
+        : (isDark ? const Color(0xFF121212) : const Color(0xFFF8F9FB));
+    final cardBg = isIOS
+        ? (isDark ? Colors.white.withValues(alpha: 0.06) : Colors.white.withValues(alpha: 0.75))
+        : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
+    final titleColor = isIOS
+        ? (isDark ? const Color(0xFFFBDBD8) : const Color(0xFF410003))
+        : (isDark ? const Color(0xFFE1E2E4) : const Color(0xFF191C1E));
+    final subtextColor = isIOS
+        ? (isDark ? const Color(0xFFE5BDBA) : const Color(0xFF5C403D))
+        : (isDark ? const Color(0xFFC6C6C7) : const Color(0xFF545D80));
+    final borderColor = isIOS
+        ? (isDark ? Colors.white.withValues(alpha: 0.15) : Colors.black.withValues(alpha: 0.08))
+        : (isDark ? Colors.white12 : const Color(0xFFE5BDBA).withValues(alpha: 0.3));
+    final fieldBg = isIOS
+        ? (isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.04))
+        : (isDark ? Colors.white10 : const Color(0xFFF3F4F6));
+
+    Widget mobileCard({required Widget child}) {
+      if (isIOS) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: cardBg,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: borderColor),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.05),
+                    blurRadius: 16,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: child,
+            ),
+          ),
+        );
+      } else {
+        return Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: cardBg,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: borderColor),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: child,
+        );
+      }
+    }
 
     return Scaffold(
       backgroundColor: surfaceBg,
       appBar: AppBar(
-        backgroundColor: primaryRed,
-        foregroundColor: Colors.white,
-        elevation: 1,
+        backgroundColor: isIOS
+            ? (isDark ? const Color(0xFF1E1E1E) : Colors.white)
+            : (isDark ? const Color(0xFF1F1F1F) : primaryRed),
+        foregroundColor: isIOS
+            ? (isDark ? Colors.white : const Color(0xFF191C1E))
+            : Colors.white,
+        elevation: isIOS ? 0 : 1,
+        centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'Crear Nuevo Turno',
-          style: GoogleFonts.hankenGrotesk(fontSize: 18, fontWeight: FontWeight.bold),
+          style: GoogleFonts.hankenGrotesk(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: isIOS
+                ? (isDark ? Colors.white : const Color(0xFF191C1E))
+                : Colors.white,
+          ),
         ),
         actions: [
           IconButton(
@@ -1131,20 +1201,7 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
             const SizedBox(height: 16),
 
             // Form Card
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: cardBg,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: borderColor),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
+            mobileCard(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1390,11 +1447,5 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
         ),
       ),
     );
-  }
-}
-
-extension on TextEditingController {
-  void disposeValidate() {
-    dispose();
   }
 }
