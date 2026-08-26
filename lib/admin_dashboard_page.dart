@@ -234,7 +234,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               ),
               ListTile(
                 title: Text('Modo Oscuro', style: GoogleFonts.hankenGrotesk(fontWeight: _isDarkModeOverride == true ? FontWeight.bold : FontWeight.normal)),
-                subtitle: Text('Tema profundo Liquid Glass y ahorro de batería', style: GoogleFonts.hankenGrotesk(fontSize: 12)),
+                subtitle: Text('Fondos oscuros y confort visual', style: GoogleFonts.hankenGrotesk(fontSize: 12)),
                 leading: const Icon(Icons.dark_mode, color: Color(0xFF545D80)),
                 trailing: _isDarkModeOverride == true ? const Icon(Icons.check, color: Color(0xFF2E7D32)) : null,
                 onTap: () {
