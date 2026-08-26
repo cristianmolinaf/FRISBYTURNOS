@@ -27,6 +27,12 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   String _currentStore = 'Frisby Parque Arboleda';
   final String _currentZone = 'Zona Eje Cafetero';
   bool? _isDarkModeOverride;
+  bool? _isIOSOverride;
+
+  bool _isIOS(BuildContext context) {
+    if (_isIOSOverride != null) return _isIOSOverride!;
+    return Theme.of(context).platform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.iOS;
+  }
 
   // Real-time / Mock data for Admin Operations
   final int _activeEmployees = 24;
@@ -367,6 +373,76 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     );
   }
 
+  void _showPlatformSelectorDialog(bool isDark) {
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Row(
+            children: [
+              const Icon(Icons.phone_iphone, color: Color(0xFFAC0017)),
+              const SizedBox(width: 8),
+              Text(
+                'Plataforma / Sistema',
+                style: GoogleFonts.hankenGrotesk(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: isDark ? Colors.white : const Color(0xFF191C1E),
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: Text('iOS (Flat Design / Claro)', style: GoogleFonts.hankenGrotesk(fontWeight: _isIOSOverride == true ? FontWeight.bold : FontWeight.normal)),
+                subtitle: Text('Tema claro, botones redondeados, cabeceras minimalistas', style: GoogleFonts.hankenGrotesk(fontSize: 12)),
+                leading: const Icon(Icons.apple, color: Color(0xFFAC0017)),
+                trailing: _isIOSOverride == true ? const Icon(Icons.check, color: Color(0xFF2E7D32)) : null,
+                onTap: () {
+                  setState(() => _isIOSOverride = true);
+                  Navigator.pop(ctx);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Vista cambiada a: iOS (Flat Design)'), behavior: SnackBarBehavior.floating),
+                  );
+                },
+              ),
+              ListTile(
+                title: Text('Android (Material Design)', style: GoogleFonts.hankenGrotesk(fontWeight: _isIOSOverride == false ? FontWeight.bold : FontWeight.normal)),
+                subtitle: Text('Tema Android nativo con app bar rojo sólido', style: GoogleFonts.hankenGrotesk(fontSize: 12)),
+                leading: const Icon(Icons.android, color: Color(0xFF2E7D32)),
+                trailing: _isIOSOverride == false ? const Icon(Icons.check, color: Color(0xFF2E7D32)) : null,
+                onTap: () {
+                  setState(() => _isIOSOverride = false);
+                  Navigator.pop(ctx);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Vista cambiada a: Android Material'), behavior: SnackBarBehavior.floating),
+                  );
+                },
+              ),
+              ListTile(
+                title: Text('Automático (Detección del Dispositivo)', style: GoogleFonts.hankenGrotesk(fontWeight: _isIOSOverride == null ? FontWeight.bold : FontWeight.normal)),
+                subtitle: Text('Detecta automáticamente si estás en iOS, Android o Web', style: GoogleFonts.hankenGrotesk(fontSize: 12)),
+                leading: const Icon(Icons.autorenew, color: Colors.grey),
+                trailing: _isIOSOverride == null ? const Icon(Icons.check, color: Color(0xFF2E7D32)) : null,
+                onTap: () {
+                  setState(() => _isIOSOverride = null);
+                  Navigator.pop(ctx);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Vista cambiada a: Detección Automática'), behavior: SnackBarBehavior.floating),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   void _showNotificationDialog(bool isIOS, bool isDark) {
     final titleColor = isIOS
         ? (isDark ? const Color(0xFFFBDBD8) : const Color(0xFF410003))
@@ -443,7 +519,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     );
   }
 
-  void _navigateToCreateShiftPage() {
+  void _navigateToCreateShiftPage({bool? forceIOS}) {
+    final useIOS = forceIOS ?? _isIOS(context);
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -451,6 +528,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
           username: widget.username,
           currentStore: _currentStore,
           teamMembers: _teamMembers,
+          forceIOS: useIOS,
           onShiftCreated: (newShift) {
             setState(() {
               _approvalHistory.insert(0, {
@@ -2646,6 +2724,15 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                 // 4. SOPORTE Y SISTEMA
                 sectionHeader('SOPORTE Y SISTEMA'),
                 drawerItem(
+                  icon: Icons.phone_iphone,
+                  title: 'Plataforma / Sistema',
+                  subtitle: _isIOSOverride == null
+                      ? 'Automático (Detección OS)'
+                      : (_isIOSOverride! ? 'Vista iOS (Flat / Claro)' : 'Vista Android (Material)'),
+                  onTap: () => _showPlatformSelectorDialog(isDark),
+                  iconColor: const Color(0xFFAC0017),
+                ),
+                drawerItem(
                   icon: _isDarkModeOverride == null
                       ? Icons.brightness_auto
                       : (_isDarkModeOverride! ? Icons.dark_mode : Icons.light_mode),
@@ -3401,7 +3488,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
     final isDesktop = mediaQuery.size.width > 800;
-    final isIOS = defaultTargetPlatform == TargetPlatform.iOS;
+    final isIOS = _isIOS(context);
     final isDark = _isDarkMode(context);
 
     // If on a desktop/web screen width (> 800px), show the expansive Web Desktop Portal

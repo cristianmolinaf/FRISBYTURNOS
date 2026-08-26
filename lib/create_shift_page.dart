@@ -1,5 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'google_fonts_wrapper.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class CreateShiftPage extends StatefulWidget {
@@ -7,6 +8,7 @@ class CreateShiftPage extends StatefulWidget {
   final String currentStore;
   final List<Map<String, dynamic>> teamMembers;
   final Function(Map<String, dynamic> newShift)? onShiftCreated;
+  final bool? forceIOS;
 
   const CreateShiftPage({
     super.key,
@@ -14,6 +16,7 @@ class CreateShiftPage extends StatefulWidget {
     this.currentStore = 'Frisby Parque Arboleda',
     this.teamMembers = const [],
     this.onShiftCreated,
+    this.forceIOS,
   });
 
   @override
@@ -382,7 +385,7 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
     final isDesktop = mediaQuery.size.width > 800;
-    final isIOS = Theme.of(context).platform == TargetPlatform.iOS;
+    final isIOS = widget.forceIOS ?? (Theme.of(context).platform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.iOS);
     final isDark = _isDarkMode(context);
 
     if (isDesktop) {
