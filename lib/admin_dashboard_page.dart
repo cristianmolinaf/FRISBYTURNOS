@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'google_fonts_wrapper.dart';
@@ -46,7 +47,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       'name': 'Carlos Ruiz',
       'type': 'Permiso médico',
       'typeKey': 'permiso',
-      'icon': Icons.medical_services_outlined,
+      'icon': Icons.medical_services,
       'time': 'Hace 4h',
       'avatar':
           'https://lh3.googleusercontent.com/aida-public/AB6AXuCIHDgQ7NsN4YIAqdqt1jAnGNQPzGH3diy_zs-wT5c6rqderXgGYClNBff8SQPYnHcOykCxKY6CqA5qErolIOT-lQEbu0WXK4DQVChrvdsfOgaQ6RdXwT8vcVFy16XnOQrEZSmze0mTKzib4TiV24TGVdn5Eb9Qx817ccP5uxkft6_i8gcCePhXF2MnoHiAjgchwWs_Btwjq3xdOHajQB0F99k5zOuour4yncwohz0szSv3OjLyfJlN_w',
@@ -58,7 +59,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       'name': 'Juan Pérez',
       'type': 'Calamidad doméstica',
       'typeKey': 'permiso',
-      'icon': Icons.home_repair_service_outlined,
+      'icon': Icons.home_repair_service,
       'time': 'Hace 5h',
       'avatar':
           'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
@@ -190,23 +191,95 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     );
   }
 
+  void _showNotificationDialog(bool isIOS, bool isDark) {
+    final titleColor = isIOS ? (isDark ? const Color(0xFFFBDBD8) : const Color(0xFF410003)) : (isDark ? Colors.white : const Color(0xFF191C1E));
+    final subtextColor = isIOS ? (isDark ? const Color(0xFFE5BDBA) : const Color(0xFF5C403D)) : (isDark ? Colors.white70 : Colors.grey[600]!);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: isDark ? const BorderSide(color: Colors.white12) : BorderSide.none,
+        ),
+        title: Row(
+          children: [
+            const Icon(Icons.notifications_active, color: Color(0xFFAC0017)),
+            const SizedBox(width: 8),
+            Text(
+              'Panel de Notificaciones',
+              style: GoogleFonts.hankenGrotesk(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: titleColor,
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Tienes ${_pendingRequests.length} solicitudes pendientes por gestionar en la sucursal.',
+              style: GoogleFonts.hankenGrotesk(color: subtextColor, fontSize: 14),
+            ),
+            const SizedBox(height: 12),
+            ..._pendingRequests.take(2).map((r) => Padding(
+                  padding: const EdgeInsets.only(bottom: 6.0),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.circle, size: 8, color: Color(0xFFAC0017)),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          '${r['name']} - ${r['type']}',
+                          style: GoogleFonts.hankenGrotesk(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: titleColor,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Cerrar',
+              style: GoogleFonts.hankenGrotesk(
+                fontWeight: FontWeight.bold,
+                color: const Color(0xFFAC0017),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showCreateShiftModal(bool isIOS, bool isDark) {
     String selectedEmployee = _teamMembers.first['name'];
     String selectedStation = 'Plancha';
     String shiftTime = '08:00 - 16:00';
 
-    final modalBg = isIOS ? Colors.white : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
-    final titleColor = isIOS ? const Color(0xFF1A1A1A) : (isDark ? Colors.white : const Color(0xFF191C1E));
-    final labelColor = isIOS ? const Color(0xFF757575) : (isDark ? Colors.white70 : Colors.grey[700]);
-    final fieldFill = isIOS ? const Color(0xFFF9F9F9) : (isDark ? Colors.white10 : Colors.grey[100]);
-    final primaryBtnColor = const Color(0xFFC8102E);
+    final modalBg = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+    final titleColor = isDark ? Colors.white : const Color(0xFF191C1E);
+    final labelColor = isDark ? Colors.white70 : Colors.grey[700];
+    final fieldFill = isDark ? Colors.white10 : Colors.grey[100];
+    final primaryBtnColor = const Color(0xFFAC0017);
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: modalBg,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (ctx) => StatefulBuilder(
         builder: (context, setModalState) => Padding(
@@ -252,12 +325,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                   fillColor: fieldFill,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(isIOS ? 12 : 12),
-                    borderSide: isIOS ? const BorderSide(color: Color(0xFFE0E0E0)) : BorderSide.none,
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(isIOS ? 12 : 12),
-                    borderSide: isIOS ? const BorderSide(color: Color(0xFFE0E0E0)) : BorderSide.none,
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: isDark ? const BorderSide(color: Colors.white12) : BorderSide.none,
                   ),
                 ),
                 items: _teamMembers
@@ -290,11 +359,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: isIOS ? const BorderSide(color: Color(0xFFE0E0E0)) : BorderSide.none,
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: isIOS ? const BorderSide(color: Color(0xFFE0E0E0)) : BorderSide.none,
+                    borderSide: isDark ? const BorderSide(color: Colors.white12) : BorderSide.none,
                   ),
                 ),
                 items: ['Plancha', 'Freidoras', 'Caja', 'Armado', 'Domicilios']
@@ -327,11 +392,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: isIOS ? const BorderSide(color: Color(0xFFE0E0E0)) : BorderSide.none,
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: isIOS ? const BorderSide(color: Color(0xFFE0E0E0)) : BorderSide.none,
+                    borderSide: isDark ? const BorderSide(color: Colors.white12) : BorderSide.none,
                   ),
                 ),
                 items: [
@@ -374,7 +435,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                     foregroundColor: Colors.white,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(999),
+                      borderRadius: BorderRadius.circular(30),
                     ),
                   ),
                   child: Text(
@@ -397,16 +458,16 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     String selectedEmployee = _teamMembers.first['name'];
     String selectedStation = 'Freidoras';
 
-    final modalBg = isIOS ? Colors.white : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
-    final titleColor = isIOS ? const Color(0xFF1A1A1A) : (isDark ? Colors.white : const Color(0xFF191C1E));
-    final fieldFill = isIOS ? const Color(0xFFF9F9F9) : (isDark ? Colors.white10 : Colors.grey[100]);
-    final secondaryBtnColor = const Color(0xFF0B1B3D);
+    final modalBg = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+    final titleColor = isDark ? Colors.white : const Color(0xFF191C1E);
+    final fieldFill = isDark ? Colors.white10 : Colors.grey[100];
+    final secondaryBtnColor = const Color(0xFF545D80);
 
     showModalBottomSheet(
       context: context,
       backgroundColor: modalBg,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (ctx) => StatefulBuilder(
         builder: (context, setModalState) => Padding(
@@ -430,12 +491,11 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                 style: GoogleFonts.hankenGrotesk(color: titleColor),
                 decoration: InputDecoration(
                   labelText: 'Seleccionar Colaborador',
-                  labelStyle: GoogleFonts.hankenGrotesk(color: const Color(0xFF757575)),
                   filled: true,
                   fillColor: fieldFill,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: isIOS ? const BorderSide(color: Color(0xFFE0E0E0)) : BorderSide.none,
+                    borderSide: isDark ? const BorderSide(color: Colors.white12) : BorderSide.none,
                   ),
                 ),
                 items: _teamMembers
@@ -455,12 +515,11 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                 style: GoogleFonts.hankenGrotesk(color: titleColor),
                 decoration: InputDecoration(
                   labelText: 'Nueva Estación',
-                  labelStyle: GoogleFonts.hankenGrotesk(color: const Color(0xFF757575)),
                   filled: true,
                   fillColor: fieldFill,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: isIOS ? const BorderSide(color: Color(0xFFE0E0E0)) : BorderSide.none,
+                    borderSide: isDark ? const BorderSide(color: Colors.white12) : BorderSide.none,
                   ),
                 ),
                 items: ['Freidoras', 'Plancha', 'Caja', 'Armado', 'Domicilios']
@@ -503,7 +562,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                     foregroundColor: Colors.white,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(999),
+                      borderRadius: BorderRadius.circular(30),
                     ),
                   ),
                   child: Text(
@@ -524,16 +583,16 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
 
   void _showBroadcastNoticeModal(bool isIOS, bool isDark) {
     final controller = TextEditingController();
-    final modalBg = isIOS ? Colors.white : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
-    final titleColor = isIOS ? const Color(0xFF1A1A1A) : (isDark ? Colors.white : const Color(0xFF191C1E));
-    final fieldFill = isIOS ? const Color(0xFFF9F9F9) : (isDark ? Colors.white10 : Colors.grey[100]);
+    final modalBg = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+    final titleColor = isDark ? Colors.white : const Color(0xFF191C1E);
+    final fieldFill = isDark ? Colors.white10 : Colors.grey[100];
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: modalBg,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (ctx) => Padding(
         padding: EdgeInsets.fromLTRB(
@@ -558,13 +617,13 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               decoration: InputDecoration(
                 hintText: 'Escribe el mensaje o aviso para la sucursal...',
                 hintStyle: GoogleFonts.hankenGrotesk(
-                  color: isIOS ? const Color(0xFF757575) : (isDark ? Colors.white38 : Colors.grey[400]),
+                  color: isDark ? Colors.white38 : Colors.grey[400],
                 ),
                 filled: true,
                 fillColor: fieldFill,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: isIOS ? const BorderSide(color: Color(0xFFE0E0E0)) : BorderSide.none,
+                  borderSide: isDark ? const BorderSide(color: Colors.white12) : BorderSide.none,
                 ),
               ),
             ),
@@ -583,17 +642,17 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                           'Aviso enviado a todos los colaboradores del restaurante.',
                           style: GoogleFonts.hankenGrotesk(color: Colors.white),
                         ),
-                        backgroundColor: const Color(0xFFC8102E),
+                        backgroundColor: const Color(0xFF966100),
                         behavior: SnackBarBehavior.floating,
                       ),
                     );
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFC8102E),
+                  backgroundColor: const Color(0xFF966100),
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(999),
+                    borderRadius: BorderRadius.circular(30),
                   ),
                 ),
                 icon: const Icon(Icons.send, size: 18),
@@ -614,32 +673,42 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
 
   // TAB 0: RESUMEN OPERATIVO + ACCIONES RÁPIDAS + SOLICITUDES
   Widget _buildTurnosTab(bool isIOS, bool isDark) {
-    // iOS Design Tokens (Flat White / Light theme)
-    final titleColor = isIOS ? const Color(0xFF1A1A1A) : (isDark ? const Color(0xFFE1E2E4) : const Color(0xFF191C1E));
-    final subtextColor = isIOS ? const Color(0xFF757575) : (isDark ? Colors.white60 : const Color(0xFF5C403D));
-    final cardBgColor = isIOS ? Colors.white : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
-    final cardRadius = BorderRadius.circular(isIOS ? 14 : 16);
-    final cardBorder = isIOS 
-        ? Border.all(color: const Color(0xFFE0E0E0), width: 0.8) 
+    final titleColor = isIOS
+        ? (isDark ? const Color(0xFFFBDBD8) : const Color(0xFF410003))
+        : (isDark ? const Color(0xFFE1E2E4) : const Color(0xFF191C1E));
+    final subtextColor = isIOS
+        ? (isDark ? const Color(0xFFE5BDBA) : const Color(0xFF5C403D))
+        : (isDark ? const Color(0xFFC6C6C7) : const Color(0xFF545D80));
+    final cardBgColor = isIOS
+        ? (isDark ? Colors.white.withValues(alpha: 0.06) : Colors.white.withValues(alpha: 0.65))
+        : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
+    final cardBorder = isIOS
+        ? Border.all(color: isDark ? Colors.white.withValues(alpha: 0.12) : Colors.black.withValues(alpha: 0.08))
         : (isDark ? Border.all(color: Colors.white12) : null);
     final cardShadow = [
       BoxShadow(
-        color: isIOS ? Colors.black.withValues(alpha: 0.04) : Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
-        blurRadius: isIOS ? 16 : 16,
+        color: isIOS
+            ? Colors.black.withValues(alpha: isDark ? 0.2 : 0.04)
+            : Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+        blurRadius: 16,
         offset: const Offset(0, 4),
       ),
     ];
-    final primaryRed = const Color(0xFFC8102E);
-    final secondaryNavy = const Color(0xFF0B1B3D);
+    final primaryRed = const Color(0xFFAC0017);
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+      padding: EdgeInsets.fromLTRB(
+        16,
+        isIOS ? MediaQuery.of(context).padding.top + 88 : 16,
+        16,
+        100,
+      ),
       children: [
         // Section 1: Resumen Operativo (Bento Grid)
         Text(
           'Resumen Operativo',
           style: GoogleFonts.hankenGrotesk(
-            fontSize: 18,
+            fontSize: isIOS ? 20 : 18,
             fontWeight: FontWeight.bold,
             color: titleColor,
           ),
@@ -655,7 +724,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: cardBgColor,
-                  borderRadius: cardRadius,
+                  borderRadius: BorderRadius.circular(20),
                   border: cardBorder,
                   boxShadow: cardShadow,
                 ),
@@ -671,9 +740,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: isIOS
-                                ? const Color(0xFFF0F1F5)
-                                : (isDark ? Colors.white10 : const Color(0xFFEDEFE0)),
+                            color: isDark
+                                ? Colors.white10
+                                : const Color(0xFFEDEFE0),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
@@ -681,7 +750,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                             style: GoogleFonts.hankenGrotesk(
                               fontSize: 10,
                               fontWeight: FontWeight.w600,
-                              color: isIOS ? secondaryNavy : (isDark ? Colors.white70 : const Color(0xFF5C403D)),
+                              color: subtextColor,
                             ),
                           ),
                         ),
@@ -721,7 +790,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: cardBgColor,
-                      borderRadius: cardRadius,
+                      borderRadius: BorderRadius.circular(16),
                       border: cardBorder,
                       boxShadow: cardShadow,
                     ),
@@ -768,7 +837,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: cardBgColor,
-                      borderRadius: cardRadius,
+                      borderRadius: BorderRadius.circular(16),
                       border: cardBorder,
                       boxShadow: cardShadow,
                     ),
@@ -782,7 +851,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                             Row(
                               children: [
                                 Icon(Icons.schedule,
-                                    color: secondaryNavy, size: 16),
+                                    color: const Color(0xFF966100), size: 16),
                                 const SizedBox(width: 4),
                                 Text(
                                   'Cobertura',
@@ -809,7 +878,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                           child: LinearProgressIndicator(
                             value: _coveragePercentage,
                             minHeight: 6,
-                            backgroundColor: const Color(0xFFE0E0E0),
+                            backgroundColor: isDark
+                                ? Colors.white12
+                                : const Color(0xFFE1E2E4),
                             valueColor: AlwaysStoppedAnimation<Color>(primaryRed),
                           ),
                         ),
@@ -827,7 +898,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
         Text(
           'Acciones Rápidas',
           style: GoogleFonts.hankenGrotesk(
-            fontSize: 18,
+            fontSize: isIOS ? 20 : 18,
             fontWeight: FontWeight.bold,
             color: titleColor,
           ),
@@ -840,7 +911,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               _buildQuickActionBtn(
                 icon: Icons.event_available,
                 label: 'Crear\nTurno',
-                color: primaryRed,
+                color: const Color(0xFFD2232A),
                 isIOS: isIOS,
                 isDark: isDark,
                 onTap: () => _showCreateShiftModal(isIOS, isDark),
@@ -849,7 +920,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               _buildQuickActionBtn(
                 icon: Icons.restaurant,
                 label: 'Asignar\nEstación',
-                color: secondaryNavy,
+                color: const Color(0xFF545D80),
                 isIOS: isIOS,
                 isDark: isDark,
                 onTap: () => _showAssignStationModal(isIOS, isDark),
@@ -858,7 +929,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               _buildQuickActionBtn(
                 icon: Icons.campaign_outlined,
                 label: 'Enviar\nAviso',
-                color: const Color(0xFFB86000),
+                color: const Color(0xFF966100),
                 isIOS: isIOS,
                 isDark: isDark,
                 onTap: () => _showBroadcastNoticeModal(isIOS, isDark),
@@ -875,7 +946,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
             Text(
               'Solicitudes Pendientes',
               style: GoogleFonts.hankenGrotesk(
-                fontSize: 18,
+                fontSize: isIOS ? 20 : 18,
                 fontWeight: FontWeight.bold,
                 color: titleColor,
               ),
@@ -900,7 +971,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               color: cardBgColor,
-              borderRadius: cardRadius,
+              borderRadius: BorderRadius.circular(20),
               border: cardBorder,
               boxShadow: cardShadow,
             ),
@@ -928,19 +999,26 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     required bool isDark,
     required VoidCallback onTap,
   }) {
+    final cardBgColor = isIOS
+        ? (isDark ? Colors.white.withValues(alpha: 0.06) : Colors.white.withValues(alpha: 0.65))
+        : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
+    final cardBorder = isIOS
+        ? Border.all(color: isDark ? Colors.white.withValues(alpha: 0.12) : Colors.black.withValues(alpha: 0.08))
+        : (isDark ? Border.all(color: Colors.white12) : null);
+
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(isIOS ? 14 : 16),
+      borderRadius: BorderRadius.circular(16),
       child: Container(
         width: 110,
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
         decoration: BoxDecoration(
-          color: isIOS ? Colors.white : (isDark ? const Color(0xFF1E1E1E) : Colors.white),
-          borderRadius: BorderRadius.circular(isIOS ? 14 : 16),
-          border: isIOS ? Border.all(color: const Color(0xFFE0E0E0), width: 0.8) : (isDark ? Border.all(color: Colors.white12) : null),
+          color: cardBgColor,
+          borderRadius: BorderRadius.circular(16),
+          border: cardBorder,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: isIOS ? 0.04 : (isDark ? 0.2 : 0.04)),
+              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -952,7 +1030,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.12),
+                color: color.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: color, size: 22),
@@ -964,7 +1042,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               style: GoogleFonts.hankenGrotesk(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: isIOS ? const Color(0xFF1A1A1A) : (isDark ? Colors.white : const Color(0xFF191C1E)),
+                color: isDark ? Colors.white : const Color(0xFF191C1E),
                 height: 1.2,
               ),
             ),
@@ -975,23 +1053,31 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   }
 
   Widget _buildRequestCard(Map<String, dynamic> req, bool isIOS, bool isDark) {
-    final cardBgColor = isIOS ? Colors.white : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
-    final cardBorder = isIOS ? Border.all(color: const Color(0xFFE0E0E0), width: 0.8) : (isDark ? Border.all(color: Colors.white12) : null);
-    final titleColor = isIOS ? const Color(0xFF1A1A1A) : (isDark ? const Color(0xFFE1E2E4) : const Color(0xFF191C1E));
-    final subtextColor = isIOS ? const Color(0xFF757575) : (isDark ? Colors.white60 : Colors.grey[600]!);
-    final primaryRed = const Color(0xFFC8102E);
-    final secondaryNavy = const Color(0xFF0B1B3D);
+    final cardBgColor = isIOS
+        ? (isDark ? Colors.white.withValues(alpha: 0.06) : Colors.white.withValues(alpha: 0.65))
+        : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
+    final cardBorder = isIOS
+        ? Border.all(color: isDark ? Colors.white.withValues(alpha: 0.12) : Colors.black.withValues(alpha: 0.08))
+        : (isDark ? Border.all(color: Colors.white12) : null);
+    final titleColor = isIOS
+        ? (isDark ? const Color(0xFFFBDBD8) : const Color(0xFF410003))
+        : (isDark ? const Color(0xFFE1E2E4) : const Color(0xFF191C1E));
+    final subtextColor = isIOS
+        ? (isDark ? const Color(0xFFE5BDBA) : const Color(0xFF5C403D))
+        : (isDark ? const Color(0xFFC6C6C7) : const Color(0xFF545D80));
+    final primaryRed = const Color(0xFFAC0017);
+    final secondaryNavy = const Color(0xFF545D80);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: cardBgColor,
-        borderRadius: BorderRadius.circular(isIOS ? 14 : 16),
+        borderRadius: BorderRadius.circular(20),
         border: cardBorder,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isIOS ? 0.04 : (isDark ? 0.2 : 0.04)),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -1026,14 +1112,14 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                       Row(
                         children: [
                           Icon(req['icon'] as IconData,
-                              size: 14, color: isIOS ? secondaryNavy : const Color(0xFF545D80)),
+                              size: 14, color: secondaryNavy),
                           const SizedBox(width: 4),
                           Text(
                             req['type'],
                             style: GoogleFonts.hankenGrotesk(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
-                              color: isIOS ? secondaryNavy : const Color(0xFF545D80),
+                              color: secondaryNavy,
                             ),
                           ),
                         ],
@@ -1056,7 +1142,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
             req['details'],
             style: GoogleFonts.hankenGrotesk(
               fontSize: 13,
-              color: isIOS ? const Color(0xFF1A1A1A) : (isDark ? Colors.white70 : Colors.black87),
+              color: isDark ? Colors.white70 : Colors.black87,
             ),
           ),
           const SizedBox(height: 14),
@@ -1068,11 +1154,11 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                   child: ElevatedButton(
                     onPressed: () => _handleRejectRequest(req),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: isIOS ? const Color(0xFF0B1B3D) : const Color(0xFF545D80),
-                      foregroundColor: Colors.white,
+                      backgroundColor: isDark ? Colors.white10 : const Color(0xFFE7E8EA),
+                      foregroundColor: isDark ? Colors.white70 : Colors.black87,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(999),
+                        borderRadius: BorderRadius.circular(30),
                       ),
                     ),
                     child: Text(
@@ -1096,7 +1182,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                       foregroundColor: Colors.white,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(999),
+                        borderRadius: BorderRadius.circular(30),
                       ),
                     ),
                     child: Text(
@@ -1118,17 +1204,33 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
 
   // TAB 1: CAMBIOS DE TURNO (MERCADO)
   Widget _buildCambiosTab(bool isIOS, bool isDark) {
-    final titleColor = isIOS ? const Color(0xFF1A1A1A) : (isDark ? const Color(0xFFE1E2E4) : const Color(0xFF191C1E));
-    final subtextColor = isIOS ? const Color(0xFF757575) : (isDark ? Colors.white60 : Colors.grey[600]!);
+    final titleColor = isIOS
+        ? (isDark ? const Color(0xFFFBDBD8) : const Color(0xFF410003))
+        : (isDark ? const Color(0xFFE1E2E4) : const Color(0xFF191C1E));
+    final subtextColor = isIOS
+        ? (isDark ? const Color(0xFFE5BDBA) : const Color(0xFF5C403D))
+        : (isDark ? const Color(0xFFC6C6C7) : const Color(0xFF545D80));
+    final cardBgColor = isIOS
+        ? (isDark ? Colors.white.withValues(alpha: 0.06) : Colors.white.withValues(alpha: 0.65))
+        : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
+    final cardBorder = isIOS
+        ? Border.all(color: isDark ? Colors.white.withValues(alpha: 0.12) : Colors.black.withValues(alpha: 0.08))
+        : (isDark ? Border.all(color: Colors.white12) : null);
+
     final cambios = _pendingRequests.where((r) => r['typeKey'] == 'cambio').toList();
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+      padding: EdgeInsets.fromLTRB(
+        16,
+        isIOS ? MediaQuery.of(context).padding.top + 88 : 16,
+        16,
+        100,
+      ),
       children: [
         Text(
           'Intercambio de Turnos',
           style: GoogleFonts.hankenGrotesk(
-            fontSize: 20,
+            fontSize: isIOS ? 22 : 20,
             fontWeight: FontWeight.bold,
             color: titleColor,
           ),
@@ -1146,9 +1248,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
           Container(
             padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
-              color: isIOS ? Colors.white : (isDark ? const Color(0xFF1E1E1E) : Colors.white),
-              borderRadius: BorderRadius.circular(isIOS ? 14 : 16),
-              border: isIOS ? Border.all(color: const Color(0xFFE0E0E0), width: 0.8) : null,
+              color: cardBgColor,
+              borderRadius: BorderRadius.circular(20),
+              border: cardBorder,
             ),
             child: Column(
               children: [
@@ -1182,17 +1284,33 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
 
   // TAB 2: PERMISOS Y NOVEDADES
   Widget _buildPermisosTab(bool isIOS, bool isDark) {
-    final titleColor = isIOS ? const Color(0xFF1A1A1A) : (isDark ? const Color(0xFFE1E2E4) : const Color(0xFF191C1E));
-    final subtextColor = isIOS ? const Color(0xFF757575) : (isDark ? Colors.white60 : Colors.grey[600]!);
+    final titleColor = isIOS
+        ? (isDark ? const Color(0xFFFBDBD8) : const Color(0xFF410003))
+        : (isDark ? const Color(0xFFE1E2E4) : const Color(0xFF191C1E));
+    final subtextColor = isIOS
+        ? (isDark ? const Color(0xFFE5BDBA) : const Color(0xFF5C403D))
+        : (isDark ? const Color(0xFFC6C6C7) : const Color(0xFF545D80));
+    final cardBgColor = isIOS
+        ? (isDark ? Colors.white.withValues(alpha: 0.06) : Colors.white.withValues(alpha: 0.65))
+        : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
+    final cardBorder = isIOS
+        ? Border.all(color: isDark ? Colors.white.withValues(alpha: 0.12) : Colors.black.withValues(alpha: 0.08))
+        : (isDark ? Border.all(color: Colors.white12) : null);
+
     final permisos = _pendingRequests.where((r) => r['typeKey'] == 'permiso').toList();
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+      padding: EdgeInsets.fromLTRB(
+        16,
+        isIOS ? MediaQuery.of(context).padding.top + 88 : 16,
+        16,
+        100,
+      ),
       children: [
         Text(
           'Permisos y Novedades Médicas',
           style: GoogleFonts.hankenGrotesk(
-            fontSize: 20,
+            fontSize: isIOS ? 22 : 20,
             fontWeight: FontWeight.bold,
             color: titleColor,
           ),
@@ -1210,9 +1328,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
           Container(
             padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
-              color: isIOS ? Colors.white : (isDark ? const Color(0xFF1E1E1E) : Colors.white),
-              borderRadius: BorderRadius.circular(isIOS ? 14 : 16),
-              border: isIOS ? Border.all(color: const Color(0xFFE0E0E0), width: 0.8) : null,
+              color: cardBgColor,
+              borderRadius: BorderRadius.circular(20),
+              border: cardBorder,
             ),
             child: Column(
               children: [
@@ -1246,14 +1364,27 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
 
   // TAB 3: EQUIPO Y ESTACIONES
   Widget _buildEquipoTab(bool isIOS, bool isDark) {
-    final titleColor = isIOS ? const Color(0xFF1A1A1A) : (isDark ? const Color(0xFFE1E2E4) : const Color(0xFF191C1E));
-    final subtextColor = isIOS ? const Color(0xFF757575) : (isDark ? Colors.white60 : Colors.grey[600]!);
-    final cardBgColor = isIOS ? Colors.white : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
-    final primaryRed = const Color(0xFFC8102E);
-    final secondaryNavy = const Color(0xFF0B1B3D);
+    final titleColor = isIOS
+        ? (isDark ? const Color(0xFFFBDBD8) : const Color(0xFF410003))
+        : (isDark ? const Color(0xFFE1E2E4) : const Color(0xFF191C1E));
+    final subtextColor = isIOS
+        ? (isDark ? const Color(0xFFE5BDBA) : const Color(0xFF5C403D))
+        : (isDark ? const Color(0xFFC6C6C7) : const Color(0xFF545D80));
+    final cardBgColor = isIOS
+        ? (isDark ? Colors.white.withValues(alpha: 0.06) : Colors.white.withValues(alpha: 0.65))
+        : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
+    final cardBorder = isIOS
+        ? Border.all(color: isDark ? Colors.white.withValues(alpha: 0.12) : Colors.black.withValues(alpha: 0.08))
+        : (isDark ? Border.all(color: Colors.white12) : null);
+    final primaryRed = const Color(0xFFAC0017);
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+      padding: EdgeInsets.fromLTRB(
+        16,
+        isIOS ? MediaQuery.of(context).padding.top + 88 : 16,
+        16,
+        100,
+      ),
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1264,7 +1395,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                 Text(
                   'Equipo de Restaurante',
                   style: GoogleFonts.hankenGrotesk(
-                    fontSize: 20,
+                    fontSize: isIOS ? 22 : 20,
                     fontWeight: FontWeight.bold,
                     color: titleColor,
                   ),
@@ -1293,11 +1424,11 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: cardBgColor,
-              borderRadius: BorderRadius.circular(isIOS ? 14 : 16),
-              border: isIOS ? Border.all(color: const Color(0xFFE0E0E0), width: 0.8) : (isDark ? Border.all(color: Colors.white12) : null),
+              borderRadius: BorderRadius.circular(20),
+              border: cardBorder,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: isIOS ? 0.04 : (isDark ? 0.2 : 0.04)),
+                  color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -1336,7 +1467,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 2),
                             decoration: BoxDecoration(
-                              color: secondaryNavy.withValues(alpha: 0.08),
+                              color: const Color(0xFF545D80).withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
@@ -1344,7 +1475,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                               style: GoogleFonts.hankenGrotesk(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
-                                color: secondaryNavy,
+                                color: const Color(0xFF545D80),
                               ),
                             ),
                           ),
@@ -1366,8 +1497,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: isWorking
-                        ? const Color(0xFFE8F5E9)
-                        : const Color(0xFFFFF3E0),
+                        ? Colors.green.withValues(alpha: 0.15)
+                        : Colors.orange.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -1375,7 +1506,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                     style: GoogleFonts.hankenGrotesk(
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
-                      color: isWorking ? const Color(0xFF2E7D32) : const Color(0xFFE65100),
+                      color: isWorking ? Colors.green[800] : Colors.orange[800],
                     ),
                   ),
                 ),
@@ -1389,18 +1520,191 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isIOS = defaultTargetPlatform == TargetPlatform.iOS;
-    final isDark = !isIOS && _isDarkMode(context);
     final mediaQuery = MediaQuery.of(context);
     final isDesktop = mediaQuery.size.width > 480;
+    final isIOS = defaultTargetPlatform == TargetPlatform.iOS;
+    final isDark = _isDarkMode(context);
 
-    // Colors matching user's iOS rules (Flat / White background / Frisby Red / Navy)
-    final bgColor = isIOS ? const Color(0xFFF9F9F9) : (isDark ? const Color(0xFF121212) : const Color(0xFFF8F9FB));
-    final appBarBg = isIOS ? const Color(0xFFC8102E) : (isDark ? const Color(0xFF1F1F1F) : const Color(0xFFAC0017));
-    final bottomNavBg = isIOS ? Colors.white : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
-    final bottomBorderColor = isIOS ? const Color(0xFFE0E0E0) : (isDark ? Colors.white12 : Colors.grey[200]!);
+    // iOS Floating Glassmorphic TopAppBar
+    Widget mobileAppBarIOS() {
+      final barBg = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white.withValues(alpha: 0.6);
+      final barBorder = isDark ? Colors.white.withValues(alpha: 0.15) : Colors.black.withValues(alpha: 0.08);
+      final accentIconColor = isDark ? const Color(0xFFFFB3AD) : const Color(0xFFAC0017);
 
-    Widget activeContent() {
+      return Positioned(
+        top: MediaQuery.of(context).padding.top + 8,
+        left: 20,
+        right: 20,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(999),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: barBg,
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(
+                  color: barBorder,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
+                    blurRadius: 40,
+                    offset: const Offset(0, 20),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Builder(
+                    builder: (context) => IconButton(
+                      icon: Icon(Icons.menu, color: accentIconColor),
+                      onPressed: () => Scaffold.of(context).openDrawer(),
+                    ),
+                  ),
+                  Image.network(
+                    'https://lh3.googleusercontent.com/aida-public/AB6AXuATkXAerVPsE2m4hfUiQnl2Y9rqFfI7Ps4kylZ4pKqTsLdljqPy3P98NcAsZSxf5IhL9PT0EuZTt6uWZCyEwE_d0EleeKeYd7eOti54uHUm05djF0vMkj200IOm-HymlHKOB1bF3OJNLf_BwQHd8Xi08O5wdJgwONmRr9t7QwTuRiigzmxj8wDxdOTExQV5qztVYJNP5jaE-OQsRnV5_zkiTrVLmwvYv0XeIEm_LEo0hkxVXoQTGx_frjCjDWomYU7yXM8',
+                    height: 32,
+                    errorBuilder: (context, error, stackTrace) => Text(
+                      'Admin Frisby',
+                      style: GoogleFonts.sora(
+                        color: accentIconColor,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.notifications_outlined, color: accentIconColor),
+                    onPressed: () => _showNotificationDialog(true, isDark),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Android TopAppBar
+    PreferredSizeWidget? mobileAppBarAndroid() {
+      if (isDesktop || isIOS) return null;
+
+      final appBarBg = isDark ? const Color(0xFF1F1F1F) : const Color(0xFFAC0017);
+
+      return AppBar(
+        backgroundColor: appBarBg,
+        elevation: 1,
+        centerTitle: true,
+        title: Image.network(
+          'https://lh3.googleusercontent.com/aida-public/AB6AXuATkXAerVPsE2m4hfUiQnl2Y9rqFfI7Ps4kylZ4pKqTsLdljqPy3P98NcAsZSxf5IhL9PT0EuZTt6uWZCyEwE_d0EleeKeYd7eOti54uHUm05djF0vMkj200IOm-HymlHKOB1bF3OJNLf_BwQHd8Xi08O5wdJgwONmRr9t7QwTuRiigzmxj8wDxdOTExQV5qztVYJNP5jaE-OQsRnV5_zkiTrVLmwvYv0XeIEm_LEo0hkxVXoQTGx_frjCjDWomYU7yXM8',
+          height: 32,
+          errorBuilder: (context, error, stackTrace) => Text(
+            'Admin Frisby Turnos',
+            style: GoogleFonts.hankenGrotesk(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 18,
+            ),
+          ),
+        ),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu, color: Colors.white),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications, color: Colors.white),
+            onPressed: () => _showNotificationDialog(false, isDark),
+          ),
+        ],
+      );
+    }
+
+    // iOS Floating Bottom Nav
+    Widget bottomNavBarIOS() {
+      final barBg = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white.withValues(alpha: 0.6);
+      final barBorder = isDark ? Colors.white.withValues(alpha: 0.15) : Colors.black.withValues(alpha: 0.08);
+
+      return SafeArea(
+        top: false,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(30),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+              child: Container(
+                height: 68,
+                decoration: BoxDecoration(
+                  color: barBg,
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(
+                    color: barBorder,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.05),
+                      blurRadius: 30,
+                      offset: const Offset(0, -10),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildNavItemIOS(0, Icons.event_note, 'Turnos', isDark),
+                    _buildNavItemIOS(1, Icons.swap_horiz, 'Cambios', isDark),
+                    _buildNavItemIOS(2, Icons.medical_services_outlined, 'Permisos', isDark),
+                    _buildNavItemIOS(3, Icons.group_outlined, 'Equipo', isDark),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Android Solid Bottom Nav
+    Widget bottomNavBarAndroid() {
+      final navBgColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+      final borderSide = BorderSide(
+        color: isDark ? Colors.white12 : Colors.grey[200]!,
+        width: 1,
+      );
+
+      return Container(
+        decoration: BoxDecoration(
+          color: navBgColor,
+          border: Border(
+            top: borderSide,
+          ),
+        ),
+        child: SafeArea(
+          top: false,
+          child: SizedBox(
+            height: 64,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildNavItemAndroid(0, Icons.event_note, 'Turnos', isDark),
+                _buildNavItemAndroid(1, Icons.swap_horiz, 'Cambios', isDark),
+                _buildNavItemAndroid(2, Icons.medical_services_outlined, 'Permisos', isDark),
+                _buildNavItemAndroid(3, Icons.group_outlined, 'Equipo', isDark),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    Widget activeTabContent() {
       switch (_currentIndex) {
         case 0:
           return _buildTurnosTab(isIOS, isDark);
@@ -1415,46 +1719,17 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       }
     }
 
-    Widget scaffoldContent() {
+    Widget mainCanvas() {
       return Scaffold(
-        backgroundColor: bgColor,
-        appBar: AppBar(
-          backgroundColor: appBarBg,
-          elevation: isIOS ? 0 : 2,
-          centerTitle: true,
-          title: Text(
-            'Admin Frisby Turnos',
-            style: GoogleFonts.hankenGrotesk(
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              fontSize: 18,
-            ),
-          ),
-          leading: Builder(
-            builder: (context) => IconButton(
-              icon: const Icon(Icons.menu, color: Colors.white),
-              onPressed: () => Scaffold.of(context).openDrawer(),
-            ),
-          ),
-          actions: [
-            Padding(
-              padding: const EdgeInsets.only(right: 16.0),
-              child: CircleAvatar(
-                radius: 16,
-                backgroundImage: const NetworkImage(
-                  'https://lh3.googleusercontent.com/aida-public/AB6AXuDMgkhhPX8XzsxpqFFykCvHkvJhpP4XCWw8TmC9gw8HQzfAtsWnU96wdFRn0TK-k12jMCkVzTzRg0lknWMdZRkCC4i8mIDsHfKlEuL5tqs_8A2BYRdiwZQ885poamygDvFIbvHiCh1JwmgrzF1uBlqFLtnfKTOUJfIVusON856L9gf2pFxIlrSDTOd51irguRlRY0ayiE3q-SZMFV9NAIS_pcAy0hmQybPk9_XtRRRE1yD8xL30gQovmg',
-                ),
-              ),
-            ),
-          ],
-        ),
+        backgroundColor: Colors.transparent,
+        appBar: mobileAppBarAndroid(),
         drawer: Drawer(
-          backgroundColor: isIOS ? Colors.white : (isDark ? const Color(0xFF1E1E1E) : Colors.white),
+          backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
           child: Column(
             children: [
               UserAccountsDrawerHeader(
                 decoration: const BoxDecoration(
-                  color: Color(0xFFC8102E),
+                  color: Color(0xFFAC0017),
                 ),
                 accountName: Text(
                   widget.profileName ?? 'Administrador General',
@@ -1474,20 +1749,14 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                 ),
               ),
               ListTile(
-                leading: const Icon(Icons.store, color: Color(0xFFC8102E)),
+                leading: const Icon(Icons.store, color: Color(0xFFAC0017)),
                 title: Text(
                   'Sucursal: Parque Arboleda',
-                  style: GoogleFonts.hankenGrotesk(
-                    fontWeight: FontWeight.w600,
-                    color: isIOS ? const Color(0xFF1A1A1A) : null,
-                  ),
+                  style: GoogleFonts.hankenGrotesk(fontWeight: FontWeight.w600),
                 ),
                 subtitle: Text(
                   'Zona Eje Cafetero',
-                  style: GoogleFonts.hankenGrotesk(
-                    fontSize: 12,
-                    color: isIOS ? const Color(0xFF757575) : null,
-                  ),
+                  style: GoogleFonts.hankenGrotesk(fontSize: 12),
                 ),
               ),
               const Divider(),
@@ -1505,67 +1774,185 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
             ],
           ),
         ),
-        body: activeContent(),
-        bottomNavigationBar: Container(
-          decoration: BoxDecoration(
-            color: bottomNavBg,
-            border: Border(
-              top: BorderSide(
-                color: bottomBorderColor,
-                width: isIOS ? 0.8 : 1,
-              ),
+        body: Stack(
+          children: [
+            activeTabContent(),
+            if (isIOS) mobileAppBarIOS(),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: isIOS ? bottomNavBarIOS() : bottomNavBarAndroid(),
             ),
-          ),
-          child: SafeArea(
-            top: false,
-            child: SizedBox(
-              height: 64,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildNavTab(0, Icons.event_note, 'Turnos', isIOS, isDark),
-                  _buildNavTab(1, Icons.swap_horiz, 'Cambios', isIOS, isDark),
-                  _buildNavTab(2, Icons.medical_services_outlined, 'Permisos', isIOS, isDark),
-                  _buildNavTab(3, Icons.group_outlined, 'Equipo', isIOS, isDark),
-                ],
-              ),
-            ),
-          ),
+          ],
         ),
       );
     }
 
-    return isDesktop
-        ? Center(
-            child: Container(
-              width: 375,
-              height: 812,
-              decoration: BoxDecoration(
-                color: isIOS ? Colors.white : (isDark ? const Color(0xFF1E1E1E) : Colors.white),
-                borderRadius: BorderRadius.circular(40),
-                border: Border.all(
-                  color: isDark ? Colors.black26 : Colors.white,
-                  width: 8,
+    Widget innerAppContainer() {
+      if (isIOS) {
+        final iosGradStart = isDark ? const Color(0xFF1F0F0E) : const Color(0xFFFFF8F7);
+        final iosGradEnd = isDark ? const Color(0xFF190A09) : const Color(0xFFF4F5F7);
+        final radialColor1 = isDark 
+            ? const Color(0xFFD2232A).withValues(alpha: 0.15) 
+            : const Color(0xFFD2232A).withValues(alpha: 0.04);
+        final radialColor2 = isDark 
+            ? const Color(0xFFD2232A).withValues(alpha: 0.1) 
+            : const Color(0xFFAC0017).withValues(alpha: 0.03);
+
+        return Container(
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            borderRadius: isDesktop ? BorderRadius.circular(40) : BorderRadius.zero,
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                iosGradStart,
+                iosGradEnd,
+              ],
+            ),
+          ),
+          child: Stack(
+            children: [
+              Positioned(
+                left: -150,
+                top: 250,
+                child: Container(
+                  width: 350,
+                  height: 350,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        radialColor1,
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.3),
-                    blurRadius: 30,
-                    offset: const Offset(0, 10),
+              ),
+              Positioned(
+                right: -100,
+                top: 80,
+                child: Container(
+                  width: 300,
+                  height: 300,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        radialColor2,
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              mainCanvas(),
+            ],
+          ),
+        );
+      } else {
+        final androidBgColor = isDark ? const Color(0xFF121212) : const Color(0xFFF4F5F7);
+        return Container(
+          decoration: BoxDecoration(
+            color: androidBgColor,
+          ),
+          child: mainCanvas(),
+        );
+      }
+    }
+
+    return Scaffold(
+      backgroundColor: isDark ? const Color(0xFF121212) : const Color(0xFFF4F5F7),
+      body: Center(
+        child: isDesktop
+            ? Container(
+                width: 375,
+                height: 812,
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                  borderRadius: BorderRadius.circular(40),
+                  border: Border.all(
+                    color: isDark ? Colors.black26 : Colors.white,
+                    width: 8,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.3),
+                      blurRadius: 30,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: innerAppContainer(),
+              )
+            : innerAppContainer(),
+      ),
+    );
+  }
+
+  Widget _buildNavItemAndroid(int index, IconData icon, String label, bool isDark) {
+    final isActive = _currentIndex == index;
+    final activeColor = isDark ? const Color(0xFFFFB3AD) : const Color(0xFFAC0017);
+    final inactiveColor = isDark ? const Color(0xFFC6C6C7) : const Color(0xFF545D80);
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => setState(() => _currentIndex = index),
+        child: SizedBox(
+          width: 80,
+          height: 64,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              if (isActive)
+                Positioned(
+                  top: 8,
+                  child: Container(
+                    width: 48,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFD2232A).withValues(alpha: isDark ? 0.25 : 0.20),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    icon,
+                    color: isActive ? activeColor : inactiveColor,
+                    size: 22,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    label,
+                    style: GoogleFonts.hankenGrotesk(
+                      fontSize: 11,
+                      fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                      color: isActive ? activeColor : inactiveColor,
+                    ),
                   ),
                 ],
               ),
-              clipBehavior: Clip.antiAlias,
-              child: scaffoldContent(),
-            ),
-          )
-        : scaffoldContent();
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
-  Widget _buildNavTab(int index, IconData icon, String label, bool isIOS, bool isDark) {
+  Widget _buildNavItemIOS(int index, IconData icon, String label, bool isDark) {
     final isActive = _currentIndex == index;
-    final activeColor = isIOS ? const Color(0xFFC8102E) : (isDark ? const Color(0xFFFFB3AD) : const Color(0xFFAC0017));
-    final inactiveColor = isIOS ? const Color(0xFF757575) : (isDark ? const Color(0xFFC6C6C7) : const Color(0xFF545D80));
+    final activeColor = isDark ? const Color(0xFFFFB3AD) : const Color(0xFFAC0017);
+    final inactiveColor = isDark 
+        ? const Color(0xFFE5BDBA).withValues(alpha: 0.6) 
+        : const Color(0xFF5C403D).withValues(alpha: 0.6);
 
     return Material(
       color: Colors.transparent,
@@ -1573,14 +1960,14 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
         onTap: () => setState(() => _currentIndex = index),
         child: SizedBox(
           width: 75,
-          height: 64,
+          height: 68,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
                 icon,
                 color: isActive ? activeColor : inactiveColor,
-                size: 22,
+                size: isActive ? 24 : 22,
               ),
               const SizedBox(height: 4),
               Text(
@@ -1589,6 +1976,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                   fontSize: 11,
                   fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
                   color: isActive ? activeColor : inactiveColor,
+                  letterSpacing: 0.02,
                 ),
               ),
             ],
