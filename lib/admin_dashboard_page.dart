@@ -5,6 +5,7 @@ import 'google_fonts_wrapper.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'login_page.dart';
 import 'create_shift_page.dart';
+import 'widgets/frisby_weekly_schedule_sheet.dart';
 
 class AdminDashboardPage extends StatefulWidget {
   final String username;
@@ -1288,8 +1289,6 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
   }
 
   void _showWeeklyScheduleModal(bool isDark) {
-    final days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -1338,80 +1337,14 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
               ),
               const SizedBox(height: 16),
               Expanded(
-                child: ListView.builder(
+                child: SingleChildScrollView(
                   controller: scrollController,
-                  itemCount: days.length,
-                  itemBuilder: (context, index) {
-                    final day = days[index];
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: isDark ? Colors.white10 : const Color(0xFFF8F9FB),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: isDark ? Colors.white12 : const Color(0xFFE0E0E0),
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                day,
-                                style: GoogleFonts.hankenGrotesk(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: const Color(0xFFAC0017),
-                                ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFAC0017).withValues(alpha: 0.12),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  '5 Asignados',
-                                  style: GoogleFonts.hankenGrotesk(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                    color: const Color(0xFFAC0017),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          ..._teamMembers.take(3).map((m) => Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 2.0),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      m['name'],
-                                      style: GoogleFonts.hankenGrotesk(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
-                                        color: isDark ? Colors.white70 : Colors.black87,
-                                      ),
-                                    ),
-                                    Text(
-                                      '${m['station']} (${m['shift']})',
-                                      style: GoogleFonts.hankenGrotesk(
-                                        fontSize: 12,
-                                        color: isDark ? Colors.white38 : Colors.grey[600],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )),
-                        ],
-                      ),
-                    );
-                  },
+                  child: FrisbyWeeklyScheduleSheet(
+                    restaurantName: _currentStore,
+                    isDark: isDark,
+                    isIOS: _isIOS(context),
+                    onAddShiftPressed: _navigateToCreateShiftPage,
+                  ),
                 ),
               ),
             ],
@@ -2459,6 +2392,16 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
             ),
           ],
         ),
+        const SizedBox(height: 20),
+
+        // Malla Semanal DRO'001.1 (Directa en la pestaña principal de Turnos)
+        FrisbyWeeklyScheduleSheet(
+          restaurantName: _currentStore,
+          isDark: isDark,
+          isIOS: isIOS,
+          onAddShiftPressed: _navigateToCreateShiftPage,
+        ),
+
         const SizedBox(height: 24),
 
         // Section 2: Acciones Rápidas
@@ -3701,6 +3644,16 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                             ),
                           ),
                         ],
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Full DRO'001.1 Weekly Schedule Sheet (Direct Table on Canvas)
+                      FrisbyWeeklyScheduleSheet(
+                        restaurantName: _currentStore,
+                        isDark: isDark,
+                        isIOS: false,
+                        onAddShiftPressed: _navigateToCreateShiftPage,
                       ),
 
                       const SizedBox(height: 24),
