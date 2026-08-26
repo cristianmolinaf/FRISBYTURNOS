@@ -25,6 +25,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   int _currentIndex = 0;
   String _currentStore = 'Frisby Parque Arboleda';
   final String _currentZone = 'Zona Eje Cafetero';
+  bool? _isDarkModeOverride;
 
   // Real-time / Mock data for Admin Operations
   final int _activeEmployees = 24;
@@ -173,83 +174,11 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     } catch (_) {}
   }
 
-  bool? _isDarkModeOverride;
-
   bool _isDarkMode(BuildContext context) {
     if (_isDarkModeOverride != null) {
       return _isDarkModeOverride!;
     }
     return MediaQuery.of(context).platformBrightness == Brightness.dark;
-  }
-
-  void _showThemeSelectorDialog(bool isDark) {
-    showDialog(
-      context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Row(
-            children: [
-              const Icon(Icons.palette_outlined, color: Color(0xFFAC0017)),
-              const SizedBox(width: 8),
-              Text(
-                'Tema de la Aplicación',
-                style: GoogleFonts.hankenGrotesk(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                  color: isDark ? Colors.white : const Color(0xFF191C1E),
-                ),
-              ),
-            ],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                title: Text('Automático (Del Sistema)', style: GoogleFonts.hankenGrotesk(fontWeight: _isDarkModeOverride == null ? FontWeight.bold : FontWeight.normal)),
-                subtitle: Text('Sigue el tema configurado en tu dispositivo', style: GoogleFonts.hankenGrotesk(fontSize: 12)),
-                leading: const Icon(Icons.brightness_auto, color: Color(0xFFAC0017)),
-                trailing: _isDarkModeOverride == null ? const Icon(Icons.check, color: Color(0xFF2E7D32)) : null,
-                onTap: () {
-                  setState(() => _isDarkModeOverride = null);
-                  Navigator.pop(ctx);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Tema cambiado a: Del Sistema'), behavior: SnackBarBehavior.floating),
-                  );
-                },
-              ),
-              ListTile(
-                title: Text('Modo Claro', style: GoogleFonts.hankenGrotesk(fontWeight: _isDarkModeOverride == false ? FontWeight.bold : FontWeight.normal)),
-                subtitle: Text('Fondos claros y alto contraste', style: GoogleFonts.hankenGrotesk(fontSize: 12)),
-                leading: const Icon(Icons.light_mode, color: Color(0xFF966100)),
-                trailing: _isDarkModeOverride == false ? const Icon(Icons.check, color: Color(0xFF2E7D32)) : null,
-                onTap: () {
-                  setState(() => _isDarkModeOverride = false);
-                  Navigator.pop(ctx);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Tema cambiado a: Modo Claro'), behavior: SnackBarBehavior.floating),
-                  );
-                },
-              ),
-              ListTile(
-                title: Text('Modo Oscuro', style: GoogleFonts.hankenGrotesk(fontWeight: _isDarkModeOverride == true ? FontWeight.bold : FontWeight.normal)),
-                subtitle: Text('Fondos oscuros y confort visual', style: GoogleFonts.hankenGrotesk(fontSize: 12)),
-                leading: const Icon(Icons.dark_mode, color: Color(0xFF545D80)),
-                trailing: _isDarkModeOverride == true ? const Icon(Icons.check, color: Color(0xFF2E7D32)) : null,
-                onTap: () {
-                  setState(() => _isDarkModeOverride = true);
-                  Navigator.pop(ctx);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Tema cambiado a: Modo Oscuro'), behavior: SnackBarBehavior.floating),
-                  );
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 
   void _handleSignOut() async {
@@ -363,6 +292,76 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
         ),
         backgroundColor: const Color(0xFFBA1A1A),
         behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  void _showThemeSelectorDialog(bool isDark) {
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Row(
+            children: [
+              const Icon(Icons.palette_outlined, color: Color(0xFFAC0017)),
+              const SizedBox(width: 8),
+              Text(
+                'Tema de la Aplicación',
+                style: GoogleFonts.hankenGrotesk(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: isDark ? Colors.white : const Color(0xFF191C1E),
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: Text('Automático (Del Sistema)', style: GoogleFonts.hankenGrotesk(fontWeight: _isDarkModeOverride == null ? FontWeight.bold : FontWeight.normal)),
+                subtitle: Text('Sigue el tema configurado en tu dispositivo', style: GoogleFonts.hankenGrotesk(fontSize: 12)),
+                leading: const Icon(Icons.brightness_auto, color: Color(0xFFAC0017)),
+                trailing: _isDarkModeOverride == null ? const Icon(Icons.check, color: Color(0xFF2E7D32)) : null,
+                onTap: () {
+                  setState(() => _isDarkModeOverride = null);
+                  Navigator.pop(ctx);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Tema cambiado a: Del Sistema'), behavior: SnackBarBehavior.floating),
+                  );
+                },
+              ),
+              ListTile(
+                title: Text('Modo Claro', style: GoogleFonts.hankenGrotesk(fontWeight: _isDarkModeOverride == false ? FontWeight.bold : FontWeight.normal)),
+                subtitle: Text('Fondos claros y alto contraste', style: GoogleFonts.hankenGrotesk(fontSize: 12)),
+                leading: const Icon(Icons.light_mode, color: Color(0xFF966100)),
+                trailing: _isDarkModeOverride == false ? const Icon(Icons.check, color: Color(0xFF2E7D32)) : null,
+                onTap: () {
+                  setState(() => _isDarkModeOverride = false);
+                  Navigator.pop(ctx);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Tema cambiado a: Modo Claro'), behavior: SnackBarBehavior.floating),
+                  );
+                },
+              ),
+              ListTile(
+                title: Text('Modo Oscuro', style: GoogleFonts.hankenGrotesk(fontWeight: _isDarkModeOverride == true ? FontWeight.bold : FontWeight.normal)),
+                subtitle: Text('Fondos oscuros y confort visual', style: GoogleFonts.hankenGrotesk(fontSize: 12)),
+                leading: const Icon(Icons.dark_mode, color: Color(0xFF545D80)),
+                trailing: _isDarkModeOverride == true ? const Icon(Icons.check, color: Color(0xFF2E7D32)) : null,
+                onTap: () {
+                  setState(() => _isDarkModeOverride = true);
+                  Navigator.pop(ctx);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Tema cambiado a: Modo Oscuro'), behavior: SnackBarBehavior.floating),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -850,8 +849,6 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       ),
     );
   }
-
-  // --- SIDEBAR MODAL IMPLEMENTATIONS ---
 
   void _showSwitchStoreDialog(bool isDark) {
     final stores = [
@@ -2573,7 +2570,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     );
   }
 
-  // --- DRAWER (SIDEBAR) BUILDER ---
+  // --- DRAWER (SIDEBAR) BUILDER FOR MOBILE ---
 
   Widget _buildAdminSidebar(bool isIOS, bool isDark) {
     final drawerBg = isDark ? const Color(0xFF1E1E1E) : Colors.white;
@@ -2771,12 +2768,736 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     );
   }
 
+  // --- DESKTOP WEB PORTAL COMPONENTS ---
+
+  Widget _tableHeaderCell(String text, bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+      child: Text(
+        text,
+        style: GoogleFonts.hankenGrotesk(
+          fontSize: 11,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 0.8,
+          color: isDark ? Colors.white60 : const Color(0xFF6B7280),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDesktopKpiCard({
+    required String title,
+    required String value,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+    required bool isDark,
+  }) {
+    final cardBg = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+    final borderColor = isDark ? Colors.white12 : const Color(0xFFE5E7EB);
+    final titleColor = isDark ? Colors.white : const Color(0xFF111827);
+    final subtextColor = isDark ? Colors.white60 : const Color(0xFF6B7280);
+
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: cardBg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: borderColor),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: GoogleFonts.hankenGrotesk(fontSize: 12, fontWeight: FontWeight.w600, color: subtextColor)),
+              const SizedBox(height: 6),
+              Text(value, style: GoogleFonts.hankenGrotesk(fontSize: 26, fontWeight: FontWeight.bold, color: titleColor)),
+              const SizedBox(height: 4),
+              Text(subtitle, style: GoogleFonts.hankenGrotesk(fontSize: 11, color: subtextColor)),
+            ],
+          ),
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: color, size: 22),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDesktopAdminPortal(bool isDark) {
+    final bg = isDark ? const Color(0xFF141414) : const Color(0xFFF6F7F9);
+    final sidebarBg = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+    final cardBg = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+    final borderColor = isDark ? Colors.white12 : const Color(0xFFE5E7EB);
+    final titleColor = isDark ? Colors.white : const Color(0xFF111827);
+    final subtextColor = isDark ? Colors.white60 : const Color(0xFF6B7280);
+    final primaryRed = const Color(0xFFAC0017);
+
+    Widget navItem({
+      required int index,
+      required IconData icon,
+      required String title,
+      VoidCallback? customTap,
+    }) {
+      final isActive = _currentIndex == index && customTap == null;
+      return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
+        child: InkWell(
+          onTap: customTap ?? () => setState(() => _currentIndex = index),
+          borderRadius: BorderRadius.circular(10),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: isActive ? primaryRed.withValues(alpha: isDark ? 0.25 : 0.12) : Colors.transparent,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  icon,
+                  size: 20,
+                  color: isActive ? primaryRed : (isDark ? Colors.white70 : const Color(0xFF4B5563)),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  title,
+                  style: GoogleFonts.hankenGrotesk(
+                    fontSize: 14,
+                    fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
+                    color: isActive ? primaryRed : (isDark ? Colors.white : const Color(0xFF1F2937)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    Widget sectionTitle(String text) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 6),
+        child: Text(
+          text,
+          style: GoogleFonts.hankenGrotesk(
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.1,
+            color: subtextColor,
+          ),
+        ),
+      );
+    }
+
+    return Scaffold(
+      backgroundColor: bg,
+      body: Row(
+        children: [
+          // 1. LEFT SIDEBAR
+          Container(
+            width: 260,
+            decoration: BoxDecoration(
+              color: sidebarBg,
+              border: Border(right: BorderSide(color: borderColor)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Brand Header
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    border: Border(bottom: BorderSide(color: borderColor)),
+                  ),
+                  child: Row(
+                    children: [
+                      Image.network(
+                        'https://lh3.googleusercontent.com/aida-public/AB6AXuATkXAerVPsE2m4hfUiQnl2Y9rqFfI7Ps4kylZ4pKqTsLdljqPy3P98NcAsZSxf5IhL9PT0EuZTt6uWZCyEwE_d0EleeKeYd7eOti54uHUm05djF0vMkj200IOm-HymlHKOB1bF3OJNLf_BwQHd8Xi08O5wdJgwONmRr9t7QwTuRiigzmxj8wDxdOTExQV5qztVYJNP5jaE-OQsRnV5_zkiTrVLmwvYv0XeIEm_LEo0hkxVXoQTGx_frjCjDWomYU7yXM8',
+                        height: 28,
+                        errorBuilder: (c, e, s) => Text(
+                          'Frisby',
+                          style: GoogleFonts.sora(fontSize: 22, fontWeight: FontWeight.bold, color: primaryRed),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: primaryRed.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          'WEB ADMIN',
+                          style: GoogleFonts.hankenGrotesk(fontSize: 10, fontWeight: FontWeight.bold, color: primaryRed),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Store Switcher Pill
+                InkWell(
+                  onTap: () => _showSwitchStoreDialog(isDark),
+                  child: Container(
+                    margin: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: isDark ? Colors.white10 : const Color(0xFFF3F4F6),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: borderColor),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.storefront, size: 18, color: Color(0xFFAC0017)),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _currentStore,
+                            style: GoogleFonts.hankenGrotesk(fontSize: 12, fontWeight: FontWeight.w600, color: titleColor),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const Icon(Icons.keyboard_arrow_down, size: 16, color: Colors.grey),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // Navigation Items
+                Expanded(
+                  child: ListView(
+                    padding: EdgeInsets.zero,
+                    children: [
+                      sectionTitle('GESTIÓN DE TURNOS'),
+                      navItem(index: 0, icon: Icons.dashboard_outlined, title: 'Panel General'),
+                      navItem(index: 1, icon: Icons.swap_horiz_outlined, title: 'Mercado de Turnos'),
+                      navItem(index: 2, icon: Icons.medical_services_outlined, title: 'Permisos y Ausencias'),
+                      navItem(index: 3, icon: Icons.group_outlined, title: 'Cuadrilla y Personal'),
+
+                      sectionTitle('HERRAMIENTAS OPERATIVAS'),
+                      navItem(index: 99, icon: Icons.calendar_view_week, title: 'Malla Semanal', customTap: () => _showWeeklyScheduleModal(isDark)),
+                      navItem(index: 99, icon: Icons.auto_awesome_outlined, title: 'Plantillas de Horario', customTap: () => _showShiftTemplatesModal(isDark)),
+                      navItem(index: 99, icon: Icons.verified_user_outlined, title: 'Matriz de Habilidades', customTap: () => _showSkillsMatrixModal(isDark)),
+                      navItem(index: 99, icon: Icons.analytics_outlined, title: 'Reporte de Asistencia', customTap: () => _showAttendanceReportModal(isDark)),
+                      navItem(index: 99, icon: Icons.download_outlined, title: 'Exportar Reporte', customTap: _handleExportSchedule),
+                      navItem(index: 99, icon: Icons.history_outlined, title: 'Historial de Aprobación', customTap: () => _showApprovalHistoryModal(isDark)),
+
+                      sectionTitle('CONFIGURACIÓN'),
+                      navItem(index: 99, icon: Icons.support_agent, title: 'Jefe de Zona', customTap: () => _showZoneManagerContactModal(isDark)),
+                      navItem(index: 99, icon: Icons.palette_outlined, title: 'Apariencia / Tema', customTap: () => _showThemeSelectorDialog(isDark)),
+                    ],
+                  ),
+                ),
+
+                // User Profile footer
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    border: Border(top: BorderSide(color: borderColor)),
+                  ),
+                  child: Row(
+                    children: [
+                      const CircleAvatar(
+                        radius: 18,
+                        backgroundImage: NetworkImage(
+                          'https://lh3.googleusercontent.com/aida-public/AB6AXuDMgkhhPX8XzsxpqFFykCvHkvJhpP4XCWw8TmC9gw8HQzfAtsWnU96wdFRn0TK-k12jMCkVzTzRg0lknWMdZRkCC4i8mIDsHfKlEuL5tqs_8A2BYRdiwZQ885poamygDvFIbvHiCh1JwmgrzF1uBlqFLtnfKTOUJfIVusON856L9gf2pFxIlrSDTOd51irguRlRY0ayiE3q-SZMFV9NAIS_pcAy0hmQybPk9_XtRRRE1yD8xL30gQovmg',
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              widget.profileName ?? 'Laura Restrepo',
+                              style: GoogleFonts.hankenGrotesk(fontWeight: FontWeight.bold, fontSize: 13, color: titleColor),
+                            ),
+                            Text('Administrador', style: GoogleFonts.hankenGrotesk(fontSize: 11, color: subtextColor)),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.logout, size: 18, color: Color(0xFFBA1A1A)),
+                        onPressed: () => _confirmSignOut(isDark),
+                        tooltip: 'Cerrar Sesión',
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // 2. MAIN DESKTOP CONTENT AREA
+          Expanded(
+            child: Column(
+              children: [
+                // Top App Bar Header
+                Container(
+                  height: 64,
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  decoration: BoxDecoration(
+                    color: sidebarBg,
+                    border: Border(bottom: BorderSide(color: borderColor)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Breadcrumb
+                      Row(
+                        children: [
+                          Text('Frisby', style: GoogleFonts.hankenGrotesk(fontSize: 13, color: subtextColor)),
+                          const SizedBox(width: 6),
+                          const Icon(Icons.chevron_right, size: 16, color: Colors.grey),
+                          const SizedBox(width: 6),
+                          Text(_currentStore, style: GoogleFonts.hankenGrotesk(fontSize: 13, fontWeight: FontWeight.bold, color: titleColor)),
+                        ],
+                      ),
+
+                      // Right Header Actions
+                      Row(
+                        children: [
+                          ElevatedButton.icon(
+                            onPressed: () => _showCreateShiftModal(false, isDark),
+                            icon: const Icon(Icons.add, size: 18),
+                            label: const Text('Crear Turno'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: primaryRed,
+                              foregroundColor: Colors.white,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          OutlinedButton.icon(
+                            onPressed: () => _showAssignStationModal(false, isDark),
+                            icon: const Icon(Icons.restaurant, size: 16),
+                            label: const Text('Asignar Estación'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: titleColor,
+                              side: BorderSide(color: borderColor),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          IconButton(
+                            icon: Icon(isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined, color: titleColor),
+                            onPressed: () => _showThemeSelectorDialog(isDark),
+                            tooltip: 'Cambiar Tema',
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.notifications_outlined, color: Color(0xFFAC0017)),
+                            onPressed: () => _showNotificationDialog(false, isDark),
+                            tooltip: 'Notificaciones',
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Main Scrollable Canvas
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.all(24),
+                    children: [
+                      // Section 1: KPI Bento Cards Row
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildDesktopKpiCard(
+                              title: 'Colaboradores en Turno',
+                              value: '$_activeEmployees',
+                              subtitle: 'De 28 programados hoy',
+                              icon: Icons.people_outline,
+                              color: primaryRed,
+                              isDark: isDark,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: _buildDesktopKpiCard(
+                              title: 'Ausencias / Novedades',
+                              value: '$_pendingAbsences',
+                              subtitle: 'Pendientes por justificar',
+                              icon: Icons.warning_amber_rounded,
+                              color: const Color(0xFFBA1A1A),
+                              isDark: isDark,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: _buildDesktopKpiCard(
+                              title: 'Cobertura Operativa',
+                              value: '${(_coveragePercentage * 100).toInt()}%',
+                              subtitle: 'Estaciones cubiertas',
+                              icon: Icons.pie_chart_outline,
+                              color: const Color(0xFF2E7D32),
+                              isDark: isDark,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: _buildDesktopKpiCard(
+                              title: 'Puntualidad Semanal',
+                              value: '96.4%',
+                              subtitle: 'Registro biométrico',
+                              icon: Icons.access_time,
+                              color: const Color(0xFF966100),
+                              isDark: isDark,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Section 2: Two-column Desktop Layout (Table on left, Feed on right)
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Left Column: Cuadrilla & Malla Operativa Table
+                          Expanded(
+                            flex: 3,
+                            child: Container(
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                color: cardBg,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: borderColor),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Cuadrilla de Operación y Estaciones',
+                                            style: GoogleFonts.hankenGrotesk(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              color: titleColor,
+                                            ),
+                                          ),
+                                          Text(
+                                            'Personal asignado para el turno actual en $_currentStore',
+                                            style: GoogleFonts.hankenGrotesk(fontSize: 12, color: subtextColor),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          OutlinedButton.icon(
+                                            onPressed: () => _showRegisterEmployeeModal(isDark),
+                                            icon: const Icon(Icons.person_add_alt, size: 14),
+                                            label: const Text('Nuevo Colaborador'),
+                                            style: OutlinedButton.styleFrom(
+                                              foregroundColor: primaryRed,
+                                              side: const BorderSide(color: Color(0xFFAC0017)),
+                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          IconButton(
+                                            icon: const Icon(Icons.refresh, size: 18),
+                                            onPressed: _fetchSupabaseData,
+                                            tooltip: 'Actualizar',
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  // Data Table
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Table(
+                                      columnWidths: const {
+                                        0: FlexColumnWidth(2.5),
+                                        1: FlexColumnWidth(1.5),
+                                        2: FlexColumnWidth(2.0),
+                                        3: FlexColumnWidth(1.5),
+                                        4: FlexColumnWidth(1.2),
+                                      },
+                                      children: [
+                                        TableRow(
+                                          decoration: BoxDecoration(
+                                            color: isDark ? Colors.white10 : const Color(0xFFF9FAFB),
+                                          ),
+                                          children: [
+                                            _tableHeaderCell('COLABORADOR', isDark),
+                                            _tableHeaderCell('ESTACIÓN', isDark),
+                                            _tableHeaderCell('HORARIO', isDark),
+                                            _tableHeaderCell('EQUIPO', isDark),
+                                            _tableHeaderCell('ESTADO', isDark),
+                                          ],
+                                        ),
+                                        ..._teamMembers.map((m) {
+                                          final isWorking = m['status'] == 'En turno' || m['status'] == 'Admin';
+                                          return TableRow(
+                                            decoration: BoxDecoration(
+                                              border: Border(bottom: BorderSide(color: borderColor)),
+                                            ),
+                                            children: [
+                                              Padding(
+                                                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                                                child: Row(
+                                                  children: [
+                                                    CircleAvatar(
+                                                      radius: 14,
+                                                      backgroundColor: primaryRed.withValues(alpha: 0.12),
+                                                      child: Text(
+                                                        m['name'].substring(0, 2).toUpperCase(),
+                                                        style: GoogleFonts.hankenGrotesk(fontSize: 10, fontWeight: FontWeight.bold, color: primaryRed),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 10),
+                                                    Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        Text(m['name'], style: GoogleFonts.hankenGrotesk(fontWeight: FontWeight.w600, fontSize: 13, color: titleColor)),
+                                                        Text('CC ${m['cedula']}', style: GoogleFonts.hankenGrotesk(fontSize: 11, color: subtextColor)),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+                                                child: Align(
+                                                  alignment: Alignment.centerLeft,
+                                                  child: Container(
+                                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                                    decoration: BoxDecoration(
+                                                      color: const Color(0xFF545D80).withValues(alpha: 0.12),
+                                                      borderRadius: BorderRadius.circular(6),
+                                                    ),
+                                                    child: Text(
+                                                      m['station'],
+                                                      style: GoogleFonts.hankenGrotesk(fontSize: 11, fontWeight: FontWeight.bold, color: const Color(0xFF545D80)),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+                                                child: Text(m['shift'], style: GoogleFonts.hankenGrotesk(fontSize: 12, color: titleColor)),
+                                              ),
+                                              Padding(
+                                                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+                                                child: Text(m['team'], style: GoogleFonts.hankenGrotesk(fontSize: 12, color: subtextColor)),
+                                              ),
+                                              Padding(
+                                                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                                                child: Align(
+                                                  alignment: Alignment.centerLeft,
+                                                  child: Container(
+                                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                                    decoration: BoxDecoration(
+                                                      color: isWorking ? Colors.green.withValues(alpha: 0.15) : Colors.orange.withValues(alpha: 0.15),
+                                                      borderRadius: BorderRadius.circular(12),
+                                                    ),
+                                                    child: Text(
+                                                      m['status'],
+                                                      style: GoogleFonts.hankenGrotesk(fontSize: 11, fontWeight: FontWeight.bold, color: isWorking ? Colors.green[800] : Colors.orange[800]),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        }),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(width: 20),
+
+                          // Right Column: Solicitudes Pendientes Feed (340px)
+                          SizedBox(
+                            width: 340,
+                            child: Column(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(20),
+                                  decoration: BoxDecoration(
+                                    color: cardBg,
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(color: borderColor),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Solicitudes Pendientes',
+                                            style: GoogleFonts.hankenGrotesk(fontSize: 15, fontWeight: FontWeight.bold, color: titleColor),
+                                          ),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                            decoration: BoxDecoration(
+                                              color: primaryRed.withValues(alpha: 0.12),
+                                              borderRadius: BorderRadius.circular(10),
+                                            ),
+                                            child: Text(
+                                              '${_pendingRequests.length}',
+                                              style: GoogleFonts.hankenGrotesk(fontSize: 11, fontWeight: FontWeight.bold, color: primaryRed),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 12),
+                                      if (_pendingRequests.isEmpty)
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 20),
+                                          child: Center(
+                                            child: Text('🎉 No hay solicitudes pendientes.', style: GoogleFonts.hankenGrotesk(color: subtextColor, fontSize: 13)),
+                                          ),
+                                        )
+                                      else
+                                        ..._pendingRequests.map((req) => _buildRequestCard(req, false, isDark)),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNavItemAndroid(int index, IconData icon, String label, bool isDark) {
+    final isActive = _currentIndex == index;
+    final activeColor = isDark ? const Color(0xFFFFB3AD) : const Color(0xFFAC0017);
+    final inactiveColor = isDark ? const Color(0xFFC6C6C7) : const Color(0xFF545D80);
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => setState(() => _currentIndex = index),
+        child: SizedBox(
+          width: 80,
+          height: 64,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              if (isActive)
+                Positioned(
+                  top: 8,
+                  child: Container(
+                    width: 48,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFD2232A).withValues(alpha: isDark ? 0.25 : 0.20),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    icon,
+                    color: isActive ? activeColor : inactiveColor,
+                    size: 22,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    label,
+                    style: GoogleFonts.hankenGrotesk(
+                      fontSize: 11,
+                      fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                      color: isActive ? activeColor : inactiveColor,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavItemIOS(int index, IconData icon, String label, bool isDark) {
+    final isActive = _currentIndex == index;
+    final activeColor = isDark ? const Color(0xFFFFB3AD) : const Color(0xFFAC0017);
+    final inactiveColor = isDark 
+        ? const Color(0xFFE5BDBA).withValues(alpha: 0.6) 
+        : const Color(0xFF5C403D).withValues(alpha: 0.6);
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => setState(() => _currentIndex = index),
+        child: SizedBox(
+          width: 75,
+          height: 68,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                color: isActive ? activeColor : inactiveColor,
+                size: isActive ? 24 : 22,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: GoogleFonts.hankenGrotesk(
+                  fontSize: 11,
+                  fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                  color: isActive ? activeColor : inactiveColor,
+                  letterSpacing: 0.02,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
-    final isDesktop = mediaQuery.size.width > 480;
+    final isDesktop = mediaQuery.size.width > 800;
     final isIOS = defaultTargetPlatform == TargetPlatform.iOS;
     final isDark = _isDarkMode(context);
+
+    // If on a desktop/web screen width (> 800px), show the expansive Web Desktop Portal
+    if (isDesktop) {
+      return _buildDesktopAdminPortal(isDark);
+    }
 
     // iOS Floating Glassmorphic TopAppBar
     Widget mobileAppBarIOS() {
@@ -3006,7 +3727,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
         return Container(
           clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
-            borderRadius: isDesktop ? BorderRadius.circular(40) : BorderRadius.zero,
+            borderRadius: BorderRadius.zero,
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -3069,123 +3790,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF121212) : const Color(0xFFF4F5F7),
-      body: Center(
-        child: isDesktop
-            ? Container(
-                width: 375,
-                height: 812,
-                decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                  borderRadius: BorderRadius.circular(40),
-                  border: Border.all(
-                    color: isDark ? Colors.black26 : Colors.white,
-                    width: 8,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.3),
-                      blurRadius: 30,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: innerAppContainer(),
-              )
-            : innerAppContainer(),
-      ),
-    );
-  }
-
-  Widget _buildNavItemAndroid(int index, IconData icon, String label, bool isDark) {
-    final isActive = _currentIndex == index;
-    final activeColor = isDark ? const Color(0xFFFFB3AD) : const Color(0xFFAC0017);
-    final inactiveColor = isDark ? const Color(0xFFC6C6C7) : const Color(0xFF545D80);
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () => setState(() => _currentIndex = index),
-        child: SizedBox(
-          width: 80,
-          height: 64,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              if (isActive)
-                Positioned(
-                  top: 8,
-                  child: Container(
-                    width: 48,
-                    height: 28,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFD2232A).withValues(alpha: isDark ? 0.25 : 0.20),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    icon,
-                    color: isActive ? activeColor : inactiveColor,
-                    size: 22,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    label,
-                    style: GoogleFonts.hankenGrotesk(
-                      fontSize: 11,
-                      fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-                      color: isActive ? activeColor : inactiveColor,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNavItemIOS(int index, IconData icon, String label, bool isDark) {
-    final isActive = _currentIndex == index;
-    final activeColor = isDark ? const Color(0xFFFFB3AD) : const Color(0xFFAC0017);
-    final inactiveColor = isDark 
-        ? const Color(0xFFE5BDBA).withValues(alpha: 0.6) 
-        : const Color(0xFF5C403D).withValues(alpha: 0.6);
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () => setState(() => _currentIndex = index),
-        child: SizedBox(
-          width: 75,
-          height: 68,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                color: isActive ? activeColor : inactiveColor,
-                size: isActive ? 24 : 22,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                style: GoogleFonts.hankenGrotesk(
-                  fontSize: 11,
-                  fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-                  color: isActive ? activeColor : inactiveColor,
-                  letterSpacing: 0.02,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+      body: innerAppContainer(),
     );
   }
 }
