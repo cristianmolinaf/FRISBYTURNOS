@@ -4111,18 +4111,30 @@ class _DashboardPageState extends State<DashboardPage> {
       return AppBar(
         backgroundColor: appBarBg,
         elevation: 1,
-        title: Text(
-          _currentIndex == 0 
-              ? 'Frisby Turnos' 
-              : (_currentIndex == 1 
-                  ? 'Mi Calendario' 
-                  : (_currentIndex == 2 ? 'Mercado de Turnos' : 'Mi Perfil')),
-          style: GoogleFonts.hankenGrotesk(
-            fontWeight: FontWeight.bold,
-            color: textColor,
-          ),
-        ),
-        centerTitle: false,
+        centerTitle: true,
+        title: _currentIndex == 0
+            ? Image.network(
+                'https://lh3.googleusercontent.com/aida-public/AB6AXuATkXAerVPsE2m4hfUiQnl2Y9rqFfI7Ps4kylZ4pKqTsLdljqPy3P98NcAsZSxf5IhL9PT0EuZTt6uWZCyEwE_d0EleeKeYd7eOti54uHUm05djF0vMkj200IOm-HymlHKOB1bF3OJNLf_BwQHd8Xi08O5wdJgwONmRr9t7QwTuRiigzmxj8wDxdOTExQV5qztVYJNP5jaE-OQsRnV5_zkiTrVLmwvYv0XeIEm_LEo0hkxVXoQTGx_frjCjDWomYU7yXM8',
+                height: 32,
+                errorBuilder: (context, error, stackTrace) => Text(
+                  'Frisby Turnos',
+                  style: GoogleFonts.hankenGrotesk(
+                    fontWeight: FontWeight.bold,
+                    color: textColor,
+                    fontSize: 20,
+                  ),
+                ),
+              )
+            : Text(
+                _currentIndex == 1 
+                    ? 'Mi Calendario' 
+                    : (_currentIndex == 2 ? 'Mercado de Turnos' : 'Mi Perfil'),
+                style: GoogleFonts.hankenGrotesk(
+                  fontWeight: FontWeight.bold,
+                  color: textColor,
+                  fontSize: 18,
+                ),
+              ),
         leading: Builder(
           builder: (context) => IconButton(
             icon: const Icon(Icons.menu, color: Colors.white),
