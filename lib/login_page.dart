@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'google_fonts_wrapper.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dashboard_page.dart';
+import 'admin_dashboard_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -44,18 +45,53 @@ class _LoginPageState extends State<LoginPage> {
           password: password,
         );
 
+        String userRole = 'colaborador';
+        String profileName = username;
+
+        // Query perfiles to verify role based on cedula or user id
+        try {
+          final perfil = await Supabase.instance.client
+              .from('perfiles')
+              .select('nombre, rol, cedula')
+              .eq('cedula', username)
+              .maybeSingle();
+
+          if (perfil != null) {
+            userRole = (perfil['rol'] ?? 'colaborador').toString();
+            profileName = (perfil['nombre'] ?? username).toString();
+          }
+        } catch (_) {}
+
         if (mounted) {
           setState(() {
             _isLoading = false;
           });
-          
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (context) => DashboardPage(
-                username: response.user?.email ?? email,
+
+          final isAdmin = userRole == 'administrador' ||
+              userRole == 'superadmin' ||
+              userRole == 'jefe_zona' ||
+              username == '10001' ||
+              username.toLowerCase().contains('admin');
+
+          if (isAdmin) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => AdminDashboardPage(
+                  username: username,
+                  profileName: profileName,
+                  role: userRole,
+                ),
               ),
-            ),
-          );
+            );
+          } else {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => DashboardPage(
+                  username: response.user?.email ?? email,
+                ),
+              ),
+            );
+          }
         }
       } on AuthException catch (error) {
         if (mounted) {
