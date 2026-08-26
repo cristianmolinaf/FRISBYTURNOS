@@ -4280,21 +4280,26 @@ class _DashboardPageState extends State<DashboardPage> {
       );
 
       return Container(
-        height: 64,
         decoration: BoxDecoration(
           color: navBgColor,
           border: Border(
             top: borderSide,
           ),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildNavItemAndroid(0, Icons.home, 'Inicio', isDark),
-            _buildNavItemAndroid(1, Icons.calendar_month, 'Calendario', isDark),
-            _buildNavItemAndroid(2, Icons.storefront, 'Mercado', isDark),
-            _buildNavItemAndroid(3, Icons.person, 'Perfil', isDark),
-          ],
+        child: SafeArea(
+          top: false,
+          child: SizedBox(
+            height: 64,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildNavItemAndroid(0, Icons.home, 'Inicio', isDark),
+                _buildNavItemAndroid(1, Icons.calendar_month, 'Calendario', isDark),
+                _buildNavItemAndroid(2, Icons.storefront, 'Mercado', isDark),
+                _buildNavItemAndroid(3, Icons.person, 'Perfil', isDark),
+              ],
+            ),
+          ),
         ),
       );
     }
@@ -4304,36 +4309,39 @@ class _DashboardPageState extends State<DashboardPage> {
       final barBg = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white.withValues(alpha: 0.6);
       final barBorder = isDark ? Colors.white.withValues(alpha: 0.15) : Colors.black.withValues(alpha: 0.08);
 
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(30),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-            child: Container(
-              height: 68,
-              decoration: BoxDecoration(
-                color: barBg,
-                borderRadius: BorderRadius.circular(30),
-                border: Border.all(
-                  color: barBorder,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.05),
-                    blurRadius: 30,
-                    offset: const Offset(0, -10),
+      return SafeArea(
+        top: false,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(30),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+              child: Container(
+                height: 68,
+                decoration: BoxDecoration(
+                  color: barBg,
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(
+                    color: barBorder,
                   ),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildNavItemIOS(0, Icons.schedule, 'Shifts', isDark),
-                  _buildNavItemIOS(1, Icons.calendar_month, 'Calendar', isDark),
-                  _buildNavItemIOS(2, Icons.storefront, 'Market', isDark),
-                  _buildNavItemIOS(3, Icons.person, 'Profile', isDark),
-                ],
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.05),
+                      blurRadius: 30,
+                      offset: const Offset(0, -10),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildNavItemIOS(0, Icons.schedule, 'Shifts', isDark),
+                    _buildNavItemIOS(1, Icons.calendar_month, 'Calendar', isDark),
+                    _buildNavItemIOS(2, Icons.storefront, 'Market', isDark),
+                    _buildNavItemIOS(3, Icons.person, 'Profile', isDark),
+                  ],
+                ),
               ),
             ),
           ),
