@@ -1486,12 +1486,12 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               ],
             ),
             const SizedBox(height: 16),
-            Text('Últimos Registros Biométricos', style: GoogleFonts.hankenGrotesk(fontWeight: FontWeight.bold, fontSize: 14)),
+            Text('Últimos Registros de Marcación', style: GoogleFonts.hankenGrotesk(fontWeight: FontWeight.bold, fontSize: 14)),
             const SizedBox(height: 8),
             ..._teamMembers.take(3).map((m) => ListTile(
                   dense: true,
                   contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.fingerprint, color: Color(0xFFAC0017)),
+                  leading: const Icon(Icons.timer_outlined, color: Color(0xFFAC0017)),
                   title: Text(m['name'], style: GoogleFonts.hankenGrotesk(fontWeight: FontWeight.w600)),
                   subtitle: const Text('Ingreso: 07:58 AM • En turno'),
                   trailing: const Icon(Icons.check_circle, color: Color(0xFF2E7D32), size: 18),
@@ -3151,7 +3151,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                             child: _buildDesktopKpiCard(
                               title: 'Puntualidad Semanal',
                               value: '96.4%',
-                              subtitle: 'Registro biométrico',
+                              subtitle: 'Sistema de marcación',
                               icon: Icons.access_time,
                               color: const Color(0xFF966100),
                               isDark: isDark,

@@ -14,7 +14,6 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   int _currentIndex = 0;
-  bool _isIngresoRegistrado = false;
   
   // Theme override state
   bool? _isDarkModeOverride;
@@ -103,144 +102,6 @@ class _DashboardPageState extends State<DashboardPage> {
     return '$weekday, ${now.day} de $month | $hour:$minute $period';
   }
 
-  void _handleRegistrarIngreso(bool isIOS, bool isDark) {
-    if (_isIngresoRegistrado) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'El ingreso ya se encuentra registrado para la jornada de hoy.',
-            style: GoogleFonts.hankenGrotesk(color: Colors.white),
-          ),
-          backgroundColor: isIOS ? const Color(0xFFD2232A) : const Color(0xFF121C3B),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      return;
-    }
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setStateDialog) {
-            bool isScanning = true;
-            bool isSuccess = false;
-
-            Future.delayed(const Duration(seconds: 2), () {
-              if (context.mounted) {
-                setStateDialog(() {
-                  isScanning = false;
-                  isSuccess = true;
-                });
-              }
-            });
-
-            final dialogBgColor = isIOS
-                ? (isDark ? const Color(0xFF2C1B1A) : const Color(0xFFFFF1F0))
-                : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
-            final dialogTextColor = isIOS
-                ? (isDark ? const Color(0xFFFBDBD8) : const Color(0xFF410003))
-                : (isDark ? const Color(0xFFE1E2E4) : const Color(0xFF121C3B));
-            final dialogSubtextColor = isIOS
-                ? (isDark ? const Color(0xFFE5BDBA) : const Color(0xFF5C403D))
-                : (isDark ? const Color(0xFFC6C6C7) : const Color(0xFF5C403D));
-
-            return AlertDialog(
-              backgroundColor: dialogBgColor,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-                side: (isIOS || isDark) ? const BorderSide(color: Colors.white12) : BorderSide.none,
-              ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const SizedBox(height: 16),
-                  if (isScanning) ...[
-                    const SizedBox(
-                      width: 80,
-                      height: 80,
-                      child: CircularProgressIndicator(
-                        color: Color(0xFFD2232A),
-                        strokeWidth: 3,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      'Escaneando Huella...',
-                      style: GoogleFonts.hankenGrotesk(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: dialogTextColor,
-                      ),
-                    ),
-                  ] else if (isSuccess) ...[
-                    Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE8F5E9).withValues(alpha: isIOS ? 0.15 : 1.0),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.check_circle,
-                        color: Colors.green,
-                        size: 50,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      '¡Ingreso Registrado!',
-                      style: GoogleFonts.hankenGrotesk(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: dialogTextColor,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Hora de ingreso: ${TimeOfDay.now().format(context)}',
-                      style: GoogleFonts.hankenGrotesk(
-                        fontSize: 14,
-                        color: dialogSubtextColor,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 45,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          setState(() {
-                            _isIngresoRegistrado = true;
-                          });
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: isIOS ? const Color(0xFFD2232A) : const Color(0xFF121C3B),
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                        ),
-                        child: Text(
-                          'Cerrar',
-                          style: GoogleFonts.hankenGrotesk(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
   void _showNotificationDialog(String title, String body, String time, bool isIOS, bool isDark) {
     final dialogBgColor = isIOS
         ? (isDark ? const Color(0xFF2C1B1A) : const Color(0xFFFFF1F0))
@@ -310,9 +171,6 @@ class _DashboardPageState extends State<DashboardPage> {
     final titleColor = isDark ? const Color(0xFFE1E2E4) : const Color(0xFF191C1E);
     final subtextColor = isDark ? const Color(0xFFC6C6C7) : const Color(0xFF545D80);
     final cardBgColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
-    final buttonColor = _isIngresoRegistrado 
-        ? Colors.green[800] 
-        : (isDark ? const Color(0xFFD2232A) : const Color(0xFF121C3B));
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 100),
@@ -527,32 +385,6 @@ class _DashboardPageState extends State<DashboardPage> {
                               ),
                             ),
                           ],
-                        ),
-                        const SizedBox(height: 16),
-                        SizedBox(
-                          width: double.infinity,
-                          height: 48,
-                          child: ElevatedButton.icon(
-                            onPressed: () => _handleRegistrarIngreso(false, isDark),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: buttonColor,
-                              foregroundColor: Colors.white,
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30)),
-                            ),
-                            icon: Icon(
-                              _isIngresoRegistrado ? Icons.check : Icons.fingerprint,
-                              size: 20,
-                            ),
-                            label: Text(
-                              _isIngresoRegistrado ? 'Ingreso Registrado' : 'Registrar Ingreso',
-                              style: GoogleFonts.hankenGrotesk(
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
                         ),
                       ],
                     ),
@@ -1063,46 +895,6 @@ class _DashboardPageState extends State<DashboardPage> {
                                 ),
                               ),
                             ],
-                          ),
-                          const SizedBox(height: 20),
-                          
-                          SizedBox(
-                            width: double.infinity,
-                            height: 52,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(30),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: const Color(0xFFD2232A).withValues(alpha: 0.35),
-                                    blurRadius: 14,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: ElevatedButton.icon(
-                                onPressed: () => _handleRegistrarIngreso(true, isDark),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: _isIngresoRegistrado ? Colors.green[850] : const Color(0xFFD2232A),
-                                  foregroundColor: Colors.white,
-                                  elevation: 0,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30)),
-                                ),
-                                icon: Icon(
-                                  _isIngresoRegistrado ? Icons.check : Icons.fingerprint,
-                                  size: 22,
-                                ),
-                                label: Text(
-                                  _isIngresoRegistrado ? 'Ingreso Registrado' : 'Registrar Ingreso',
-                                  style: GoogleFonts.hankenGrotesk(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 0.05,
-                                  ),
-                                ),
-                              ),
-                            ),
                           ),
                         ],
                       ),
@@ -4657,12 +4449,6 @@ class _DashboardPageState extends State<DashboardPage> {
                       sectionTitle('ACCIONES RÁPIDAS'),
                       navItem(
                         index: 99,
-                        icon: _isIngresoRegistrado ? Icons.check_circle_outline : Icons.fingerprint,
-                        title: _isIngresoRegistrado ? 'Ingreso Confirmado' : 'Registrar Ingreso',
-                        customTap: () => _handleRegistrarIngreso(false, isDark),
-                      ),
-                      navItem(
-                        index: 99,
                         icon: Icons.gavel_outlined,
                         title: 'Políticas de Cambios',
                         customTap: () => _showChangePolicyDialog(false, isDark),
@@ -4780,19 +4566,6 @@ class _DashboardPageState extends State<DashboardPage> {
                                   style: GoogleFonts.hankenGrotesk(fontSize: 12, fontWeight: FontWeight.w500, color: titleColor),
                                 ),
                               ],
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          ElevatedButton.icon(
-                            onPressed: () => _handleRegistrarIngreso(false, isDark),
-                            icon: Icon(_isIngresoRegistrado ? Icons.check : Icons.fingerprint, size: 18),
-                            label: Text(_isIngresoRegistrado ? 'Ingreso Registrado' : 'Registrar Ingreso'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: _isIngresoRegistrado ? const Color(0xFF2E7D32) : primaryRed,
-                              foregroundColor: Colors.white,
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                             ),
                           ),
                           const SizedBox(width: 8),

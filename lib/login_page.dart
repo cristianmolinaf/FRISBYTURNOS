@@ -396,9 +396,9 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                             const SizedBox(height: 16),
                             _buildHeroFeatureItem(
-                              icon: Icons.fingerprint_rounded,
-                              title: 'Biometría y Cobertura Operativa',
-                              desc: 'Monitoreo de puntualidad y reporte automático de asistencia.',
+                              icon: Icons.pie_chart_outline_rounded,
+                              title: 'Control y Cobertura Operativa',
+                              desc: 'Monitoreo de puntualidad y horas programadas por sucursal.',
                             ),
                           ],
                         ),
