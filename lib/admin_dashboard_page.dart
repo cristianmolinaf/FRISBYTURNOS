@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'google_fonts_wrapper.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'login_page.dart';
+import 'create_shift_page.dart';
 
 class AdminDashboardPage extends StatefulWidget {
   final String username;
@@ -442,195 +443,34 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     );
   }
 
-  void _showCreateShiftModal(bool isIOS, bool isDark) {
-    String selectedEmployee = _teamMembers.first['name'];
-    String selectedStation = 'Plancha';
-    String shiftTime = '08:00 - 16:00';
-
-    final modalBg = isDark ? const Color(0xFF1E1E1E) : Colors.white;
-    final titleColor = isDark ? Colors.white : const Color(0xFF191C1E);
-    final labelColor = isDark ? Colors.white70 : Colors.grey[700];
-    final fieldFill = isDark ? Colors.white10 : Colors.grey[100];
-    final primaryBtnColor = const Color(0xFFAC0017);
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: modalBg,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (ctx) => StatefulBuilder(
-        builder: (context, setModalState) => Padding(
-          padding: EdgeInsets.fromLTRB(
-              24, 24, 24, MediaQuery.of(context).viewInsets.bottom + 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Crear Nuevo Turno',
-                    style: GoogleFonts.hankenGrotesk(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: titleColor,
-                    ),
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.close, color: titleColor),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Colaborador',
-                style: GoogleFonts.hankenGrotesk(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: labelColor,
-                ),
-              ),
-              const SizedBox(height: 6),
-              DropdownButtonFormField<String>(
-                initialValue: selectedEmployee,
-                dropdownColor: modalBg,
-                style: GoogleFonts.hankenGrotesk(color: titleColor),
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: fieldFill,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: isDark ? const BorderSide(color: Colors.white12) : BorderSide.none,
-                  ),
-                ),
-                items: _teamMembers
-                    .map((m) => DropdownMenuItem<String>(
-                          value: m['name'] as String,
-                          child: Text(m['name'] as String),
-                        ))
-                    .toList(),
-                onChanged: (val) {
-                  if (val != null) setModalState(() => selectedEmployee = val);
-                },
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Estación Asignada',
-                style: GoogleFonts.hankenGrotesk(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: labelColor,
-                ),
-              ),
-              const SizedBox(height: 6),
-              DropdownButtonFormField<String>(
-                initialValue: selectedStation,
-                dropdownColor: modalBg,
-                style: GoogleFonts.hankenGrotesk(color: titleColor),
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: fieldFill,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: isDark ? const BorderSide(color: Colors.white12) : BorderSide.none,
-                  ),
-                ),
-                items: ['Plancha', 'Freidoras', 'Caja', 'Armado', 'Domicilios']
-                    .map((s) => DropdownMenuItem<String>(
-                          value: s,
-                          child: Text(s),
-                        ))
-                    .toList(),
-                onChanged: (val) {
-                  if (val != null) setModalState(() => selectedStation = val);
-                },
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Horario',
-                style: GoogleFonts.hankenGrotesk(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: labelColor,
-                ),
-              ),
-              const SizedBox(height: 6),
-              DropdownButtonFormField<String>(
-                initialValue: shiftTime,
-                dropdownColor: modalBg,
-                style: GoogleFonts.hankenGrotesk(color: titleColor),
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: fieldFill,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: isDark ? const BorderSide(color: Colors.white12) : BorderSide.none,
-                  ),
-                ),
-                items: [
-                  '08:00 - 16:00 (Apertura)',
-                  '11:00 - 19:00 (Intermedio)',
-                  '14:00 - 22:00 (Cierre)',
-                  '16:00 - 00:00 (Noche)'
-                ].map((s) {
-                  final parts = s.split(' ');
-                  final timeVal = '${parts[0]} - ${parts[2]}';
-                  return DropdownMenuItem<String>(
-                    value: timeVal,
-                    child: Text(s),
-                  );
-                }).toList(),
-                onChanged: (val) {
-                  if (val != null) setModalState(() => shiftTime = val);
-                },
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          'Turno creado para $selectedEmployee ($selectedStation, $shiftTime)',
-                          style: GoogleFonts.hankenGrotesk(color: Colors.white),
-                        ),
-                        backgroundColor: primaryBtnColor,
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryBtnColor,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                  ),
-                  child: Text(
-                    'Confirmar y Guardar Turno',
-                    style: GoogleFonts.hankenGrotesk(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+  void _navigateToCreateShiftPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CreateShiftPage(
+          username: widget.username,
+          currentStore: _currentStore,
+          teamMembers: _teamMembers,
+          onShiftCreated: (newShift) {
+            setState(() {
+              _approvalHistory.insert(0, {
+                'id': newShift['id'],
+                'user': newShift['colaborador_nombre'],
+                'type': 'Asignación de Turno',
+                'detail': '${newShift['estacion']} • ${newShift['hora_inicio']} - ${newShift['hora_fin']}',
+                'time': 'Justo ahora',
+                'status': 'Aprobada',
+                'actionBy': 'Admin',
+              });
+            });
+          },
         ),
       ),
     );
+  }
+
+  void _showCreateShiftModal(bool isIOS, bool isDark) {
+    _navigateToCreateShiftPage();
   }
 
   void _showAssignStationModal(bool isIOS, bool isDark) {
@@ -2978,6 +2818,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                     children: [
                       sectionTitle('GESTIÓN DE TURNOS'),
                       navItem(index: 0, icon: Icons.dashboard_outlined, title: 'Panel General'),
+                      navItem(index: 99, icon: Icons.edit_calendar, title: 'Crear Turnos', customTap: _navigateToCreateShiftPage),
                       navItem(index: 1, icon: Icons.swap_horiz_outlined, title: 'Mercado de Turnos'),
                       navItem(index: 2, icon: Icons.medical_services_outlined, title: 'Permisos y Ausencias'),
                       navItem(index: 3, icon: Icons.group_outlined, title: 'Cuadrilla y Personal'),
