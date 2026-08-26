@@ -701,99 +701,113 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
               runSpacing: 10,
               children: [
                 // Logo Frisby y Título de la Planilla Oficial
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: primaryRed,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        'FRISBY',
-                        style: GoogleFonts.sora(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                          letterSpacing: 1.2,
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 480),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: primaryRed,
+                          borderRadius: BorderRadius.circular(6),
                         ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'PROGRAMACIÓN DE HORARIOS COLABORADORES',
-                          style: GoogleFonts.hankenGrotesk(
-                            fontSize: 14,
+                        child: Text(
+                          'FRISBY',
+                          style: GoogleFonts.sora(
+                            color: Colors.white,
                             fontWeight: FontWeight.bold,
-                            letterSpacing: 0.5,
-                            color: titleColor,
+                            fontSize: 14,
+                            letterSpacing: 1.2,
                           ),
                         ),
-                        Text(
-                          'Restaurante: ${widget.restaurantName} • CÓDIGO DRO\'001.1',
-                          style: GoogleFonts.hankenGrotesk(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: subtextColor,
-                          ),
+                      ),
+                      const SizedBox(width: 10),
+                      Flexible(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'PROGRAMACIÓN DE HORARIOS',
+                              style: GoogleFonts.hankenGrotesk(
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.5,
+                                color: titleColor,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              '${widget.restaurantName} • DRO\'001.1',
+                              style: GoogleFonts.hankenGrotesk(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: subtextColor,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ],
+                      ),
+                    ],
+                  ),
                 ),
 
                 // Selector y Navegador de Semana
-                Row(
-                  mainAxisSize: MainAxisSize.min,
+                Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 8,
+                  runSpacing: 8,
                   children: [
-                    IconButton(
-                      icon: const Icon(Icons.chevron_left, size: 20),
-                      onPressed: _previousWeek,
-                      tooltip: 'Semana Anterior',
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: isDark ? Colors.white10 : const Color(0xFFF3F4F6),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: isDark ? Colors.white12 : Colors.grey[300]!),
-                      ),
-                      child: Text(
-                        'Semana: ${_weekStartDate.day} ${_getMonthName(_weekStartDate.month)} - ${weekEndDate.day} ${_getMonthName(weekEndDate.month)}',
-                        style: GoogleFonts.hankenGrotesk(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: primaryRed,
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.chevron_left, size: 20),
+                          onPressed: _previousWeek,
+                          tooltip: 'Semana Anterior',
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
                         ),
-                      ),
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: isDark ? Colors.white10 : const Color(0xFFF3F4F6),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: isDark ? Colors.white12 : Colors.grey[300]!),
+                          ),
+                          child: Text(
+                            'Semana: ${_weekStartDate.day} ${_getMonthName(_weekStartDate.month)} - ${weekEndDate.day} ${_getMonthName(weekEndDate.month)}',
+                            style: GoogleFonts.hankenGrotesk(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: primaryRed,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        IconButton(
+                          icon: const Icon(Icons.chevron_right, size: 20),
+                          onPressed: _nextWeek,
+                          tooltip: 'Siguiente Semana',
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 8),
-                    IconButton(
-                      icon: const Icon(Icons.chevron_right, size: 20),
-                      onPressed: _nextWeek,
-                      tooltip: 'Siguiente Semana',
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                    ),
-                    const SizedBox(width: 14),
 
                     // Botón para agregar colaborador
                     ElevatedButton.icon(
                       onPressed: _addNewCollaboratorRow,
-                      icon: const Icon(Icons.person_add, size: 15),
-                      label: const Text('Agregar Fila'),
+                      icon: const Icon(Icons.person_add, size: 14),
+                      label: const Text('Agregar Fila', style: TextStyle(fontSize: 12)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: primaryRed,
                         foregroundColor: Colors.white,
                         elevation: 0,
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
                     ),
@@ -983,15 +997,19 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 12,
+                  runSpacing: 6,
                   children: [
                     Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         const Icon(Icons.sticky_note_2_outlined, size: 18, color: primaryRed),
                         const SizedBox(width: 8),
                         Text(
-                          'Observaciones y Eventos Especiales de la Semana:',
+                          'Observaciones y Eventos Especiales:',
                           style: GoogleFonts.hankenGrotesk(
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
