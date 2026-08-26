@@ -384,19 +384,19 @@ class _LoginPageState extends State<LoginPage> {
 
                             // Feature Pills
                             _buildHeroFeatureItem(
-                              icon: Icons.calendar_month_outlined,
+                              icon: Icons.calendar_today,
                               title: 'Malla y Turnos en Tiempo Real',
                               desc: 'Consulta tu horario semanal y estaciones de trabajo asignadas.',
                             ),
                             const SizedBox(height: 16),
                             _buildHeroFeatureItem(
-                              icon: Icons.swap_horiz_rounded,
+                              icon: Icons.sync_alt,
                               title: 'Mercado de Intercambio Ágil',
                               desc: 'Cede y solicita turnos con aprobación directa de tu supervisor.',
                             ),
                             const SizedBox(height: 16),
                             _buildHeroFeatureItem(
-                              icon: Icons.pie_chart_outline_rounded,
+                              icon: Icons.analytics,
                               title: 'Control y Cobertura Operativa',
                               desc: 'Monitoreo de puntualidad y horas programadas por sucursal.',
                             ),
