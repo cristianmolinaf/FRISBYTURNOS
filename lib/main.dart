@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'login_page.dart';
 
@@ -30,11 +29,6 @@ class MyApp extends StatelessWidget {
           surface: const Color(0xFFF8F9FB),
         ),
         useMaterial3: true,
-        textTheme: (Theme.of(context).platform == TargetPlatform.iOS)
-            ? null
-            : GoogleFonts.hankenGroteskTextTheme(
-                Theme.of(context).textTheme,
-              ),
       ),
       initialRoute: '/',
       routes: {
