@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'google_fonts_wrapper.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'login_page.dart';
@@ -3944,44 +3945,6 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
     );
   }
 
-  Widget _buildNavItemIOS(int index, IconData icon, String label, bool isDark) {
-    final isActive = _currentIndex == index;
-    final activeColor = isDark ? const Color(0xFFFFB3AD) : const Color(0xFFAC0017);
-    final inactiveColor = isDark 
-        ? const Color(0xFFE5BDBA).withValues(alpha: 0.6) 
-        : const Color(0xFF5C403D).withValues(alpha: 0.6);
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () => setState(() => _currentIndex = index),
-        child: SizedBox(
-          width: 75,
-          height: 68,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                color: isActive ? activeColor : inactiveColor,
-                size: isActive ? 24 : 22,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                style: GoogleFonts.hankenGrotesk(
-                  fontSize: 11,
-                  fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-                  color: isActive ? activeColor : inactiveColor,
-                  letterSpacing: 0.02,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -4114,43 +4077,176 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
       );
     }
 
-    // iOS Floating Bottom Nav
+    // iOS Floating Glassmorphic bottom nav bar (Apple Liquid Glass with Drag/Slide Gesture)
     Widget bottomNavBarIOS() {
-      final barBg = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white.withValues(alpha: 0.6);
-      final barBorder = isDark ? Colors.white.withValues(alpha: 0.15) : Colors.black.withValues(alpha: 0.08);
+      final isDarkMode = isDark;
+      final capsuleBg = isDarkMode
+          ? const Color(0xFF1E2127).withValues(alpha: 0.65)
+          : const Color(0xFFF0F2F6).withValues(alpha: 0.82);
+      final capsuleBorder = isDarkMode
+          ? Colors.white.withValues(alpha: 0.24)
+          : Colors.white.withValues(alpha: 0.85);
+
+      final navItems = [
+        {'icon': Icons.event_note_rounded, 'label': 'Turnos'},
+        {'icon': Icons.swap_horiz_rounded, 'label': 'Cambios'},
+        {'icon': Icons.medical_services_outlined, 'label': 'Permisos'},
+        {'icon': Icons.group_rounded, 'label': 'Equipo'},
+      ];
 
       return SafeArea(
         top: false,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          alignment: Alignment.center,
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(30),
+            borderRadius: BorderRadius.circular(44),
             child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+              filter: ImageFilter.blur(sigmaX: 32, sigmaY: 32),
               child: Container(
-                height: 68,
+                height: 66,
+                constraints: const BoxConstraints(maxWidth: 400),
                 decoration: BoxDecoration(
-                  color: barBg,
-                  borderRadius: BorderRadius.circular(30),
+                  color: capsuleBg,
+                  borderRadius: BorderRadius.circular(44),
                   border: Border.all(
-                    color: barBorder,
+                    color: capsuleBorder,
+                    width: 1.4,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.05),
-                      blurRadius: 30,
-                      offset: const Offset(0, -10),
+                      color: Colors.black.withValues(alpha: isDarkMode ? 0.45 : 0.12),
+                      blurRadius: 28,
+                      offset: const Offset(0, 10),
+                    ),
+                    BoxShadow(
+                      color: Colors.white.withValues(alpha: isDarkMode ? 0.12 : 0.6),
+                      blurRadius: 10,
+                      offset: const Offset(0, -1),
                     ),
                   ],
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _buildNavItemIOS(0, Icons.event_note, 'Turnos', isDark),
-                    _buildNavItemIOS(1, Icons.swap_horiz, 'Cambios', isDark),
-                    _buildNavItemIOS(2, Icons.medical_services_outlined, 'Permisos', isDark),
-                    _buildNavItemIOS(3, Icons.group_outlined, 'Equipo', isDark),
-                  ],
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final totalItems = navItems.length;
+                    final itemWidth = constraints.maxWidth / totalItems;
+                    final safeIndex = _currentIndex.clamp(0, totalItems - 1);
+
+                    return GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onHorizontalDragUpdate: (details) {
+                        final localX = details.localPosition.dx.clamp(0.0, constraints.maxWidth);
+                        final newIndex = (localX / itemWidth).floor().clamp(0, totalItems - 1);
+                        if (newIndex != _currentIndex) {
+                          HapticFeedback.selectionClick();
+                          setState(() => _currentIndex = newIndex);
+                        }
+                      },
+                      onHorizontalDragEnd: (details) {
+                        HapticFeedback.lightImpact();
+                      },
+                      child: Stack(
+                        children: [
+                          // Animated Glass Sliding Active Capsule (Liquid Glass Lens Dome)
+                          AnimatedPositioned(
+                            duration: const Duration(milliseconds: 280),
+                            curve: Curves.easeOutBack,
+                            left: safeIndex * itemWidth,
+                            top: 0,
+                            bottom: 0,
+                            width: itemWidth,
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: isDarkMode
+                                      ? [
+                                          Colors.white.withValues(alpha: 0.30),
+                                          Colors.white.withValues(alpha: 0.10),
+                                        ]
+                                      : [
+                                          Colors.white.withValues(alpha: 0.95),
+                                          const Color(0xFFE2E7EE).withValues(alpha: 0.88),
+                                        ],
+                                ),
+                                borderRadius: BorderRadius.circular(36),
+                                border: Border.all(
+                                  color: isDarkMode
+                                      ? Colors.white.withValues(alpha: 0.45)
+                                      : Colors.white,
+                                  width: 1.4,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: isDarkMode
+                                        ? const Color(0xFF007AFF).withValues(alpha: 0.3)
+                                        : Colors.black.withValues(alpha: 0.08),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                  BoxShadow(
+                                    color: Colors.white.withValues(alpha: isDarkMode ? 0.15 : 0.8),
+                                    blurRadius: 6,
+                                    offset: const Offset(0, -1),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          // Nav Items Row
+                          Row(
+                            children: List.generate(totalItems, (index) {
+                              final item = navItems[index];
+                              final isActive = safeIndex == index;
+                              const activeColor = Color(0xFF007AFF);
+                              final inactiveColor = isDarkMode
+                                  ? Colors.white.withValues(alpha: 0.65)
+                                  : const Color(0xFF1C1C1E).withValues(alpha: 0.65);
+
+                              return Expanded(
+                                child: GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: () {
+                                    HapticFeedback.selectionClick();
+                                    setState(() => _currentIndex = index);
+                                  },
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      AnimatedScale(
+                                        scale: isActive ? 1.12 : 1.0,
+                                        duration: const Duration(milliseconds: 200),
+                                        child: Icon(
+                                          item['icon'] as IconData,
+                                          size: 22,
+                                          color: isActive ? activeColor : inactiveColor,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      AnimatedDefaultTextStyle(
+                                        duration: const Duration(milliseconds: 200),
+                                        style: GoogleFonts.hankenGrotesk(
+                                          fontSize: 10.5,
+                                          fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                                          color: isActive ? activeColor : inactiveColor,
+                                          letterSpacing: -0.2,
+                                        ),
+                                        child: Text(item['label'] as String),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
@@ -4316,9 +4412,24 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
       }
     }
 
-    return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF121212) : const Color(0xFFF4F5F7),
-      body: innerAppContainer(),
+    final statusBarStyle = isDark
+        ? SystemUiOverlayStyle.light.copyWith(
+            statusBarColor: Colors.transparent,
+            statusBarBrightness: Brightness.dark, // iOS: text/icons are light/white
+            statusBarIconBrightness: Brightness.light, // Android: light icons
+          )
+        : SystemUiOverlayStyle.dark.copyWith(
+            statusBarColor: Colors.transparent,
+            statusBarBrightness: Brightness.light, // iOS: text/icons are dark
+            statusBarIconBrightness: Brightness.dark, // Android: dark icons
+          );
+
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: statusBarStyle,
+      child: Scaffold(
+        backgroundColor: isDark ? const Color(0xFF121212) : const Color(0xFFF4F5F7),
+        body: innerAppContainer(),
+      ),
     );
   }
 }

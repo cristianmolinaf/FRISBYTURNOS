@@ -80,6 +80,9 @@ class FrisbyWeeklyScheduleSheet extends StatefulWidget {
   final bool isDark;
   final bool isIOS;
   final VoidCallback? onAddShiftPressed;
+  final String? filterCollaboratorId;
+  final String? filterCollaboratorName;
+  final bool isCollaboratorView;
 
   const FrisbyWeeklyScheduleSheet({
     super.key,
@@ -87,6 +90,9 @@ class FrisbyWeeklyScheduleSheet extends StatefulWidget {
     required this.isDark,
     required this.isIOS,
     this.onAddShiftPressed,
+    this.filterCollaboratorId,
+    this.filterCollaboratorName,
+    this.isCollaboratorView = false,
   });
 
   @override
@@ -305,6 +311,49 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
         },
       ),
     ];
+  }
+
+  List<WeeklyScheduleRow> get _displayedRows {
+    if (!widget.isCollaboratorView && widget.filterCollaboratorId == null && widget.filterCollaboratorName == null) {
+      return _scheduleRows;
+    }
+
+    final targetId = widget.filterCollaboratorId?.trim().toLowerCase();
+    final targetName = widget.filterCollaboratorName?.trim().toLowerCase();
+
+    final filtered = _scheduleRows.where((row) {
+      final rowId = row.collaboratorId.toLowerCase();
+      final rowName = row.collaboratorName.toLowerCase();
+
+      if (targetId != null && targetId.isNotEmpty) {
+        if (rowId == targetId || targetId.contains(rowId) || rowId.contains(targetId)) {
+          return true;
+        }
+      }
+
+      if (targetName != null && targetName.isNotEmpty) {
+        if (rowName == targetName ||
+            rowName.contains(targetName) ||
+            targetName.contains(rowName)) {
+          return true;
+        }
+      }
+
+      // Default fallback if username is passed (e.g. 10002 or cristian)
+      if (targetId != null && (rowName.contains(targetId) || targetId.contains(rowName))) {
+        return true;
+      }
+
+      return false;
+    }).toList();
+
+    // Si por alguna razón no hay coincidencia exacta con el usuario logueado en modo colaborador,
+    // retornamos al menos su primera fila o la lista si no se encontró
+    if (filtered.isEmpty && widget.isCollaboratorView) {
+      return _scheduleRows.take(1).toList();
+    }
+
+    return filtered;
   }
 
   Future<void> _fetchSupabaseShifts() async {
@@ -688,134 +737,153 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
         children: [
           // 1. CABECERA OFICIAL FORMATO DRO'001.1
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
             decoration: BoxDecoration(
               color: isDark ? Colors.white.withValues(alpha: 0.04) : const Color(0xFFFAFBFD),
               borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
               border: Border(bottom: BorderSide(color: borderColor)),
             ),
-            child: Wrap(
-              alignment: WrapAlignment.spaceBetween,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              spacing: 12,
-              runSpacing: 10,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Logo Frisby y Título de la Planilla Oficial
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 480),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: primaryRed,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          'FRISBY',
-                          style: GoogleFonts.sora(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                            letterSpacing: 1.2,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Flexible(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'PROGRAMACIÓN DE HORARIOS',
-                              style: GoogleFonts.hankenGrotesk(
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 0.5,
-                                color: titleColor,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            Text(
-                              '${widget.restaurantName} • DRO\'001.1',
-                              style: GoogleFonts.hankenGrotesk(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: subtextColor,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Selector y Navegador de Semana
-                Wrap(
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  spacing: 8,
-                  runSpacing: 8,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.chevron_left, size: 20),
-                          onPressed: _previousWeek,
-                          tooltip: 'Semana Anterior',
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                        ),
-                        const SizedBox(width: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: isDark ? Colors.white10 : const Color(0xFFF3F4F6),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: isDark ? Colors.white12 : Colors.grey[300]!),
-                          ),
-                          child: Text(
-                            'Semana: ${_weekStartDate.day} ${_getMonthName(_weekStartDate.month)} - ${weekEndDate.day} ${_getMonthName(weekEndDate.month)}',
-                            style: GoogleFonts.hankenGrotesk(
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
+                    // Logo Frisby y Título de la Planilla Oficial
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
                               color: primaryRed,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              'FRISBY',
+                              style: GoogleFonts.sora(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                                letterSpacing: 1.1,
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 6),
-                        IconButton(
-                          icon: const Icon(Icons.chevron_right, size: 20),
-                          onPressed: _nextWeek,
-                          tooltip: 'Siguiente Semana',
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                        ),
-                      ],
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'PROGRAMACIÓN DE HORARIOS',
+                                  style: GoogleFonts.hankenGrotesk(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 0.3,
+                                    color: titleColor,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                Text(
+                                  '${widget.restaurantName} • DRO\'001.1',
+                                  style: GoogleFonts.hankenGrotesk(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: subtextColor,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
 
-                    // Botón para agregar colaborador
-                    ElevatedButton.icon(
-                      onPressed: _addNewCollaboratorRow,
-                      icon: const Icon(Icons.person_add, size: 14),
-                      label: const Text('Agregar Fila', style: TextStyle(fontSize: 12)),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: primaryRed,
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    if (!widget.isCollaboratorView)
+                      ElevatedButton.icon(
+                        onPressed: _addNewCollaboratorRow,
+                        icon: const Icon(Icons.person_add, size: 13),
+                        label: const Text('Agregar Fila', style: TextStyle(fontSize: 11)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: primaryRed,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        ),
                       ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+
+                // Selector y Navegador de Semana Centrado
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.chevron_left, size: 20),
+                      onPressed: _previousWeek,
+                      tooltip: 'Semana Anterior',
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: isDark ? Colors.white10 : const Color(0xFFF3F4F6),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: isDark ? Colors.white12 : Colors.grey[300]!),
+                      ),
+                      child: Text(
+                        'Semana: ${_weekStartDate.day} ${_getMonthName(_weekStartDate.month)} - ${weekEndDate.day} ${_getMonthName(weekEndDate.month)}',
+                        style: GoogleFonts.hankenGrotesk(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: primaryRed,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      icon: const Icon(Icons.chevron_right, size: 20),
+                      onPressed: _nextWeek,
+                      tooltip: 'Siguiente Semana',
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
                     ),
                   ],
                 ),
               ],
             ),
           ),
+
+          // Banner informativo de desplazamiento horizontal para móviles
+          if (!isDesktop)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+              decoration: BoxDecoration(
+                color: isDark ? Colors.white.withValues(alpha: 0.02) : const Color(0xFFF9FAFC),
+                border: Border(bottom: BorderSide(color: borderColor.withValues(alpha: 0.5))),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.swipe_outlined, size: 14, color: subtextColor),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Desliza horizontalmente para ver todos los días de la semana',
+                    style: GoogleFonts.hankenGrotesk(
+                      fontSize: 10,
+                      color: subtextColor,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ],
+              ),
+            ),
 
           // 2. TABLA SEMANAL DRO'001.1 (Con Scroll Horizontal en pantallas pequeñas)
           SingleChildScrollView(
@@ -874,7 +942,7 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                     label: Text('Horas\nLaboradas', textAlign: TextAlign.center, style: _headerTextStyle(primaryRed)),
                   ),
                 ],
-                rows: _scheduleRows.map((row) {
+                rows: _displayedRows.map((row) {
                   final totalHours = row.calculateTotalHours();
                   final isOvertime = totalHours > 48;
 
@@ -935,13 +1003,15 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
 
                         return DataCell(
                           InkWell(
-                            onTap: () => _showQuickShiftEditor(
-                              context: context,
-                              row: row,
-                              dayIndex: dayIndex,
-                              dayDate: dayDate,
-                              currentShift: shift,
-                            ),
+                            onTap: widget.isCollaboratorView
+                                ? null
+                                : () => _showQuickShiftEditor(
+                                      context: context,
+                                      row: row,
+                                      dayIndex: dayIndex,
+                                      dayDate: dayDate,
+                                      currentShift: shift,
+                                    ),
                             borderRadius: BorderRadius.circular(6),
                             child: Container(
                               alignment: Alignment.center,
@@ -1018,27 +1088,28 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                         ),
                       ],
                     ),
-                    Text(
-                      'Toca cualquier celda para editar el turno',
-                      style: GoogleFonts.hankenGrotesk(fontSize: 11, color: subtextColor, fontStyle: FontStyle.italic),
-                    ),
+                    if (!widget.isCollaboratorView)
+                      Text(
+                        'Toca cualquier celda para editar el turno',
+                        style: GoogleFonts.hankenGrotesk(fontSize: 11, color: subtextColor, fontStyle: FontStyle.italic),
+                      ),
                   ],
                 ),
                 const SizedBox(height: 10),
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 8,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: _observations.map((obs) {
                     final obsColor = obs['color'] as Color;
                     return Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      margin: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
                         color: isDark ? Colors.black26 : Colors.white,
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: obsColor.withValues(alpha: 0.4)),
+                        border: Border.all(color: obsColor.withValues(alpha: 0.35)),
                       ),
                       child: Row(
-                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Container(
                             width: 8,
@@ -1046,19 +1117,21 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                             decoration: BoxDecoration(color: obsColor, shape: BoxShape.circle),
                           ),
                           const SizedBox(width: 8),
-                          RichText(
-                            text: TextSpan(
-                              style: GoogleFonts.hankenGrotesk(fontSize: 12, color: titleColor),
-                              children: [
-                                TextSpan(
-                                  text: '${obs['day']} • ${obs['title']}: ',
-                                  style: const TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                TextSpan(
-                                  text: obs['participants'] as String,
-                                  style: TextStyle(color: isDark ? Colors.white70 : const Color(0xFF555555)),
-                                ),
-                              ],
+                          Expanded(
+                            child: RichText(
+                              text: TextSpan(
+                                style: GoogleFonts.hankenGrotesk(fontSize: 12, color: titleColor),
+                                children: [
+                                  TextSpan(
+                                    text: '${obs['day']} • ${obs['title']}: ',
+                                    style: const TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  TextSpan(
+                                    text: obs['participants'] as String,
+                                    style: TextStyle(color: isDark ? Colors.white70 : const Color(0xFF555555)),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ],

@@ -1,9 +1,9 @@
 import 'dart:ui' show ImageFilter;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'google_fonts_wrapper.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'widgets/frisby_weekly_schedule_sheet.dart';
 
 class DashboardPage extends StatefulWidget {
   final String username;
@@ -18,6 +18,11 @@ class _DashboardPageState extends State<DashboardPage> {
   
   // Theme override state
   bool? _isDarkModeOverride;
+
+  // Calendar SubTab State (0: Mis Turnos, 1: Visión General / Equipo)
+  int _selectedCalendarSubTab = 0;
+  int _selectedDayIndex = 0; // 0: Lun .. 6: Dom
+  int _selectedTeamDayIndex = 0; // 0: Lun .. 6: Dom for team view
 
   // Market State Variables
   int _selectedMarketTab = 0;
@@ -1154,8 +1159,11 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
 
-  // ==================== Monthly Calendar View (Android / Web) ====================
-  Widget _buildBentoStats(bool isIOS, bool isDark) {
+
+
+  Widget _buildHtmlInspiredCalendarTab({required bool isIOS, required bool isDark}) {
+    final cleanUsername = widget.username.split('@').first;
+    final primaryRed = const Color(0xFFAC0017);
     final titleColor = isIOS
         ? (isDark ? const Color(0xFFFBDBD8) : const Color(0xFF410003))
         : (isDark ? const Color(0xFFE1E2E4) : const Color(0xFF191C1E));
@@ -1163,120 +1171,716 @@ class _DashboardPageState extends State<DashboardPage> {
         ? (isDark ? const Color(0xFFE5BDBA) : const Color(0xFF5C403D))
         : (isDark ? const Color(0xFFC6C6C7) : const Color(0xFF545D80));
     final cardBg = isIOS
-        ? (isDark ? const Color(0xFF3A2524).withValues(alpha: 0.5) : Colors.white.withValues(alpha: 0.55))
+        ? (isDark ? const Color(0xFF3A2524).withValues(alpha: 0.5) : Colors.white.withValues(alpha: 0.85))
         : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
     final cardBorder = isIOS
-        ? (isDark ? const Color(0xFFE5BDBA).withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05))
+        ? (isDark ? const Color(0xFFE5BDBA).withValues(alpha: 0.15) : Colors.black.withValues(alpha: 0.06))
         : (isDark ? Colors.white12 : const Color(0xFFEDEEF0));
 
-    Widget statCard(String value, String label, IconData icon, Color iconColor) {
-      final cardBody = Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: iconColor, size: 24),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: isIOS
-                  ? GoogleFonts.sora(fontSize: 16, fontWeight: FontWeight.bold, color: titleColor)
-                  : GoogleFonts.hankenGrotesk(fontSize: 16, fontWeight: FontWeight.bold, color: titleColor),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              style: GoogleFonts.hankenGrotesk(fontSize: 11, color: subtextColor),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      );
+    final weekDays = [
+      {'day': 'Lun', 'num': '1', 'time': '08:00 - 16:00', 'type': 'Turno Laboral', 'isOff': false, 'status': 'check'},
+      {'day': 'Mar', 'num': '2', 'time': '08:00 - 16:00', 'type': 'Turno Laboral', 'isOff': false, 'status': 'check'},
+      {'day': 'Mié', 'num': '3', 'time': '08:00 - 16:00', 'type': 'Turno Laboral', 'isOff': false, 'status': 'check'},
+      {'day': 'Jue', 'num': '4', 'time': '08:00 - 16:00', 'type': 'Turno Laboral', 'isOff': false, 'status': 'current'},
+      {'day': 'Vie', 'num': '5', 'time': '08:00 - 16:00', 'type': 'Turno Laboral', 'isOff': false, 'status': 'pending'},
+      {'day': 'Sáb', 'num': '6', 'time': '08:00 - 16:00', 'type': 'Turno Laboral', 'isOff': false, 'status': 'pending'},
+      {'day': 'Dom', 'num': '7', 'time': 'Libre', 'type': 'Descanso Programado', 'isOff': true, 'status': 'descanso'},
+    ];
 
-      if (isIOS) {
-        return Expanded(
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: cardBg,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: cardBorder),
-                ),
-                child: cardBody,
-              ),
-            ),
+    return ListView(
+      padding: EdgeInsets.fromLTRB(
+        16,
+        isIOS ? MediaQuery.of(context).padding.top + 88 : 20,
+        16,
+        100,
+      ),
+      children: [
+        // SubTab Selector ("Mis Turnos" vs "Visión General (Equipo)")
+        Container(
+          height: 46,
+          decoration: BoxDecoration(
+            color: isDark ? Colors.white10 : const Color(0xFFF0F2F5),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: cardBorder),
           ),
-        );
-      } else {
-        return Expanded(
-          child: Container(
+          padding: const EdgeInsets.all(4),
+          child: Row(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => setState(() => _selectedCalendarSubTab = 0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: _selectedCalendarSubTab == 0
+                          ? (isDark ? const Color(0xFFD2232A) : primaryRed)
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: _selectedCalendarSubTab == 0
+                          ? [
+                              BoxShadow(
+                                color: primaryRed.withValues(alpha: 0.3),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              )
+                            ]
+                          : null,
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Mis Turnos',
+                      style: GoogleFonts.hankenGrotesk(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: _selectedCalendarSubTab == 0
+                            ? Colors.white
+                            : subtextColor,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => setState(() => _selectedCalendarSubTab = 1),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: _selectedCalendarSubTab == 1
+                          ? (isDark ? const Color(0xFFD2232A) : primaryRed)
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: _selectedCalendarSubTab == 1
+                          ? [
+                              BoxShadow(
+                                color: primaryRed.withValues(alpha: 0.3),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              )
+                            ]
+                          : null,
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Visión General (Equipo)',
+                      style: GoogleFonts.hankenGrotesk(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: _selectedCalendarSubTab == 1
+                            ? Colors.white
+                            : subtextColor,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+
+        if (_selectedCalendarSubTab == 0) ...[
+          // 1. Calendario Selector 7 Días (Mis Turnos)
+          Container(
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: cardBg,
-              borderRadius: BorderRadius.circular(12),
-              border: isDark ? Border.all(color: cardBorder) : null,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: cardBorder),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
-                  blurRadius: 6,
-                  offset: const Offset(0, 2),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),
-            child: cardBody,
-          ),
-        );
-      }
-    }
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Semana 1: Abril 2024',
+                      style: GoogleFonts.hankenGrotesk(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: titleColor,
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.chevron_left, size: 20),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                          onPressed: () {},
+                          color: titleColor,
+                        ),
+                        const SizedBox(width: 8),
+                        IconButton(
+                          icon: const Icon(Icons.chevron_right, size: 20),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                          onPressed: () {},
+                          color: titleColor,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
 
-    return Row(
-      children: [
-        statCard('120 hrs', 'Horas Mes', Icons.access_time_filled, const Color(0xFFAC0017)),
-        const SizedBox(width: 8),
-        statCard('15 días', 'Turnos Prog', Icons.calendar_today, const Color(0xFFF7B640)),
-        const SizedBox(width: 8),
-        statCard('8 días', 'Descansos', Icons.beach_access, const Color(0xFF0074A3)),
+                // 7 Botones Circulares / Píldoras de Días
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: List.generate(weekDays.length, (i) {
+                    final isSelected = _selectedDayIndex == i;
+                    final d = weekDays[i];
+                    return Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() => _selectedDayIndex = i),
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 2),
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? primaryRed
+                                : (isDark ? Colors.white.withValues(alpha: 0.04) : const Color(0xFFF4F5F7)),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: isSelected
+                                  ? primaryRed
+                                  : (isDark ? Colors.white10 : Colors.grey[200]!),
+                            ),
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                d['day'] as String,
+                                style: GoogleFonts.hankenGrotesk(
+                                  fontSize: 11,
+                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                                  color: isSelected
+                                      ? Colors.white
+                                      : (d['isOff'] as bool ? const Color(0xFF0074A3) : subtextColor),
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                d['num'] as String,
+                                style: GoogleFonts.hankenGrotesk(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: isSelected ? Colors.white : titleColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // 2. Detalle Diario (7 Días con Border-L-4)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Mis Turnos Asignados',
+                style: GoogleFonts.hankenGrotesk(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: titleColor,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: primaryRed.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  '7 JORNADAS',
+                  style: GoogleFonts.hankenGrotesk(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: primaryRed,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // Lista de Tarjetas Diarias
+          ...List.generate(weekDays.length, (index) {
+            final day = weekDays[index];
+            final isSelected = _selectedDayIndex == index;
+            final isOff = day['isOff'] as bool;
+            final status = day['status'] as String;
+
+            return Container(
+              margin: const EdgeInsets.only(bottom: 10),
+              decoration: BoxDecoration(
+                color: cardBg,
+                borderRadius: BorderRadius.circular(14),
+                border: isSelected
+                    ? Border.all(color: primaryRed, width: 1.5)
+                    : Border.all(color: cardBorder),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: isDark ? 0.15 : 0.03),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: Row(
+                children: [
+                  // Borde Izquierdo Temático (border-l-4)
+                  Container(
+                    width: 5,
+                    height: 60,
+                    color: isOff ? const Color(0xFF0074A3) : primaryRed,
+                  ),
+                  const SizedBox(width: 12),
+
+                  // Fecha Día / Número
+                  SizedBox(
+                    width: 38,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          day['day'] as String,
+                          style: GoogleFonts.hankenGrotesk(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: subtextColor,
+                          ),
+                        ),
+                        Text(
+                          day['num'] as String,
+                          style: GoogleFonts.hankenGrotesk(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: titleColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Separador Vertical
+                  Container(
+                    width: 1,
+                    height: 32,
+                    margin: const EdgeInsets.symmetric(horizontal: 10),
+                    color: cardBorder,
+                  ),
+
+                  // Info Turno
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          day['type'] as String,
+                          style: GoogleFonts.hankenGrotesk(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: isOff ? const Color(0xFF0074A3) : primaryRed,
+                          ),
+                        ),
+                        Text(
+                          day['time'] as String,
+                          style: GoogleFonts.hankenGrotesk(
+                            fontSize: 12,
+                            color: subtextColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Ícono de Estado
+                  Padding(
+                    padding: const EdgeInsets.only(right: 14),
+                    child: status == 'check'
+                        ? const Icon(Icons.check_circle, color: Color(0xFF2E7D32), size: 20)
+                        : (status == 'current'
+                            ? Icon(Icons.radio_button_checked, color: primaryRed, size: 20)
+                            : (status == 'descanso'
+                                ? const Text('😊', style: TextStyle(fontSize: 16))
+                                : Icon(Icons.circle_outlined, color: subtextColor.withValues(alpha: 0.5), size: 18))),
+                  ),
+                ],
+              ),
+            );
+          }),
+        ] else ...[
+          // ==========================================
+          // PESTAÑA: VISIÓN GENERAL DEL EQUIPO (Toda la semana interactiva)
+          // ==========================================
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: cardBg,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: cardBorder),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Programación Semanal del Equipo',
+                          style: GoogleFonts.hankenGrotesk(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: titleColor,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Frisby Parque Arboleda • Semana 1 (1 - 7 Abr)',
+                          style: GoogleFonts.hankenGrotesk(
+                            fontSize: 11,
+                            color: subtextColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF2E7D32).withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        '${weekDays[_selectedTeamDayIndex]['day']} ${weekDays[_selectedTeamDayIndex]['num']}',
+                        style: GoogleFonts.hankenGrotesk(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFF2E7D32),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+
+                // Selector de 7 Días de la Semana para la Vista del Equipo
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: List.generate(weekDays.length, (i) {
+                    final isSelected = _selectedTeamDayIndex == i;
+                    final d = weekDays[i];
+                    return Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() => _selectedTeamDayIndex = i),
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 2),
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? (isDark ? const Color(0xFFD2232A) : primaryRed)
+                                : (isDark ? Colors.white.withValues(alpha: 0.04) : const Color(0xFFF4F5F7)),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: isSelected
+                                  ? primaryRed
+                                  : (isDark ? Colors.white10 : Colors.grey[200]!),
+                            ),
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                d['day'] as String,
+                                style: GoogleFonts.hankenGrotesk(
+                                  fontSize: 11,
+                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                                  color: isSelected
+                                      ? Colors.white
+                                      : (d['isOff'] as bool ? const Color(0xFF0074A3) : subtextColor),
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                d['num'] as String,
+                                style: GoogleFonts.hankenGrotesk(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: isSelected ? Colors.white : titleColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+
+                const SizedBox(height: 16),
+
+                // Resumen del día seleccionado
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Turnos del ${weekDays[_selectedTeamDayIndex]['day']} ${weekDays[_selectedTeamDayIndex]['num']} de Abril',
+                      style: GoogleFonts.hankenGrotesk(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: titleColor,
+                      ),
+                    ),
+                    Text(
+                      '10 Colaboradores',
+                      style: GoogleFonts.hankenGrotesk(
+                        fontSize: 11,
+                        color: subtextColor,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+
+                // Lista de turnos del equipo correspondientes al día seleccionado
+                ...[
+                  // Función para generar dinámicamente el turno según el día de la semana
+                  {
+                    'name': '$cleanUsername (Tú)',
+                    'role': 'Auxiliar Cocina',
+                    'initials': cleanUsername.length >= 2 ? cleanUsername.substring(0, 2).toUpperCase() : 'TU',
+                    'shift': _selectedTeamDayIndex == 6 ? 'Descanso' : '08:00 - 16:00',
+                    'status': _selectedTeamDayIndex == 6 ? 'Descanso' : 'Turno Mañana',
+                    'isMe': true,
+                    'isOff': _selectedTeamDayIndex == 6,
+                  },
+                  {
+                    'name': 'Jelson R.',
+                    'role': 'Supervisor #',
+                    'initials': 'JR',
+                    'shift': _selectedTeamDayIndex == 5 ? 'Descanso' : (_selectedTeamDayIndex % 2 == 0 ? '08:00 - 15:00' : '12:00 - 21:00'),
+                    'status': _selectedTeamDayIndex == 5 ? 'Descanso' : 'En Turno',
+                    'isMe': false,
+                    'isOff': _selectedTeamDayIndex == 5,
+                  },
+                  {
+                    'name': 'Maira T.',
+                    'role': 'Supervisor #',
+                    'initials': 'MT',
+                    'shift': _selectedTeamDayIndex == 1 ? 'Descanso' : '14:00 - 21:00',
+                    'status': _selectedTeamDayIndex == 1 ? 'Descanso' : 'Turno Tarde',
+                    'isMe': false,
+                    'isOff': _selectedTeamDayIndex == 1,
+                  },
+                  {
+                    'name': 'Sandra P.',
+                    'role': 'Combos D',
+                    'initials': 'SP',
+                    'shift': _selectedTeamDayIndex == 2 ? 'Descanso' : '08:00 - 15:00',
+                    'status': _selectedTeamDayIndex == 2 ? 'Descanso' : 'Turno Mañana',
+                    'isMe': false,
+                    'isOff': _selectedTeamDayIndex == 2,
+                  },
+                  {
+                    'name': 'Luisa M.',
+                    'role': 'Combos D',
+                    'initials': 'LM',
+                    'shift': _selectedTeamDayIndex == 3 ? 'Descanso' : '14:00 - 21:00',
+                    'status': _selectedTeamDayIndex == 3 ? 'Descanso' : 'Turno Tarde',
+                    'isMe': false,
+                    'isOff': _selectedTeamDayIndex == 3,
+                  },
+                  {
+                    'name': 'Yenifer V.',
+                    'role': 'Salón y Servicio',
+                    'initials': 'YV',
+                    'shift': _selectedTeamDayIndex == 4 ? 'Descanso' : '12:00 - 16:00',
+                    'status': _selectedTeamDayIndex == 4 ? 'Descanso' : 'Turno Intermedio',
+                    'isMe': false,
+                    'isOff': _selectedTeamDayIndex == 4,
+                  },
+                  {
+                    'name': 'Adriana A.',
+                    'role': 'Supervisor #',
+                    'initials': 'AA',
+                    'shift': _selectedTeamDayIndex == 0 ? 'Descanso' : '14:00 - 21:00',
+                    'status': _selectedTeamDayIndex == 0 ? 'Descanso' : 'Turno Tarde',
+                    'isMe': false,
+                    'isOff': _selectedTeamDayIndex == 0,
+                  },
+                  {
+                    'name': 'Ronaldo G.',
+                    'role': 'Oficios Varios',
+                    'initials': 'RG',
+                    'shift': _selectedTeamDayIndex == 6 ? '08:00 - 16:00' : (_selectedTeamDayIndex == 0 ? 'Descanso' : '12:00 - 20:00'),
+                    'status': _selectedTeamDayIndex == 0 ? 'Descanso' : 'En Turno',
+                    'isMe': false,
+                    'isOff': _selectedTeamDayIndex == 0,
+                  },
+                  {
+                    'name': 'Jesús O.',
+                    'role': 'Domicilios',
+                    'initials': 'JO',
+                    'shift': _selectedTeamDayIndex == 4 ? 'Descanso' : '13:00 - 20:00',
+                    'status': _selectedTeamDayIndex == 4 ? 'Descanso' : 'Turno Tarde',
+                    'isMe': false,
+                    'isOff': _selectedTeamDayIndex == 4,
+                  },
+                  {
+                    'name': 'Freddy L.',
+                    'role': 'Domicilios',
+                    'initials': 'FL',
+                    'shift': _selectedTeamDayIndex == 6 ? '12:00 - 21:00' : (_selectedTeamDayIndex == 2 ? 'Descanso' : '08:00 - 16:00'),
+                    'status': _selectedTeamDayIndex == 2 ? 'Descanso' : 'Turno Mañana',
+                    'isMe': false,
+                    'isOff': _selectedTeamDayIndex == 2,
+                  },
+                ].map((collab) {
+                  final isMe = collab['isMe'] as bool;
+                  final isOff = collab['isOff'] as bool;
+
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: isMe
+                          ? primaryRed.withValues(alpha: isDark ? 0.15 : 0.06)
+                          : (isDark ? Colors.white.withValues(alpha: 0.03) : const Color(0xFFF9FAFB)),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isMe
+                            ? primaryRed.withValues(alpha: 0.4)
+                            : (isDark ? Colors.white10 : Colors.grey[200]!),
+                        width: isMe ? 1.4 : 1,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 16,
+                          backgroundColor: isMe
+                              ? primaryRed
+                              : (isOff ? Colors.grey[400] : const Color(0xFF545D80)),
+                          child: Text(
+                            collab['initials'] as String,
+                            style: GoogleFonts.hankenGrotesk(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    collab['name'] as String,
+                                    style: GoogleFonts.hankenGrotesk(
+                                      fontSize: 13,
+                                      fontWeight: isMe ? FontWeight.bold : FontWeight.w600,
+                                      color: isMe ? primaryRed : titleColor,
+                                    ),
+                                  ),
+                                  if (isMe) ...[
+                                    const SizedBox(width: 6),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                                      decoration: BoxDecoration(
+                                        color: primaryRed,
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: const Text(
+                                        'TÚ',
+                                        style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                collab['role'] as String,
+                                style: GoogleFonts.hankenGrotesk(
+                                  fontSize: 11,
+                                  color: subtextColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              collab['shift'] as String,
+                              style: GoogleFonts.hankenGrotesk(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: isOff ? const Color(0xFF0074A3) : titleColor,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              collab['status'] as String,
+                              style: GoogleFonts.hankenGrotesk(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                                color: isOff
+                                    ? const Color(0xFF0074A3)
+                                    : const Color(0xFF2E7D32),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+              ],
+            ),
+          ),
+        ],
       ],
     );
   }
 
   Widget _buildCalendarTabAndroid(bool isDark) {
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 20, 16, 100),
-      children: [
-        // Bento Stats Summary Header
-        _buildBentoStats(false, isDark),
-        const SizedBox(height: 20),
-
-        // Malla Semanal DRO'001.1
-        FrisbyWeeklyScheduleSheet(
-          restaurantName: 'Frisby Parque Arboleda',
-          isDark: isDark,
-          isIOS: false,
-        ),
-      ],
-    );
+    return _buildHtmlInspiredCalendarTab(isIOS: false, isDark: isDark);
   }
 
   // ==================== Monthly Calendar View (iOS - Glassmorphism) ====================
   Widget _buildCalendarTabIOS(bool isDark) {
-    return ListView(
-      padding: EdgeInsets.fromLTRB(20, MediaQuery.of(context).padding.top + 88, 20, 100),
-      children: [
-        // Bento Stats Monthly Summary Header (glassmorphic)
-        _buildBentoStats(true, isDark),
-        const SizedBox(height: 20),
-
-        // Malla Semanal DRO'001.1 (Fiel a la planilla física)
-        FrisbyWeeklyScheduleSheet(
-          restaurantName: 'Frisby Parque Arboleda',
-          isDark: isDark,
-          isIOS: true,
-        ),
-      ],
-    );
+    return _buildHtmlInspiredCalendarTab(isIOS: true, isDark: isDark);
   }
 
 
@@ -2880,43 +3484,176 @@ class _DashboardPageState extends State<DashboardPage> {
       );
     }
 
-    // iOS Floating Glassmorphic bottom nav bar
+    // iOS Floating Glassmorphic bottom nav bar (Apple Liquid Glass with Drag/Slide Gesture)
     Widget bottomNavBarIOS() {
-      final barBg = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white.withValues(alpha: 0.6);
-      final barBorder = isDark ? Colors.white.withValues(alpha: 0.15) : Colors.black.withValues(alpha: 0.08);
+      final isDarkMode = isDark;
+      final capsuleBg = isDarkMode
+          ? const Color(0xFF1E2127).withValues(alpha: 0.65)
+          : const Color(0xFFF0F2F6).withValues(alpha: 0.82);
+      final capsuleBorder = isDarkMode
+          ? Colors.white.withValues(alpha: 0.24)
+          : Colors.white.withValues(alpha: 0.85);
+
+      final navItems = [
+        {'icon': Icons.home_rounded, 'label': 'Inicio'},
+        {'icon': Icons.calendar_month_rounded, 'label': 'Turnos'},
+        {'icon': Icons.swap_horiz_rounded, 'label': 'Mercado'},
+        {'icon': Icons.person_rounded, 'label': 'Perfil'},
+      ];
 
       return SafeArea(
         top: false,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          alignment: Alignment.center,
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(30),
+            borderRadius: BorderRadius.circular(44),
             child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+              filter: ImageFilter.blur(sigmaX: 32, sigmaY: 32),
               child: Container(
-                height: 68,
+                height: 66,
+                constraints: const BoxConstraints(maxWidth: 400),
                 decoration: BoxDecoration(
-                  color: barBg,
-                  borderRadius: BorderRadius.circular(30),
+                  color: capsuleBg,
+                  borderRadius: BorderRadius.circular(44),
                   border: Border.all(
-                    color: barBorder,
+                    color: capsuleBorder,
+                    width: 1.4,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.05),
-                      blurRadius: 30,
-                      offset: const Offset(0, -10),
+                      color: Colors.black.withValues(alpha: isDarkMode ? 0.45 : 0.12),
+                      blurRadius: 28,
+                      offset: const Offset(0, 10),
+                    ),
+                    BoxShadow(
+                      color: Colors.white.withValues(alpha: isDarkMode ? 0.12 : 0.6),
+                      blurRadius: 10,
+                      offset: const Offset(0, -1),
                     ),
                   ],
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _buildNavItemIOS(0, Icons.schedule, 'Shifts', isDark),
-                    _buildNavItemIOS(1, Icons.calendar_month, 'Calendar', isDark),
-                    _buildNavItemIOS(2, Icons.storefront, 'Market', isDark),
-                    _buildNavItemIOS(3, Icons.person, 'Profile', isDark),
-                  ],
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final totalItems = navItems.length;
+                    final itemWidth = constraints.maxWidth / totalItems;
+                    final safeIndex = _currentIndex.clamp(0, totalItems - 1);
+
+                    return GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onHorizontalDragUpdate: (details) {
+                        final localX = details.localPosition.dx.clamp(0.0, constraints.maxWidth);
+                        final newIndex = (localX / itemWidth).floor().clamp(0, totalItems - 1);
+                        if (newIndex != _currentIndex) {
+                          HapticFeedback.selectionClick();
+                          setState(() => _currentIndex = newIndex);
+                        }
+                      },
+                      onHorizontalDragEnd: (details) {
+                        HapticFeedback.lightImpact();
+                      },
+                      child: Stack(
+                        children: [
+                          // Animated Glass Sliding Active Capsule (Liquid Glass Lens Dome)
+                          AnimatedPositioned(
+                            duration: const Duration(milliseconds: 280),
+                            curve: Curves.easeOutBack,
+                            left: safeIndex * itemWidth,
+                            top: 0,
+                            bottom: 0,
+                            width: itemWidth,
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: isDarkMode
+                                      ? [
+                                          Colors.white.withValues(alpha: 0.30),
+                                          Colors.white.withValues(alpha: 0.10),
+                                        ]
+                                      : [
+                                          Colors.white.withValues(alpha: 0.95),
+                                          const Color(0xFFE2E7EE).withValues(alpha: 0.88),
+                                        ],
+                                ),
+                                borderRadius: BorderRadius.circular(36),
+                                border: Border.all(
+                                  color: isDarkMode
+                                      ? Colors.white.withValues(alpha: 0.45)
+                                      : Colors.white,
+                                  width: 1.4,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: isDarkMode
+                                        ? const Color(0xFF007AFF).withValues(alpha: 0.3)
+                                        : Colors.black.withValues(alpha: 0.08),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                  BoxShadow(
+                                    color: Colors.white.withValues(alpha: isDarkMode ? 0.15 : 0.8),
+                                    blurRadius: 6,
+                                    offset: const Offset(0, -1),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          // Nav Items Row
+                          Row(
+                            children: List.generate(totalItems, (index) {
+                              final item = navItems[index];
+                              final isActive = safeIndex == index;
+                              const activeColor = Color(0xFF007AFF);
+                              final inactiveColor = isDarkMode
+                                  ? Colors.white.withValues(alpha: 0.65)
+                                  : const Color(0xFF1C1C1E).withValues(alpha: 0.65);
+
+                              return Expanded(
+                                child: GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: () {
+                                    HapticFeedback.selectionClick();
+                                    setState(() => _currentIndex = index);
+                                  },
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      AnimatedScale(
+                                        scale: isActive ? 1.12 : 1.0,
+                                        duration: const Duration(milliseconds: 200),
+                                        child: Icon(
+                                          item['icon'] as IconData,
+                                          size: 22,
+                                          color: isActive ? activeColor : inactiveColor,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      AnimatedDefaultTextStyle(
+                                        duration: const Duration(milliseconds: 200),
+                                        style: GoogleFonts.hankenGrotesk(
+                                          fontSize: 10.5,
+                                          fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                                          color: isActive ? activeColor : inactiveColor,
+                                          letterSpacing: -0.2,
+                                        ),
+                                        child: Text(item['label'] as String),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
@@ -3034,9 +3771,24 @@ class _DashboardPageState extends State<DashboardPage> {
       }
     }
 
-    return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF121212) : const Color(0xFFF4F5F7),
-      body: innerAppContainer(),
+    final statusBarStyle = isDark
+        ? SystemUiOverlayStyle.light.copyWith(
+            statusBarColor: Colors.transparent,
+            statusBarBrightness: Brightness.dark, // iOS: text/icons are light/white
+            statusBarIconBrightness: Brightness.light, // Android: light icons
+          )
+        : SystemUiOverlayStyle.dark.copyWith(
+            statusBarColor: Colors.transparent,
+            statusBarBrightness: Brightness.light, // iOS: text/icons are dark
+            statusBarIconBrightness: Brightness.dark, // Android: dark icons
+          );
+
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: statusBarStyle,
+      child: Scaffold(
+        backgroundColor: isDark ? const Color(0xFF121212) : const Color(0xFFF4F5F7),
+        body: innerAppContainer(),
+      ),
     );
   }
 
@@ -3428,44 +4180,5 @@ class _DashboardPageState extends State<DashboardPage> {
       ),
     );
   }
-
-  // Nav Item Builder for iOS (Floating style without active pill, only changes color/scale)
-  Widget _buildNavItemIOS(int index, IconData icon, String label, bool isDark) {
-    final isActive = _currentIndex == index;
-    final activeColor = isDark ? const Color(0xFFFFB3AD) : const Color(0xFFAC0017);
-    final inactiveColor = isDark 
-        ? const Color(0xFFE5BDBA).withValues(alpha: 0.6) 
-        : const Color(0xFF5C403D).withValues(alpha: 0.6);
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () => setState(() => _currentIndex = index),
-        child: SizedBox(
-          width: 75,
-          height: 68,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                color: isActive ? activeColor : inactiveColor,
-                size: isActive ? 24 : 22,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                style: GoogleFonts.hankenGrotesk(
-                  fontSize: 11,
-                  fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-                  color: isActive ? activeColor : inactiveColor,
-                  letterSpacing: 0.02,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }
+

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'google_fonts_wrapper.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dashboard_page.dart';
@@ -794,10 +795,24 @@ class _LoginPageState extends State<LoginPage> {
     final inputBorderColor = isDark ? Colors.white24 : Colors.grey[300]!;
     final linkColor = isDark ? const Color(0xFFFFB3AD) : const Color(0xFF121C3B);
 
-    return Scaffold(
-      backgroundColor: bgColor,
-      body: Stack(
-        children: [
+    final statusBarStyle = isDark
+        ? SystemUiOverlayStyle.light.copyWith(
+            statusBarColor: Colors.transparent,
+            statusBarBrightness: Brightness.dark, // iOS: text/icons are light/white
+            statusBarIconBrightness: Brightness.light, // Android: light icons
+          )
+        : SystemUiOverlayStyle.dark.copyWith(
+            statusBarColor: Colors.transparent,
+            statusBarBrightness: Brightness.light, // iOS: text/icons are dark
+            statusBarIconBrightness: Brightness.dark, // Android: dark icons
+          );
+
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: statusBarStyle,
+      child: Scaffold(
+        backgroundColor: bgColor,
+        body: Stack(
+          children: [
           // Yellow Blob (Top-Right decoration)
           Positioned(
             top: -60,
@@ -1079,8 +1094,9 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 }
 
 class _FeatureIconPainter extends CustomPainter {
