@@ -9,6 +9,7 @@ class WeeklyScheduleRow {
   final String collaboratorName;
   final String role; // Cargo: Super #, Auxiliar P, Combos D, Salón, Oficios Varios, Domicilio
   final Map<int, String> dayShifts; // 1: Lunes -> 7: Domingo. Valor ej: '8-15', '☺', '14-21', '12-14\n16-21'
+  final Map<int, String> dayNotes; // Notas especiales por turno: 'Biodanza (7:30 AM)', 'Reunión', etc.
 
   WeeklyScheduleRow({
     required this.idNumber,
@@ -16,6 +17,7 @@ class WeeklyScheduleRow {
     required this.collaboratorName,
     required this.role,
     required this.dayShifts,
+    this.dayNotes = const {},
   });
 
   WeeklyScheduleRow copyWith({
@@ -24,6 +26,7 @@ class WeeklyScheduleRow {
     String? collaboratorName,
     String? role,
     Map<int, String>? dayShifts,
+    Map<int, String>? dayNotes,
   }) {
     return WeeklyScheduleRow(
       idNumber: idNumber ?? this.idNumber,
@@ -31,6 +34,7 @@ class WeeklyScheduleRow {
       collaboratorName: collaboratorName ?? this.collaboratorName,
       role: role ?? this.role,
       dayShifts: dayShifts ?? Map<int, String>.from(this.dayShifts),
+      dayNotes: dayNotes ?? Map<int, String>.from(this.dayNotes),
     );
   }
 
@@ -390,6 +394,7 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
     final dayName = dayNames[dayIndex - 1];
 
     final customCtrl = TextEditingController(text: currentShift == '☺' || currentShift == '-' ? '' : currentShift);
+    final noteCtrl = TextEditingController(text: row.dayNotes[dayIndex] ?? '');
 
     final shiftPresets = [
       {'label': '8 - 15', 'desc': 'Apertura (7h)', 'val': '8-15', 'color': const Color(0xFF1E88E5)},
@@ -486,6 +491,232 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
               const Divider(height: 1),
               const SizedBox(height: 16),
 
+              // --- ASISTENTE DE COBERTURA DE LA ESTACIÓN (APERTURA, INTERMEDIO, CIERRE) ---
+              () {
+                // Obtener los compañeros del mismo cargo en este día
+                final sameRoleRows = _scheduleRows.where((r) => r.role == row.role && r.idNumber != row.idNumber).toList();
+                
+                String? aperturaPerson;
+                String? intermedioPerson;
+                String? cierrePerson;
+
+                for (final r in sameRoleRows) {
+                  final s = r.dayShifts[dayIndex] ?? '';
+                  if (s.isEmpty || s == '-' || s == '☺') continue;
+                  
+                  if (s.startsWith('8-') || s.startsWith('08-') || s.startsWith('9-')) {
+                    aperturaPerson = r.collaboratorName;
+                  } else if (s.contains('14-') || s.contains('15-') || s.contains('16-')) {
+                    cierrePerson = r.collaboratorName;
+                  } else {
+                    intermedioPerson = r.collaboratorName;
+                  }
+                }
+
+                // Determinar sugerencia óptima
+                String smartSuggestion = '';
+                String suggestedVal = '';
+                if (aperturaPerson == null) {
+                  smartSuggestion = 'Falta cubrir Apertura (08:00 - 15:00)';
+                  suggestedVal = '8-15';
+                } else if (cierrePerson == null) {
+                  smartSuggestion = 'Falta cubrir Cierre (14:00 - 21:00)';
+                  suggestedVal = '14-21';
+                } else if (intermedioPerson == null) {
+                  smartSuggestion = 'Falta cubrir Refuerzo/Intermedio (12:00 - 19:00)';
+                  suggestedVal = '12-19';
+                }
+
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.white.withValues(alpha: 0.04) : const Color(0xFFF8F9FB),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: isDark ? Colors.white12 : const Color(0xFFE5E7EB)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.hub_outlined, size: 16, color: Color(0xFFAC0017)),
+                              const SizedBox(width: 6),
+                              Text(
+                                'Cobertura de Estación (${row.role})',
+                                style: GoogleFonts.hankenGrotesk(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: isDark ? Colors.white : const Color(0xFF191C1E),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            dayName,
+                            style: GoogleFonts.hankenGrotesk(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: isDark ? Colors.white60 : Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      // Franjas de Apertura, Intermedio y Cierre
+                      Row(
+                        children: [
+                          // Apertura
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+                              decoration: BoxDecoration(
+                                color: aperturaPerson != null
+                                    ? const Color(0xFF0284C7).withValues(alpha: isDark ? 0.25 : 0.12)
+                                    : (isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey[200]),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: aperturaPerson != null
+                                      ? const Color(0xFF0284C7).withValues(alpha: 0.5)
+                                      : Colors.transparent,
+                                ),
+                              ),
+                              child: Column(
+                                children: [
+                                  Text('Apertura', style: GoogleFonts.hankenGrotesk(fontSize: 10, fontWeight: FontWeight.bold, color: aperturaPerson != null ? const Color(0xFF0284C7) : Colors.grey)),
+                                  const SizedBox(height: 2),
+                                  Text('8:00 - 15:00', style: GoogleFonts.hankenGrotesk(fontSize: 9, color: isDark ? Colors.white70 : Colors.black87)),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    aperturaPerson ?? '⚠️ Libre',
+                                    style: GoogleFonts.hankenGrotesk(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      color: aperturaPerson != null ? (isDark ? Colors.white : const Color(0xFF0284C7)) : const Color(0xFFD97706),
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          // Intermedio
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+                              decoration: BoxDecoration(
+                                color: intermedioPerson != null
+                                    ? const Color(0xFFD97706).withValues(alpha: isDark ? 0.25 : 0.12)
+                                    : (isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey[200]),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: intermedioPerson != null
+                                      ? const Color(0xFFD97706).withValues(alpha: 0.5)
+                                      : Colors.transparent,
+                                ),
+                              ),
+                              child: Column(
+                                children: [
+                                  Text('Intermedio', style: GoogleFonts.hankenGrotesk(fontSize: 10, fontWeight: FontWeight.bold, color: intermedioPerson != null ? const Color(0xFFD97706) : Colors.grey)),
+                                  const SizedBox(height: 2),
+                                  Text('12:00 - 19:00', style: GoogleFonts.hankenGrotesk(fontSize: 9, color: isDark ? Colors.white70 : Colors.black87)),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    intermedioPerson ?? '⚠️ Libre',
+                                    style: GoogleFonts.hankenGrotesk(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      color: intermedioPerson != null ? (isDark ? Colors.white : const Color(0xFFD97706)) : const Color(0xFFD97706),
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          // Cierre
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+                              decoration: BoxDecoration(
+                                color: cierrePerson != null
+                                    ? const Color(0xFFC8102E).withValues(alpha: isDark ? 0.25 : 0.12)
+                                    : (isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey[200]),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: cierrePerson != null
+                                      ? const Color(0xFFC8102E).withValues(alpha: 0.5)
+                                      : Colors.transparent,
+                                ),
+                              ),
+                              child: Column(
+                                children: [
+                                  Text('Cierre', style: GoogleFonts.hankenGrotesk(fontSize: 10, fontWeight: FontWeight.bold, color: cierrePerson != null ? const Color(0xFFC8102E) : Colors.grey)),
+                                  const SizedBox(height: 2),
+                                  Text('14:00 - 21:00', style: GoogleFonts.hankenGrotesk(fontSize: 9, color: isDark ? Colors.white70 : Colors.black87)),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    cierrePerson ?? '⚠️ Libre',
+                                    style: GoogleFonts.hankenGrotesk(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      color: cierrePerson != null ? (isDark ? Colors.white : const Color(0xFFC8102E)) : const Color(0xFFD97706),
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (smartSuggestion.isNotEmpty) ...[
+                        const SizedBox(height: 10),
+                        InkWell(
+                          onTap: () {
+                            _updateShift(row.idNumber, dayIndex, suggestedVal);
+                            Navigator.pop(ctx);
+                          },
+                          borderRadius: BorderRadius.circular(8),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF2E7D32).withValues(alpha: isDark ? 0.2 : 0.1),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: const Color(0xFF2E7D32).withValues(alpha: 0.4)),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.auto_awesome, size: 14, color: Color(0xFF2E7D32)),
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: Text(
+                                    '💡 Sugerencia IA: $smartSuggestion (Toca para aplicar)',
+                                    style: GoogleFonts.hankenGrotesk(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                      color: isDark ? const Color(0xFFA5D6A7) : const Color(0xFF1B5E20),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                );
+              }(),
+
               Text(
                 'Selección Rápida de Horario (1 Toque):',
                 style: GoogleFonts.hankenGrotesk(
@@ -496,7 +727,7 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
               ),
               const SizedBox(height: 10),
 
-              // Grid de presets rápidos
+              // Grid de presets rápidos con detección de cruces
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
@@ -505,8 +736,25 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                   final isSelected = currentShift == val;
                   final pColor = p['color'] as Color;
 
+                  // Detectar si otro compañero del mismo cargo ya tiene exactamente este turno
+                  final sameRoleRows = _scheduleRows.where((r) => r.role == row.role && r.idNumber != row.idNumber).toList();
+                  final conflictRow = sameRoleRows.cast<WeeklyScheduleRow?>().firstWhere(
+                        (r) => r?.dayShifts[dayIndex] == val,
+                        orElse: () => null,
+                      );
+                  final hasConflict = conflictRow != null && val != '-' && val != '☺';
+
                   return InkWell(
                     onTap: () {
+                      if (hasConflict) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('⚠️ Nota: ${conflictRow.collaboratorName} ya tiene este horario asignado en ${row.role}.'),
+                            backgroundColor: const Color(0xFFD97706),
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+                      }
                       _updateShift(row.idNumber, dayIndex, val);
                       Navigator.pop(ctx);
                     },
@@ -516,10 +764,16 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                       decoration: BoxDecoration(
                         color: isSelected
                             ? pColor.withValues(alpha: 0.25)
-                            : (isDark ? Colors.white10 : const Color(0xFFF3F4F6)),
+                            : (hasConflict
+                                ? (isDark ? Colors.white.withValues(alpha: 0.03) : const Color(0xFFFFFBEB))
+                                : (isDark ? Colors.white10 : const Color(0xFFF3F4F6))),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: isSelected ? pColor : (isDark ? Colors.white12 : Colors.grey[300]!),
+                          color: isSelected
+                              ? pColor
+                              : (hasConflict
+                                  ? const Color(0xFFD97706).withValues(alpha: 0.5)
+                                  : (isDark ? Colors.white12 : Colors.grey[300]!)),
                           width: isSelected ? 2 : 1,
                         ),
                       ),
@@ -535,21 +789,112 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                               decoration: BoxDecoration(color: pColor, shape: BoxShape.circle),
                             ),
                           const SizedBox(width: 6),
-                          Text(
-                            p['label'] as String,
-                            style: GoogleFonts.hankenGrotesk(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
-                              color: isSelected
-                                  ? (isDark ? Colors.white : pColor)
-                                  : (isDark ? Colors.white : Colors.black87),
-                            ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                p['label'] as String,
+                                style: GoogleFonts.hankenGrotesk(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                  color: isSelected
+                                      ? (isDark ? Colors.white : pColor)
+                                      : (isDark ? Colors.white : Colors.black87),
+                                ),
+                              ),
+                              if (hasConflict)
+                                Text(
+                                  'Ocupado por ${conflictRow.collaboratorName}',
+                                  style: GoogleFonts.hankenGrotesk(
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.w600,
+                                    color: const Color(0xFFD97706),
+                                  ),
+                                ),
+                            ],
                           ),
                         ],
                       ),
                     ),
                   );
                 }).toList(),
+              ),
+
+              const SizedBox(height: 18),
+              Text(
+                'Nota o Evento Especial para este turno:',
+                style: GoogleFonts.hankenGrotesk(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white70 : const Color(0xFF555555),
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              // Chips de eventos predefinidos (Biodanza, Reunión, Capacitación, Aseo)
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: [
+                  {'label': '🌿 Biodanza (7:30 AM)', 'color': const Color(0xFF2E7D32)},
+                  {'label': '🌿 Biodanza (3:30 PM)', 'color': const Color(0xFF2E7D32)},
+                  {'label': '👥 Reunión Operativa', 'color': const Color(0xFFD2232A)},
+                  {'label': '🧹 Aseo General', 'color': const Color(0xFF0288D1)},
+                  {'label': '🎓 Capacitación', 'color': const Color(0xFF7C3AED)},
+                ].map((ev) {
+                  final evLabel = ev['label'] as String;
+                  final evColor = ev['color'] as Color;
+                  final isEvSelected = noteCtrl.text == evLabel;
+
+                  return InkWell(
+                    onTap: () {
+                      setModalState(() {
+                        if (isEvSelected) {
+                          noteCtrl.clear();
+                        } else {
+                          noteCtrl.text = evLabel;
+                        }
+                      });
+                    },
+                    borderRadius: BorderRadius.circular(10),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: isEvSelected
+                            ? evColor.withValues(alpha: isDark ? 0.3 : 0.15)
+                            : (isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFF3F4F6)),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: isEvSelected ? evColor : (isDark ? Colors.white12 : Colors.grey[300]!),
+                          width: isEvSelected ? 1.5 : 1,
+                        ),
+                      ),
+                      child: Text(
+                        evLabel,
+                        style: GoogleFonts.hankenGrotesk(
+                          fontSize: 11,
+                          fontWeight: isEvSelected ? FontWeight.bold : FontWeight.w500,
+                          color: isEvSelected ? (isDark ? Colors.white : evColor) : (isDark ? Colors.white70 : Colors.black87),
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+
+              const SizedBox(height: 10),
+              TextField(
+                controller: noteCtrl,
+                style: GoogleFonts.hankenGrotesk(fontSize: 12, color: isDark ? Colors.white : Colors.black87),
+                decoration: InputDecoration(
+                  hintText: 'O escribe una nota (Ej: Examen médico, Entrega uniforme)',
+                  hintStyle: GoogleFonts.hankenGrotesk(fontSize: 12, color: Colors.grey),
+                  filled: true,
+                  fillColor: isDark ? Colors.white10 : const Color(0xFFF9FAFB),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+                  prefixIcon: const Icon(Icons.edit_note, size: 18, color: Color(0xFFAC0017)),
+                ),
               ),
 
               const SizedBox(height: 18),
@@ -581,8 +926,11 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                   ElevatedButton(
                     onPressed: () {
                       final val = customCtrl.text.trim();
+                      final note = noteCtrl.text.trim();
                       if (val.isNotEmpty) {
-                        _updateShift(row.idNumber, dayIndex, val);
+                        _updateShift(row.idNumber, dayIndex, val, note: note.isNotEmpty ? note : null);
+                      } else if (note.isNotEmpty) {
+                        _updateShift(row.idNumber, dayIndex, currentShift, note: note);
                       }
                       Navigator.pop(ctx);
                     },
@@ -603,21 +951,59 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
     );
   }
 
-  void _updateShift(int idNumber, int dayIndex, String newShift) {
+  void _updateShift(int idNumber, int dayIndex, String newShift, {String? note}) {
     setState(() {
       final index = _scheduleRows.indexWhere((r) => r.idNumber == idNumber);
       if (index != -1) {
         final row = _scheduleRows[index];
         final updatedShifts = Map<int, String>.from(row.dayShifts);
+        final updatedNotes = Map<int, String>.from(row.dayNotes);
+        
         updatedShifts[dayIndex] = newShift;
-        _scheduleRows[index] = row.copyWith(dayShifts: updatedShifts);
+        if (note != null && note.isNotEmpty) {
+          updatedNotes[dayIndex] = note;
+          
+          // Sincronizar automáticamente en la sección inferior de Observaciones y Eventos
+          final dayNames = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+          final dayName = dayNames[dayIndex - 1];
+          final cleanTitle = note.replaceAll(RegExp(r'^[🌿👥🧹🎓]\s*'), '');
+
+          final existingObsIndex = _observations.indexWhere(
+            (o) => (o['title'] as String).toLowerCase().contains(cleanTitle.toLowerCase()) && o['day'] == dayName,
+          );
+
+          if (existingObsIndex != -1) {
+            final currentParticipants = _observations[existingObsIndex]['participants'] as String;
+            if (!currentParticipants.contains(row.collaboratorName)) {
+              _observations[existingObsIndex]['participants'] = '$currentParticipants, ${row.collaboratorName}';
+            }
+          } else {
+            _observations.add({
+              'title': cleanTitle,
+              'participants': row.collaboratorName,
+              'color': note.contains('Biodanza')
+                  ? const Color(0xFF2E7D32)
+                  : (note.contains('Reunión')
+                      ? const Color(0xFFD2232A)
+                      : (note.contains('Aseo') ? const Color(0xFF0288D1) : const Color(0xFF7C3AED))),
+              'day': dayName,
+            });
+          }
+        } else if (note == '') {
+          updatedNotes.remove(dayIndex);
+        }
+
+        _scheduleRows[index] = row.copyWith(
+          dayShifts: updatedShifts,
+          dayNotes: updatedNotes,
+        );
       }
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Horario actualizado: $newShift'),
-        duration: const Duration(seconds: 1),
+        content: Text('Turno actualizado: $newShift ${note != null && note.isNotEmpty ? "($note)" : ""}'),
+        duration: const Duration(seconds: 2),
         behavior: SnackBarBehavior.floating,
         backgroundColor: const Color(0xFF2E7D32),
       ),
@@ -710,7 +1096,6 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
 
     final containerBg = isDark ? const Color(0xFF1E1E1E) : Colors.white;
     final borderColor = isDark ? Colors.white12 : const Color(0xFFE5E7EB);
-    final headerCellBg = isDark ? Colors.white.withValues(alpha: 0.08) : const Color(0xFFF3F4F6);
     final titleColor = isDark ? Colors.white : const Color(0xFF191C1E);
     final subtextColor = isDark ? Colors.white60 : const Color(0xFF555555);
     const primaryRed = Color(0xFFAC0017);
@@ -885,33 +1270,38 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
               ),
             ),
 
-          // 2. TABLA SEMANAL DRO'001.1 (Con Scroll Horizontal en pantallas pequeñas)
+          // 2. TABLA SEMANAL DRO'001.1 (Estilo Limpio y Moderno)
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: ConstrainedBox(
-              constraints: BoxConstraints(minWidth: isDesktop ? 960 : 850),
+              constraints: BoxConstraints(minWidth: isDesktop ? 980 : 880),
               child: DataTable(
-                headingRowHeight: 48,
-                dataRowMinHeight: 46,
-                dataRowMaxHeight: 56,
-                horizontalMargin: 12,
-                columnSpacing: 14,
-                headingRowColor: WidgetStateProperty.all(headerCellBg),
+                headingRowHeight: 52,
+                dataRowMinHeight: 54,
+                dataRowMaxHeight: 64,
+                horizontalMargin: 16,
+                columnSpacing: 18,
+                headingRowColor: WidgetStateProperty.all(
+                  isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFF9FAFB),
+                ),
                 border: TableBorder(
-                  horizontalInside: BorderSide(color: borderColor, width: 0.8),
-                  verticalInside: BorderSide(color: borderColor, width: 0.8),
+                  horizontalInside: BorderSide(
+                    color: isDark ? Colors.white.withValues(alpha: 0.06) : const Color(0xFFF0F1F3),
+                    width: 1,
+                  ),
+                  verticalInside: BorderSide.none,
                 ),
                 columns: [
                   DataColumn(
-                    label: Text('N°', style: _headerTextStyle(primaryRed)),
+                    label: Text('#', style: _headerTextStyle(primaryRed)),
                   ),
                   DataColumn(
-                    label: Text('Nombre colaborador', style: _headerTextStyle(titleColor)),
+                    label: Text('Colaborador', style: _headerTextStyle(titleColor)),
                   ),
                   DataColumn(
                     label: Text('Cargo', style: _headerTextStyle(titleColor)),
                   ),
-                  // Columnas de días de la semana con fecha (Lunes [24] .. Domingo [30])
+                  // Columnas de días de la semana con fecha
                   ...List.generate(7, (i) {
                     final dayDate = weekDaysList[i];
                     return DataColumn(
@@ -922,7 +1312,7 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                             '${dayDate.day}',
                             style: GoogleFonts.hankenGrotesk(
                               fontWeight: FontWeight.bold,
-                              fontSize: 13,
+                              fontSize: 14,
                               color: primaryRed,
                             ),
                           ),
@@ -939,20 +1329,31 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                     );
                   }),
                   DataColumn(
-                    label: Text('Horas\nLaboradas', textAlign: TextAlign.center, style: _headerTextStyle(primaryRed)),
+                    label: Text('Total', textAlign: TextAlign.center, style: _headerTextStyle(primaryRed)),
                   ),
                 ],
-                rows: _displayedRows.map((row) {
+                rows: _displayedRows.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final row = entry.value;
                   final totalHours = row.calculateTotalHours();
                   final isOvertime = totalHours > 48;
+                  final isEvenRow = index % 2 == 0;
+                  final rowBg = isEvenRow
+                      ? Colors.transparent
+                      : (isDark ? Colors.white.withValues(alpha: 0.02) : const Color(0xFFFBFBFD));
 
                   return DataRow(
+                    color: WidgetStateProperty.all(rowBg),
                     cells: [
                       // N°
                       DataCell(
                         Text(
                           '${row.idNumber}',
-                          style: GoogleFonts.hankenGrotesk(fontWeight: FontWeight.bold, color: primaryRed, fontSize: 13),
+                          style: GoogleFonts.hankenGrotesk(
+                            fontWeight: FontWeight.bold,
+                            color: isDark ? Colors.white60 : Colors.grey[700],
+                            fontSize: 12,
+                          ),
                         ),
                       ),
                       // Nombre colaborador
@@ -960,19 +1361,24 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            CircleAvatar(
-                              radius: 12,
-                              backgroundColor: primaryRed.withValues(alpha: 0.12),
+                            Container(
+                              width: 28,
+                              height: 28,
+                              decoration: BoxDecoration(
+                                color: primaryRed.withValues(alpha: 0.1),
+                                shape: BoxShape.circle,
+                              ),
+                              alignment: Alignment.center,
                               child: Text(
                                 row.collaboratorName.substring(0, 1).toUpperCase(),
                                 style: GoogleFonts.hankenGrotesk(
-                                  fontSize: 10,
+                                  fontSize: 12,
                                   fontWeight: FontWeight.bold,
                                   color: primaryRed,
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 10),
                             Text(
                               row.collaboratorName,
                               style: GoogleFonts.hankenGrotesk(
@@ -986,12 +1392,19 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                       ),
                       // Cargo
                       DataCell(
-                        Text(
-                          row.role,
-                          style: GoogleFonts.hankenGrotesk(
-                            fontSize: 12,
-                            color: subtextColor,
-                            fontWeight: FontWeight.w500,
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: isDark ? Colors.white10 : const Color(0xFFF3F4F6),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            row.role,
+                            style: GoogleFonts.hankenGrotesk(
+                              fontSize: 11,
+                              color: subtextColor,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ),
@@ -999,6 +1412,7 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                       ...List.generate(7, (i) {
                         final dayIndex = i + 1;
                         final shift = row.dayShifts[dayIndex] ?? '-';
+                        final note = row.dayNotes[dayIndex];
                         final dayDate = weekDaysList[i];
 
                         return DataCell(
@@ -1012,19 +1426,10 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                                       dayDate: dayDate,
                                       currentShift: shift,
                                     ),
-                            borderRadius: BorderRadius.circular(6),
-                            child: Container(
-                              alignment: Alignment.center,
-                              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: shift == '☺'
-                                    ? const Color(0xFF2E7D32).withValues(alpha: 0.12)
-                                    : (shift.isEmpty || shift == '-'
-                                        ? Colors.transparent
-                                        : (isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFFFF4F4))),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: _buildShiftCellContent(shift, isDark),
+                            borderRadius: BorderRadius.circular(10),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
+                              child: _buildShiftCellContent(shift, isDark, note: note),
                             ),
                           ),
                         );
@@ -1032,17 +1437,17 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                       // Horas Laboradas
                       DataCell(
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                           decoration: BoxDecoration(
                             color: isOvertime
                                 ? const Color(0xFFBA1A1A).withValues(alpha: 0.15)
                                 : const Color(0xFF2E7D32).withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text(
                             '${totalHours.toStringAsFixed(0)}h',
                             style: GoogleFonts.hankenGrotesk(
-                              fontSize: 12,
+                              fontSize: 11,
                               fontWeight: FontWeight.bold,
                               color: isOvertime ? const Color(0xFFBA1A1A) : const Color(0xFF2E7D32),
                             ),
@@ -1056,7 +1461,7 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
             ),
           ),
 
-          // 3. SECCIÓN INFERIOR DE OBSERVACIONES Y EVENTOS (Fiel al pie de la planilla)
+          // 3. SECCIÓN INFERIOR DE OBSERVACIONES Y EVENTOS
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -1101,19 +1506,18 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                   children: _observations.map((obs) {
                     final obsColor = obs['color'] as Color;
                     return Container(
-                      margin: const EdgeInsets.only(bottom: 8),
+                      margin: const EdgeInsets.only(bottom: 6),
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
-                        color: isDark ? Colors.black26 : Colors.white,
+                        color: obsColor.withValues(alpha: isDark ? 0.15 : 0.08),
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: obsColor.withValues(alpha: 0.35)),
+                        border: Border.all(color: obsColor.withValues(alpha: isDark ? 0.3 : 0.2)),
                       ),
                       child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Container(
-                            width: 8,
-                            height: 8,
+                            width: 6,
+                            height: 6,
                             decoration: BoxDecoration(color: obsColor, shape: BoxShape.circle),
                           ),
                           const SizedBox(width: 8),
@@ -1123,7 +1527,7 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                                 style: GoogleFonts.hankenGrotesk(fontSize: 12, color: titleColor),
                                 children: [
                                   TextSpan(
-                                    text: '${obs['day']} • ${obs['title']}: ',
+                                    text: '[${obs['day']}] ${obs['title']}: ',
                                     style: const TextStyle(fontWeight: FontWeight.bold),
                                   ),
                                   TextSpan(
@@ -1147,31 +1551,131 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
     );
   }
 
-  Widget _buildShiftCellContent(String shift, bool isDark) {
+  Widget _buildShiftCellContent(String shift, bool isDark, {String? note}) {
+    final hasNote = note != null && note.isNotEmpty;
+
     if (shift == '☺') {
-      return const Text(
-        '☺',
-        style: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-          color: Color(0xFF2E7D32),
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+        decoration: BoxDecoration(
+          color: const Color(0xFF2E7D32).withValues(alpha: isDark ? 0.2 : 0.1),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.bedtime_outlined, size: 13, color: Color(0xFF2E7D32)),
+            const SizedBox(width: 4),
+            Text(
+              'Libre',
+              style: GoogleFonts.hankenGrotesk(
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                color: const Color(0xFF2E7D32),
+              ),
+            ),
+          ],
         ),
       );
     }
+
     if (shift == '-' || shift.isEmpty) {
-      return Text(
-        '-',
-        style: GoogleFonts.hankenGrotesk(fontSize: 12, color: Colors.grey),
+      if (hasNote) {
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+          decoration: BoxDecoration(
+            color: const Color(0xFF7C3AED).withValues(alpha: isDark ? 0.25 : 0.12),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            note,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.hankenGrotesk(fontSize: 10, fontWeight: FontWeight.bold, color: const Color(0xFF7C3AED)),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        );
+      }
+
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+        alignment: Alignment.center,
+        child: Text(
+          '—',
+          style: GoogleFonts.hankenGrotesk(fontSize: 12, color: isDark ? Colors.white24 : Colors.grey[400]),
+        ),
       );
     }
-    return Text(
-      shift,
-      textAlign: TextAlign.center,
-      style: GoogleFonts.hankenGrotesk(
-        fontSize: 11,
-        fontWeight: FontWeight.bold,
-        color: isDark ? Colors.white : const Color(0xFFAC0017),
-        height: 1.1,
+
+    // Color semántico por tipo de turno
+    Color chipBg;
+    Color chipText;
+
+    if (shift.startsWith('8-') || shift.startsWith('08-') || shift.startsWith('9-')) {
+      // Apertura / Mañana (Azul suave)
+      chipBg = const Color(0xFF0284C7).withValues(alpha: isDark ? 0.2 : 0.1);
+      chipText = isDark ? const Color(0xFF7DD3FC) : const Color(0xFF0369A1);
+    } else if (shift.contains('14-') || shift.contains('15-') || shift.contains('16-')) {
+      // Cierre / Tarde (Rojo / Salmón suave)
+      chipBg = const Color(0xFFC8102E).withValues(alpha: isDark ? 0.2 : 0.1);
+      chipText = isDark ? const Color(0xFFFFB3AD) : const Color(0xFFC8102E);
+    } else if (shift.contains('\n') || shift.contains('/')) {
+      // Turno Partido (Púrpura suave)
+      chipBg = const Color(0xFF7C3AED).withValues(alpha: isDark ? 0.2 : 0.1);
+      chipText = isDark ? const Color(0xFFC4B5FD) : const Color(0xFF6D28D9);
+    } else {
+      // Refuerzo / Intermedio (Ámbar / Naranja)
+      chipBg = const Color(0xFFD97706).withValues(alpha: isDark ? 0.2 : 0.1);
+      chipText = isDark ? const Color(0xFFFDE68A) : const Color(0xFFB45309);
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+      decoration: BoxDecoration(
+        color: chipBg,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      alignment: Alignment.center,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            shift,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.hankenGrotesk(
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              color: chipText,
+              height: 1.1,
+            ),
+          ),
+          if (hasNote) ...[
+            const SizedBox(height: 2),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+              decoration: BoxDecoration(
+                color: (note.contains('Biodanza')
+                    ? const Color(0xFF2E7D32)
+                    : (note.contains('Reunión') ? const Color(0xFFD2232A) : const Color(0xFF7C3AED))).withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                note.replaceAll(RegExp(r'^[🌿👥🧹🎓]\s*'), ''),
+                style: GoogleFonts.hankenGrotesk(
+                  fontSize: 9,
+                  fontWeight: FontWeight.w800,
+                  color: note.contains('Biodanza')
+                      ? const Color(0xFF2E7D32)
+                      : (note.contains('Reunión') ? const Color(0xFFD2232A) : const Color(0xFF7C3AED)),
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }
