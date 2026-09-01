@@ -29,14 +29,12 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
   String _currentStore = 'Frisby Parque Arboleda';
   final String _currentZone = 'Zona Eje Cafetero';
   bool? _isDarkModeOverride;
-  bool? _isIOSOverride;
 
   late AnimationController _alertPulseController;
   late Animation<double> _pulseScaleAnimation;
   late Animation<double> _pulseGlowAnimation;
 
   bool _isIOS(BuildContext context) {
-    if (_isIOSOverride != null) return _isIOSOverride!;
     return Theme.of(context).platform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.iOS;
   }
 
@@ -462,75 +460,6 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
     );
   }
 
-  void _showPlatformSelectorDialog(bool isDark) {
-    showDialog(
-      context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Row(
-            children: [
-              const Icon(Icons.phone_iphone, color: Color(0xFFAC0017)),
-              const SizedBox(width: 8),
-              Text(
-                'Plataforma / Sistema',
-                style: GoogleFonts.hankenGrotesk(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                  color: isDark ? Colors.white : const Color(0xFF191C1E),
-                ),
-              ),
-            ],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                title: Text('iOS (Flat Design / Claro)', style: GoogleFonts.hankenGrotesk(fontWeight: _isIOSOverride == true ? FontWeight.bold : FontWeight.normal)),
-                subtitle: Text('Tema claro, botones redondeados, cabeceras minimalistas', style: GoogleFonts.hankenGrotesk(fontSize: 12)),
-                leading: const Icon(Icons.apple, color: Color(0xFFAC0017)),
-                trailing: _isIOSOverride == true ? const Icon(Icons.check, color: Color(0xFF2E7D32)) : null,
-                onTap: () {
-                  setState(() => _isIOSOverride = true);
-                  Navigator.pop(ctx);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Vista cambiada a: iOS (Flat Design)'), behavior: SnackBarBehavior.floating),
-                  );
-                },
-              ),
-              ListTile(
-                title: Text('Android (Material Design)', style: GoogleFonts.hankenGrotesk(fontWeight: _isIOSOverride == false ? FontWeight.bold : FontWeight.normal)),
-                subtitle: Text('Tema Android nativo con app bar rojo sólido', style: GoogleFonts.hankenGrotesk(fontSize: 12)),
-                leading: const Icon(Icons.android, color: Color(0xFF2E7D32)),
-                trailing: _isIOSOverride == false ? const Icon(Icons.check, color: Color(0xFF2E7D32)) : null,
-                onTap: () {
-                  setState(() => _isIOSOverride = false);
-                  Navigator.pop(ctx);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Vista cambiada a: Android Material'), behavior: SnackBarBehavior.floating),
-                  );
-                },
-              ),
-              ListTile(
-                title: Text('Automático (Detección del Dispositivo)', style: GoogleFonts.hankenGrotesk(fontWeight: _isIOSOverride == null ? FontWeight.bold : FontWeight.normal)),
-                subtitle: Text('Detecta automáticamente si estás en iOS, Android o Web', style: GoogleFonts.hankenGrotesk(fontSize: 12)),
-                leading: const Icon(Icons.autorenew, color: Colors.grey),
-                trailing: _isIOSOverride == null ? const Icon(Icons.check, color: Color(0xFF2E7D32)) : null,
-                onTap: () {
-                  setState(() => _isIOSOverride = null);
-                  Navigator.pop(ctx);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Vista cambiada a: Detección Automática'), behavior: SnackBarBehavior.floating),
-                  );
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
   // --- BOTÓN Y MODAL DE ALERTAS OPERATIVAS PARPADEANTE ---
 
@@ -1982,27 +1911,26 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
 
   Widget _buildTurnosTab(bool isIOS, bool isDark) {
     final titleColor = isIOS
-        ? (isDark ? const Color(0xFFFBDBD8) : const Color(0xFF410003))
+        ? (isDark ? const Color(0xFFFBDBD8) : const Color(0xFF191C1E))
         : (isDark ? const Color(0xFFE1E2E4) : const Color(0xFF191C1E));
     final subtextColor = isIOS
-        ? (isDark ? const Color(0xFFE5BDBA) : const Color(0xFF5C403D))
-        : (isDark ? const Color(0xFFC6C6C7) : const Color(0xFF545D80));
+        ? (isDark ? const Color(0xFFB0B0B0) : const Color(0xFF6B7280))
+        : (isDark ? const Color(0xFF9E9E9E) : const Color(0xFF6B7280));
     final cardBgColor = isIOS
-        ? (isDark ? Colors.white.withValues(alpha: 0.06) : Colors.white.withValues(alpha: 0.65))
+        ? (isDark ? const Color(0xFF1F1A1B) : Colors.white)
         : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
     final cardBorder = isIOS
-        ? Border.all(color: isDark ? Colors.white.withValues(alpha: 0.12) : Colors.black.withValues(alpha: 0.08))
-        : (isDark ? Border.all(color: Colors.white12) : null);
+        ? Border.all(color: isDark ? Colors.white.withValues(alpha: 0.08) : const Color(0xFFEBECEF))
+        : (isDark ? Border.all(color: Colors.white10) : Border.all(color: const Color(0xFFEBECEF)));
     final cardShadow = [
       BoxShadow(
-        color: isIOS
-            ? Colors.black.withValues(alpha: isDark ? 0.2 : 0.04)
-            : Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+        color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.03),
         blurRadius: 16,
         offset: const Offset(0, 4),
       ),
     ];
-    final primaryRed = const Color(0xFFAC0017);
+    final primaryRed = const Color(0xFFC8102E);
+    final accentNavy = const Color(0xFF0B1B3D);
 
     return ListView(
       padding: EdgeInsets.fromLTRB(
@@ -2012,73 +1940,155 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
         100,
       ),
       children: [
-        // Store Indicator Header Banner
+        // 1. Live Store & Operational Status Hero Card
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-          margin: const EdgeInsets.only(bottom: 16),
+          padding: const EdgeInsets.all(16),
+          margin: const EdgeInsets.only(bottom: 14),
           decoration: BoxDecoration(
-            color: isDark ? Colors.white10 : const Color(0xFFEDEFE0),
-            borderRadius: BorderRadius.circular(14),
+            color: cardBgColor,
+            borderRadius: BorderRadius.circular(20),
+            border: cardBorder,
+            boxShadow: cardShadow,
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Icon(Icons.store, color: Color(0xFFAC0017), size: 20),
-                  const SizedBox(width: 8),
-                  Text(
-                    _currentStore,
-                    style: GoogleFonts.hankenGrotesk(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
-                      color: titleColor,
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: primaryRed.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(Icons.storefront_rounded, color: primaryRed, size: 20),
+                      ),
+                      const SizedBox(width: 10),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _currentStore,
+                            style: GoogleFonts.hankenGrotesk(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                              color: titleColor,
+                            ),
+                          ),
+                          Text(
+                            '$_currentZone • Turno Activo',
+                            style: GoogleFonts.hankenGrotesk(
+                              fontSize: 11,
+                              color: subtextColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  InkWell(
+                    onTap: () => _showSwitchStoreDialog(isDark),
+                    borderRadius: BorderRadius.circular(20),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: isDark ? Colors.white10 : const Color(0xFFF3F4F6),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        children: [
+                          Text(
+                            'Cambiar',
+                            style: GoogleFonts.hankenGrotesk(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 11,
+                              color: primaryRed,
+                            ),
+                          ),
+                          const SizedBox(width: 2),
+                          Icon(Icons.swap_horiz, size: 14, color: primaryRed),
+                        ],
+                      ),
                     ),
                   ),
                 ],
               ),
-              InkWell(
-                onTap: () => _showSwitchStoreDialog(isDark),
-                child: Text(
-                  'Cambiar',
-                  style: GoogleFonts.hankenGrotesk(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                    color: const Color(0xFFAC0017),
-                  ),
+              const SizedBox(height: 14),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.black26 : const Color(0xFFF8F9FA),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF2E7D32),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Servicio Almuerzo en curso',
+                          style: GoogleFonts.hankenGrotesk(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: titleColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      '12:00 - 16:00',
+                      style: GoogleFonts.hankenGrotesk(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: subtextColor,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
         ),
 
-        // Pulsing Operational Alert Banner
+        // 2. Pulsing Live Operational Alert Banner
         AnimatedBuilder(
           animation: _alertPulseController,
           builder: (context, child) {
             final glow = _pulseGlowAnimation.value;
-            const alertRed = Color(0xFFD2232A);
+            const alertRed = Color(0xFFC8102E);
 
             return InkWell(
               onTap: () => _showOperationalAlertsModal(isIOS, isDark),
               borderRadius: BorderRadius.circular(16),
               child: Container(
-                margin: const EdgeInsets.only(bottom: 14),
+                margin: const EdgeInsets.only(bottom: 16),
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 decoration: BoxDecoration(
                   color: isDark
-                      ? alertRed.withValues(alpha: 0.15 + 0.1 * glow)
-                      : const Color(0xFFFFEBEE).withValues(alpha: 0.8 + 0.2 * glow),
+                      ? alertRed.withValues(alpha: 0.12 + 0.08 * glow)
+                      : const Color(0xFFFFF1F2).withValues(alpha: 0.85 + 0.15 * glow),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: alertRed.withValues(alpha: 0.4 + 0.5 * glow),
-                    width: 1.5,
+                    color: alertRed.withValues(alpha: 0.35 + 0.35 * glow),
+                    width: 1.2,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: alertRed.withValues(alpha: 0.25 * glow),
+                      color: alertRed.withValues(alpha: 0.15 * glow),
                       blurRadius: 10 * glow,
-                      offset: const Offset(0, 3),
+                      offset: const Offset(0, 2),
                     ),
                   ],
                 ),
@@ -2087,10 +2097,10 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: alertRed.withValues(alpha: glow),
+                        color: alertRed.withValues(alpha: 0.85 + 0.15 * glow),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 20),
+                      child: const Icon(Icons.bolt_rounded, color: Colors.white, size: 18),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -2100,7 +2110,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                           Row(
                             children: [
                               Text(
-                                '3 Alertas Operativas Críticas',
+                                '${_operationalAlerts.length} Alertas Operativas Críticas',
                                 style: GoogleFonts.hankenGrotesk(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 13,
@@ -2109,8 +2119,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                               ),
                               const SizedBox(width: 6),
                               Container(
-                                width: 8,
-                                height: 8,
+                                width: 7,
+                                height: 7,
                                 decoration: BoxDecoration(
                                   color: alertRed,
                                   shape: BoxShape.circle,
@@ -2125,8 +2135,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                               ),
                             ],
                           ),
+                          const SizedBox(height: 2),
                           Text(
-                            'Déficit en Freidoras 12:30 PM • 1 colaborador con exceso de horas.',
+                            'Déficit en Freidoras 12:30 PM • Exceso de horas detectado.',
                             style: GoogleFonts.hankenGrotesk(
                               fontSize: 11,
                               color: subtextColor,
@@ -2135,7 +2146,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                         ],
                       ),
                     ),
-                    const Icon(Icons.chevron_right, color: alertRed, size: 20),
+                    Icon(Icons.arrow_forward_ios_rounded, color: alertRed, size: 14),
                   ],
                 ),
               ),
@@ -2143,89 +2154,19 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
           },
         ),
 
-        // Action Banner: Crear Turno
-        Container(
-          margin: const EdgeInsets.only(bottom: 18),
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: isIOS
-                ? (isDark ? const Color(0xFFD2232A).withValues(alpha: 0.15) : const Color(0xFFAC0017).withValues(alpha: 0.08))
-                : (isDark ? Colors.white10 : const Color(0xFFFFF0F2)),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: const Color(0xFFAC0017).withValues(alpha: isDark ? 0.3 : 0.2),
-            ),
-          ),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: const BoxDecoration(
-                  color: Color(0xFFAC0017),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.edit_calendar, color: Colors.white, size: 20),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Programar Jornada',
-                      style: GoogleFonts.hankenGrotesk(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                        color: titleColor,
-                      ),
-                    ),
-                    Text(
-                      'Asigna horarios y estaciones a tu equipo.',
-                      style: GoogleFonts.hankenGrotesk(fontSize: 12, color: subtextColor),
-                    ),
-                  ],
-                ),
-              ),
-              ElevatedButton.icon(
-                onPressed: _navigateToCreateShiftPage,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFAC0017),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  elevation: 0,
-                ),
-                icon: const Icon(Icons.add, size: 16),
-                label: Text(
-                  'Crear Turno',
-                  style: GoogleFonts.hankenGrotesk(fontSize: 12, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        // Section 1: Resumen Operativo (Bento Grid)
-        Text(
-          'Resumen Operativo',
-          style: GoogleFonts.hankenGrotesk(
-            fontSize: isIOS ? 20 : 18,
-            fontWeight: FontWeight.bold,
-            color: titleColor,
-          ),
-        ),
-        const SizedBox(height: 12),
+        // 3. Bento Grid KPI Dashboard (3 Cards Modern Layout)
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Active employees card
+            // Card 1: Empleados en Posición (Hero Bento)
             Expanded(
+              flex: 5,
               child: Container(
-                height: 160,
+                height: 154,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: cardBgColor,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(18),
                   border: cardBorder,
                   boxShadow: cardShadow,
                 ),
@@ -2236,22 +2177,26 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Icon(Icons.group, color: primaryRed, size: 26),
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: isDark
-                                ? Colors.white10
-                                : const Color(0xFFEDEFE0),
-                            borderRadius: BorderRadius.circular(20),
+                            color: primaryRed.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Icon(Icons.people_alt_rounded, color: primaryRed, size: 20),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF2E7D32).withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            'Turno Actual',
+                            'En vivo',
                             style: GoogleFonts.hankenGrotesk(
                               fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                              color: subtextColor,
+                              fontWeight: FontWeight.bold,
+                              color: const Color(0xFF2E7D32),
                             ),
                           ),
                         ),
@@ -2260,18 +2205,35 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          '$_activeEmployees',
-                          style: GoogleFonts.hankenGrotesk(
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                            color: primaryRed,
-                          ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.baseline,
+                          textBaseline: TextBaseline.alphabetic,
+                          children: [
+                            Text(
+                              '$_activeEmployees',
+                              style: GoogleFonts.hankenGrotesk(
+                                fontSize: 32,
+                                fontWeight: FontWeight.w800,
+                                color: titleColor,
+                                height: 1.0,
+                              ),
+                            ),
+                            Text(
+                              ' / ${_teamMembers.length}',
+                              style: GoogleFonts.hankenGrotesk(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: subtextColor,
+                              ),
+                            ),
+                          ],
                         ),
+                        const SizedBox(height: 4),
                         Text(
-                          'Empleados Activos',
+                          'Colaboradores Hoy',
                           style: GoogleFonts.hankenGrotesk(
                             fontSize: 12,
+                            fontWeight: FontWeight.w600,
                             color: subtextColor,
                           ),
                         ),
@@ -2282,13 +2244,15 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
               ),
             ),
             const SizedBox(width: 12),
-            // Ausencias & Cobertura column
+            // Sub-column for Novedades & Cobertura
             Expanded(
+              flex: 5,
               child: Column(
                 children: [
+                  // Novedades
                   Container(
-                    height: 74,
-                    padding: const EdgeInsets.all(12),
+                    height: 71,
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                     decoration: BoxDecoration(
                       color: cardBgColor,
                       borderRadius: BorderRadius.circular(16),
@@ -2298,44 +2262,49 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                     child: Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(8),
+                          padding: const EdgeInsets.all(7),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFBA1A1A).withValues(alpha: 0.1),
-                            shape: BoxShape.circle,
+                            color: const Color(0xFFE65100).withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                          child: const Icon(Icons.warning_amber_rounded,
-                              color: Color(0xFFBA1A1A), size: 18),
+                          child: const Icon(Icons.assignment_late_outlined,
+                              color: Color(0xFFE65100), size: 18),
                         ),
                         const SizedBox(width: 10),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Ausencias',
-                              style: GoogleFonts.hankenGrotesk(
-                                fontSize: 11,
-                                color: const Color(0xFFBA1A1A),
-                                fontWeight: FontWeight.w600,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Novedades',
+                                style: GoogleFonts.hankenGrotesk(
+                                  fontSize: 11,
+                                  color: subtextColor,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
-                            ),
-                            Text(
-                              '$_pendingAbsences Pendientes',
-                              style: GoogleFonts.hankenGrotesk(
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                                color: titleColor,
+                              Text(
+                                '$_pendingAbsences Pendientes',
+                                style: GoogleFonts.hankenGrotesk(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: titleColor,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 12),
+                  // Cobertura Bar
                   Container(
-                    height: 74,
-                    padding: const EdgeInsets.all(12),
+                    height: 71,
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                     decoration: BoxDecoration(
                       color: cardBgColor,
                       borderRadius: BorderRadius.circular(16),
@@ -2349,19 +2318,13 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Row(
-                              children: [
-                                const Icon(Icons.schedule,
-                                    color: Color(0xFF966100), size: 16),
-                                const SizedBox(width: 4),
-                                Text(
-                                  'Cobertura',
-                                  style: GoogleFonts.hankenGrotesk(
-                                    fontSize: 11,
-                                    color: subtextColor,
-                                  ),
-                                ),
-                              ],
+                            Text(
+                              'Cobertura Estaciones',
+                              style: GoogleFonts.hankenGrotesk(
+                                fontSize: 11,
+                                color: subtextColor,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                             Text(
                               '${(_coveragePercentage * 100).toInt()}%',
@@ -2373,15 +2336,15 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                             ),
                           ],
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 6),
                         ClipRRect(
                           borderRadius: BorderRadius.circular(10),
                           child: LinearProgressIndicator(
                             value: _coveragePercentage,
-                            minHeight: 6,
+                            minHeight: 5,
                             backgroundColor: isDark
                                 ? Colors.white12
-                                : const Color(0xFFE1E2E4),
+                                : const Color(0xFFF3F4F6),
                             valueColor: AlwaysStoppedAnimation<Color>(primaryRed),
                           ),
                         ),
@@ -2395,7 +2358,60 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
         ),
         const SizedBox(height: 20),
 
-        // Malla Semanal DRO'001.1 (Directa en la pestaña principal de Turnos)
+        // 4. Quick Operational Action Pills (Horizontal scroll / Grid)
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Acciones Rápidas',
+              style: GoogleFonts.hankenGrotesk(
+                fontSize: isIOS ? 18 : 17,
+                fontWeight: FontWeight.bold,
+                color: titleColor,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              child: _buildModernQuickActionTile(
+                icon: Icons.add_circle_outline_rounded,
+                title: 'Crear Turno',
+                color: primaryRed,
+                isDark: isDark,
+                isIOS: isIOS,
+                onTap: _navigateToCreateShiftPage,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _buildModernQuickActionTile(
+                icon: Icons.swap_vert_circle_outlined,
+                title: 'Reasignar',
+                color: accentNavy,
+                isDark: isDark,
+                isIOS: isIOS,
+                onTap: () => _showAssignStationModal(isIOS, isDark),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _buildModernQuickActionTile(
+                icon: Icons.campaign_rounded,
+                title: 'Aviso Grupal',
+                color: const Color(0xFF966100),
+                isDark: isDark,
+                isIOS: isIOS,
+                onTap: () => _showBroadcastNoticeModal(isIOS, isDark),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 22),
+
+        // 5. Malla Semanal DRO'001.1
         FrisbyWeeklyScheduleSheet(
           restaurantName: _currentStore,
           isDark: isDark,
@@ -2405,68 +2421,14 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
 
         const SizedBox(height: 24),
 
-        // Section 2: Acciones Rápidas
-        Text(
-          'Acciones Rápidas',
-          style: GoogleFonts.hankenGrotesk(
-            fontSize: isIOS ? 20 : 18,
-            fontWeight: FontWeight.bold,
-            color: titleColor,
-          ),
-        ),
-        const SizedBox(height: 12),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              _buildQuickActionBtn(
-                icon: Icons.event_available,
-                label: 'Crear\nTurno',
-                color: const Color(0xFFD2232A),
-                isIOS: isIOS,
-                isDark: isDark,
-                onTap: () => _showCreateShiftModal(isIOS, isDark),
-              ),
-              const SizedBox(width: 12),
-              _buildQuickActionBtn(
-                icon: Icons.restaurant,
-                label: 'Asignar\nEstación',
-                color: const Color(0xFF545D80),
-                isIOS: isIOS,
-                isDark: isDark,
-                onTap: () => _showAssignStationModal(isIOS, isDark),
-              ),
-              const SizedBox(width: 12),
-              _buildQuickActionBtn(
-                icon: Icons.campaign_outlined,
-                label: 'Enviar\nAviso',
-                color: const Color(0xFF966100),
-                isIOS: isIOS,
-                isDark: isDark,
-                onTap: () => _showBroadcastNoticeModal(isIOS, isDark),
-              ),
-              const SizedBox(width: 12),
-              _buildQuickActionBtn(
-                icon: Icons.calendar_view_week,
-                label: 'Malla\nSemanal',
-                color: const Color(0xFF2E7D32),
-                isIOS: isIOS,
-                isDark: isDark,
-                onTap: () => _showWeeklyScheduleModal(isDark),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 24),
-
-        // Section 3: Solicitudes Pendientes
+        // 6. Solicitudes Pendientes Section
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
               'Solicitudes Pendientes',
               style: GoogleFonts.hankenGrotesk(
-                fontSize: isIOS ? 20 : 18,
+                fontSize: isIOS ? 18 : 17,
                 fontWeight: FontWeight.bold,
                 color: titleColor,
               ),
@@ -2474,6 +2436,11 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
             if (_pendingRequests.isNotEmpty)
               TextButton(
                 onPressed: () => setState(() => _currentIndex = 1),
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  minimumSize: const Size(50, 30),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
                 child: Text(
                   'Ver todas (${_pendingRequests.length})',
                   style: GoogleFonts.hankenGrotesk(
@@ -2499,7 +2466,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
               child: Text(
                 '🎉 No hay solicitudes pendientes por revisar.',
                 style: GoogleFonts.hankenGrotesk(
-                  fontSize: 14,
+                  fontSize: 13,
                   color: subtextColor,
                 ),
               ),
@@ -2511,59 +2478,57 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
     );
   }
 
-  Widget _buildQuickActionBtn({
+  Widget _buildModernQuickActionTile({
     required IconData icon,
-    required String label,
+    required String title,
     required Color color,
-    required bool isIOS,
     required bool isDark,
+    required bool isIOS,
     required VoidCallback onTap,
   }) {
     final cardBgColor = isIOS
-        ? (isDark ? Colors.white.withValues(alpha: 0.06) : Colors.white.withValues(alpha: 0.65))
+        ? (isDark ? const Color(0xFF1F1A1B) : Colors.white)
         : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
     final cardBorder = isIOS
-        ? Border.all(color: isDark ? Colors.white.withValues(alpha: 0.12) : Colors.black.withValues(alpha: 0.08))
-        : (isDark ? Border.all(color: Colors.white12) : null);
+        ? Border.all(color: isDark ? Colors.white.withValues(alpha: 0.08) : const Color(0xFFEBECEF))
+        : (isDark ? Border.all(color: Colors.white10) : Border.all(color: const Color(0xFFEBECEF)));
 
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
       child: Container(
-        width: 110,
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
         decoration: BoxDecoration(
           color: cardBgColor,
           borderRadius: BorderRadius.circular(16),
           border: cardBorder,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
+              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.03),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
             ),
           ],
         ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 44,
-              height: 44,
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.15),
+                color: color.withValues(alpha: 0.12),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: color, size: 22),
+              child: Icon(icon, color: color, size: 20),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
             Text(
-              label,
+              title,
               textAlign: TextAlign.center,
               style: GoogleFonts.hankenGrotesk(
                 fontSize: 12,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.bold,
                 color: isDark ? Colors.white : const Color(0xFF191C1E),
-                height: 1.2,
               ),
             ),
           ],
@@ -2571,6 +2536,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
       ),
     );
   }
+
 
   Widget _buildRequestCard(Map<String, dynamic> req, bool isIOS, bool isDark) {
     final cardBgColor = isIOS
@@ -3211,15 +3177,6 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
 
                 // 4. SOPORTE Y SISTEMA
                 sectionHeader('SOPORTE Y SISTEMA'),
-                drawerItem(
-                  icon: Icons.phone_iphone,
-                  title: 'Plataforma / Sistema',
-                  subtitle: _isIOSOverride == null
-                      ? 'Automático (Detección OS)'
-                      : (_isIOSOverride! ? 'Vista iOS (Flat / Claro)' : 'Vista Android (Material)'),
-                  onTap: () => _showPlatformSelectorDialog(isDark),
-                  iconColor: const Color(0xFFAC0017),
-                ),
                 drawerItem(
                   icon: _isDarkModeOverride == null
                       ? Icons.brightness_auto
