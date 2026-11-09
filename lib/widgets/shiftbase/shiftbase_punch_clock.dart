@@ -289,3 +289,4 @@ class _ShiftbasePunchClockState extends State<ShiftbasePunchClock> {
     );
   }
 }
+

@@ -123,3 +123,4 @@ class ShiftbaseTeamMemberRow extends StatelessWidget {
     );
   }
 }
+

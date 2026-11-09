@@ -142,3 +142,4 @@ class _CircularProgressPainter extends CustomPainter {
         oldDelegate.trackColor != trackColor;
   }
 }
+

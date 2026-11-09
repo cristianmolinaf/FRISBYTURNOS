@@ -124,3 +124,4 @@ class ShiftbaseDateNavigator extends StatelessWidget {
     );
   }
 }
+

@@ -35,7 +35,8 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => const DashboardPage(username: '10002'),
+        '/': (context) => const LoginPage(),
+        '/dashboard': (context) => const DashboardPage(username: '10002'),
         '/admin': (context) => const AdminDashboardPage(
               username: '10001',
               profileName: 'Laura Restrepo (Admin)',

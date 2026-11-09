@@ -7,6 +7,8 @@ import 'package:flutter/services.dart';
 import 'google_fonts_wrapper.dart';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'services/services.dart';
+import 'models/models.dart';
 import 'widgets/shiftbase/shiftbase.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -31,6 +33,756 @@ class _DashboardPageState extends State<DashboardPage> {
   // Market State Variables
   int _selectedMarketTab = 0;
   final List<int> _requestedTrades = [];
+
+  // Services
+  final TurnosService _turnosService = TurnosService();
+  final MercadoService _mercadoService = MercadoService();
+  final NovedadesService _novedadesService = NovedadesService();
+
+  // Shiftbase Active Workstation & Shift State
+  String _activeStation = 'Freidoras';
+  String _activeScheduledHours = '08:00 - 16:00';
+  String _activeStore = 'Frisby Parque Arboleda';
+
+  // Balances state
+  double _vacacionesHours = 64.0;
+  double _permisosHours = 16.0;
+
+  // Claimed open shifts tracking
+  final Set<String> _claimedOpenShifts = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshTurnos();
+  }
+
+  Future<void> _refreshTurnos() async {
+    try {
+      await _turnosService.getMisTurnos(widget.username);
+    } catch (_) {}
+  }
+
+  void _showStationPicker(bool isDark) {
+    HapticFeedback.lightImpact();
+    final stations = [
+      {'name': 'Freidoras', 'desc': 'Preparación y fritura de pollo Frisby', 'color': const Color(0xFF00C853), 'hours': '08:00 - 16:00'},
+      {'name': 'Plancha', 'desc': 'Hamburguesas, desmechado y acompañamientos', 'color': const Color(0xFFFF9100), 'hours': '12:00 - 20:30'},
+      {'name': 'Armado y Empaque', 'desc': 'Ensamble de combos y control de calidad', 'color': const Color(0xFF7C4DFF), 'hours': '09:00 - 17:30'},
+      {'name': 'Caja Registradora', 'desc': 'Atención al cliente y facturación POS', 'color': const Color(0xFF2E66E5), 'hours': '10:00 - 18:30'},
+      {'name': 'Servicio y Mesas', 'desc': 'Entrega en mesa, comedor y anfitrión', 'color': const Color(0xFFD2232A), 'hours': '11:00 - 19:30'},
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: isDark ? const Color(0xFF1E222A) : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: isDark ? Colors.white24 : Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Cambiar Estación de Trabajo',
+                  style: GoogleFonts.sora(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : const Color(0xFF191C1E),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Selecciona la estación donde desempeñarás tu turno hoy',
+                  style: GoogleFonts.hankenGrotesk(
+                    fontSize: 13,
+                    color: isDark ? Colors.white60 : Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ...stations.map((st) {
+                  final isCurrent = st['name'] == _activeStation;
+                  return InkWell(
+                    onTap: () {
+                      setState(() {
+                        _activeStation = st['name'] as String;
+                        _activeScheduledHours = st['hours'] as String;
+                      });
+                      Navigator.pop(ctx);
+                      HapticFeedback.mediumImpact();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Estación cambiada a "${st['name']}"',
+                            style: GoogleFonts.hankenGrotesk(color: Colors.white, fontWeight: FontWeight.bold),
+                          ),
+                          backgroundColor: const Color(0xFFAC0017),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(14),
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: isCurrent
+                            ? (st['color'] as Color).withValues(alpha: isDark ? 0.2 : 0.1)
+                            : (isDark ? Colors.white.withValues(alpha: 0.04) : const Color(0xFFF7F8FA)),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: isCurrent ? (st['color'] as Color) : Colors.transparent,
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 10,
+                            height: 10,
+                            decoration: BoxDecoration(
+                              color: st['color'] as Color,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  st['name'] as String,
+                                  style: GoogleFonts.hankenGrotesk(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: isDark ? Colors.white : const Color(0xFF191C1E),
+                                  ),
+                                ),
+                                Text(
+                                  st['desc'] as String,
+                                  style: GoogleFonts.hankenGrotesk(
+                                    fontSize: 11,
+                                    color: isDark ? Colors.white54 : Colors.grey[600],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (isCurrent)
+                            const Icon(Icons.check_circle_rounded, color: Color(0xFF00C853), size: 20),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showStorePicker(bool isDark) {
+    HapticFeedback.lightImpact();
+    final stores = [
+      'Frisby Parque Arboleda',
+      'Frisby Victoria Centro',
+      'Frisby Pereira Plaza',
+      'Frisby Unicentro Pereira',
+      'Frisby Circunvalar Pereira',
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: isDark ? const Color(0xFF1E222A) : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: isDark ? Colors.white24 : Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Seleccionar Restaurante / Sucursal',
+                  style: GoogleFonts.sora(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : const Color(0xFF191C1E),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                ...stores.map((s) {
+                  final isCurrent = s == _activeStore;
+                  return ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.storefront_rounded, color: Color(0xFFAC0017)),
+                    title: Text(
+                      s,
+                      style: GoogleFonts.hankenGrotesk(
+                        fontSize: 14,
+                        fontWeight: isCurrent ? FontWeight.bold : FontWeight.w500,
+                        color: isDark ? Colors.white : const Color(0xFF191C1E),
+                      ),
+                    ),
+                    trailing: isCurrent ? const Icon(Icons.check_circle_rounded, color: Color(0xFF00C853)) : null,
+                    onTap: () {
+                      setState(() => _activeStore = s);
+                      Navigator.pop(ctx);
+                      HapticFeedback.selectionClick();
+                    },
+                  );
+                }),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showShiftExchangeSheet(String day, String hours, String station, bool isDark) {
+    HapticFeedback.mediumImpact();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: isDark ? const Color(0xFF1E222A) : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: isDark ? Colors.white24 : Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFAC0017).withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(Icons.swap_horizontal_circle_rounded, color: Color(0xFFAC0017), size: 24),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Publicar Turno en Mercado',
+                            style: GoogleFonts.sora(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                              color: isDark ? Colors.white : const Color(0xFF191C1E),
+                            ),
+                          ),
+                          Text(
+                            'Cede tu turno para que un compañero lo tome',
+                            style: GoogleFonts.hankenGrotesk(
+                              fontSize: 12,
+                              color: isDark ? Colors.white60 : Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 18),
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFF8F9FA),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: isDark ? Colors.white12 : const Color(0xFFE5E7EB)),
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Fecha / Día:', style: GoogleFonts.hankenGrotesk(fontSize: 13, color: isDark ? Colors.white60 : Colors.grey[600])),
+                          Text(day, style: GoogleFonts.hankenGrotesk(fontSize: 13, fontWeight: FontWeight.bold, color: isDark ? Colors.white : const Color(0xFF191C1E))),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Horario:', style: GoogleFonts.hankenGrotesk(fontSize: 13, color: isDark ? Colors.white60 : Colors.grey[600])),
+                          Text(hours, style: GoogleFonts.hankenGrotesk(fontSize: 13, fontWeight: FontWeight.bold, color: const Color(0xFF00C853))),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Estación:', style: GoogleFonts.hankenGrotesk(fontSize: 13, color: isDark ? Colors.white60 : Colors.grey[600])),
+                          Text(station, style: GoogleFonts.hankenGrotesk(fontSize: 13, fontWeight: FontWeight.bold, color: isDark ? Colors.white : const Color(0xFF191C1E))),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Sucursal:', style: GoogleFonts.hankenGrotesk(fontSize: 13, color: isDark ? Colors.white60 : Colors.grey[600])),
+                          Text(_activeStore, style: GoogleFonts.hankenGrotesk(fontSize: 13, fontWeight: FontWeight.bold, color: isDark ? Colors.white : const Color(0xFF191C1E))),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      Navigator.pop(ctx);
+                      try {
+                        await _mercadoService.publicarTurnoEnMercado(
+                          turnoId: 'demo-turno-${DateTime.now().millisecondsSinceEpoch}',
+                          solicitanteId: widget.username,
+                        );
+                      } catch (_) {}
+                      if (mounted) {
+                        HapticFeedback.mediumImpact();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              '¡Turno de $station publicado en el Mercado con éxito!',
+                              style: GoogleFonts.hankenGrotesk(color: Colors.white, fontWeight: FontWeight.bold),
+                            ),
+                            backgroundColor: const Color(0xFF00C853),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFAC0017),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      elevation: 0,
+                    ),
+                    child: Text(
+                      'Publicar en Mercado de Turnos',
+                      style: GoogleFonts.hankenGrotesk(fontSize: 14, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showAbsenceRequestSheet(bool isDark) {
+    HapticFeedback.lightImpact();
+    String selectedReason = 'Vacaciones';
+    final notesController = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: isDark ? const Color(0xFF1E222A) : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setModalState) {
+            return Padding(
+              padding: EdgeInsets.fromLTRB(20, 16, 20, MediaQuery.of(ctx).viewInsets.bottom + 20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: isDark ? Colors.white24 : Colors.grey[300],
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Solicitar Permiso / Novedad',
+                    style: GoogleFonts.sora(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : const Color(0xFF191C1E),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Gestiona descansos, citas médicas o ausencias con aprobación de tu supervisor',
+                    style: GoogleFonts.hankenGrotesk(
+                      fontSize: 12,
+                      color: isDark ? Colors.white60 : Colors.grey[600],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      'Vacaciones',
+                      'Descanso Compensatorio',
+                      'Cita Médica EPS',
+                      'Calamidad Doméstica',
+                    ].map((reason) {
+                      final isSelected = selectedReason == reason;
+                      return ChoiceChip(
+                        label: Text(reason),
+                        selected: isSelected,
+                        onSelected: (val) {
+                          if (val) setModalState(() => selectedReason = reason);
+                        },
+                        selectedColor: const Color(0xFFAC0017),
+                        labelStyle: GoogleFonts.hankenGrotesk(
+                          fontSize: 12,
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                          color: isSelected ? Colors.white : (isDark ? Colors.white70 : Colors.black87),
+                        ),
+                        backgroundColor: isDark ? Colors.white10 : const Color(0xFFF0F2F5),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: notesController,
+                    maxLines: 3,
+                    style: GoogleFonts.hankenGrotesk(color: isDark ? Colors.white : Colors.black87, fontSize: 13),
+                    decoration: InputDecoration(
+                      hintText: 'Describe el motivo o detalles de la solicitud...',
+                      hintStyle: GoogleFonts.hankenGrotesk(color: isDark ? Colors.white38 : Colors.grey[400], fontSize: 13),
+                      filled: true,
+                      fillColor: isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFF9FAFB),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide(color: isDark ? Colors.white12 : const Color(0xFFE5E7EB)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide(color: isDark ? Colors.white12 : const Color(0xFFE5E7EB)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        Navigator.pop(ctx);
+                        TipoNovedad tipo = TipoNovedad.descanso;
+                        if (selectedReason.contains('Médica')) tipo = TipoNovedad.citaMedica;
+                        if (selectedReason.contains('Calamidad')) tipo = TipoNovedad.calamidad;
+
+                        try {
+                          await _novedadesService.crearSolicitud(
+                            Disponibilidad(
+                              id: 'disp-${DateTime.now().millisecondsSinceEpoch}',
+                              colaboradorId: widget.username,
+                              fecha: DateTime.now().add(const Duration(days: 2)),
+                              motivo: tipo,
+                              detalles: notesController.text.trim().isNotEmpty ? notesController.text.trim() : selectedReason,
+                            ),
+                          );
+                        } catch (_) {}
+
+                        if (mounted) {
+                          setState(() {
+                            if (selectedReason == 'Vacaciones' && _vacacionesHours >= 8) {
+                              _vacacionesHours -= 8;
+                            } else {
+                              _permisosHours += 8;
+                            }
+                          });
+                          HapticFeedback.mediumImpact();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                '¡Solicitud de "$selectedReason" enviada a Laura Restrepo (Admin)!',
+                                style: GoogleFonts.hankenGrotesk(color: Colors.white, fontWeight: FontWeight.bold),
+                              ),
+                              backgroundColor: const Color(0xFF00C853),
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFAC0017),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        elevation: 0,
+                      ),
+                      child: Text(
+                        'Enviar Solicitud',
+                        style: GoogleFonts.hankenGrotesk(fontSize: 14, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showAvailabilityWeeklySheet(bool isDark) {
+    HapticFeedback.lightImpact();
+    final days = [
+      {'name': 'Lunes', 'status': 'Disponible (08:00 - 16:00)', 'active': true},
+      {'name': 'Martes', 'status': 'Disponible (12:00 - 20:30)', 'active': true},
+      {'name': 'Miércoles', 'status': 'Disponible (09:00 - 17:30)', 'active': true},
+      {'name': 'Jueves', 'status': 'Disponible (08:00 - 16:00)', 'active': true},
+      {'name': 'Viernes', 'status': 'Disponible (08:00 - 16:00)', 'active': true},
+      {'name': 'Sábado', 'status': 'Disponible (12:00 - 21:00)', 'active': true},
+      {'name': 'Domingo', 'status': 'No disponible (Descanso)', 'active': false},
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: isDark ? const Color(0xFF1E222A) : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setModalState) {
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: isDark ? Colors.white24 : Colors.grey[300],
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Especificar Disponibilidad Semanal',
+                      style: GoogleFonts.sora(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? Colors.white : const Color(0xFF191C1E),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Indica tus preferencias para la confección del próximo horario',
+                      style: GoogleFonts.hankenGrotesk(
+                        fontSize: 12,
+                        color: isDark ? Colors.white60 : Colors.grey[600],
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    ...days.map((d) {
+                      final isActive = d['active'] as bool;
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  d['name'] as String,
+                                  style: GoogleFonts.hankenGrotesk(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: isDark ? Colors.white : const Color(0xFF191C1E),
+                                  ),
+                                ),
+                                Text(
+                                  d['status'] as String,
+                                  style: GoogleFonts.hankenGrotesk(
+                                    fontSize: 11,
+                                    color: isActive ? const Color(0xFF00C853) : (isDark ? Colors.white38 : Colors.grey[500]),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Switch.adaptive(
+                              value: isActive,
+                              activeTrackColor: const Color(0xFF00C853),
+                              onChanged: (val) {
+                                setModalState(() {
+                                  d['active'] = val;
+                                  d['status'] = val ? 'Disponible para asignación' : 'No disponible (Descanso preferido)';
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 48,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(ctx);
+                          HapticFeedback.mediumImpact();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                '¡Preferencia de disponibilidad guardada y enviada al administrador!',
+                                style: GoogleFonts.hankenGrotesk(color: Colors.white, fontWeight: FontWeight.bold),
+                              ),
+                              backgroundColor: const Color(0xFF00C853),
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFAC0017),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          elevation: 0,
+                        ),
+                        child: Text(
+                          'Guardar Preferencias',
+                          style: GoogleFonts.hankenGrotesk(fontSize: 14, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _claimOpenShift(String shiftId, String day, String hours, String station, bool isDark) {
+    HapticFeedback.lightImpact();
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          backgroundColor: isDark ? const Color(0xFF1E222A) : Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Text(
+            'Tomar Turno Abierto',
+            style: GoogleFonts.sora(fontSize: 17, fontWeight: FontWeight.bold, color: isDark ? Colors.white : const Color(0xFF191C1E)),
+          ),
+          content: Text(
+            '¿Deseas postularte y tomar el turno de $station para el $day ($hours) en $_activeStore?',
+            style: GoogleFonts.hankenGrotesk(fontSize: 13, color: isDark ? Colors.white70 : Colors.grey[700]),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text('Cancelar', style: GoogleFonts.hankenGrotesk(color: Colors.grey)),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.pop(ctx);
+                try {
+                  await _mercadoService.tomarTurno(
+                    mercadoId: shiftId,
+                    receptorId: widget.username,
+                  );
+                } catch (_) {}
+                if (mounted) {
+                  setState(() {
+                    _claimedOpenShifts.add(shiftId);
+                  });
+                  HapticFeedback.mediumImpact();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        '¡Te has postulado con éxito al turno de $station!',
+                        style: GoogleFonts.hankenGrotesk(color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+                      backgroundColor: const Color(0xFF00C853),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFAC0017),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              child: Text('Confirmar y Tomar', style: GoogleFonts.hankenGrotesk(fontWeight: FontWeight.bold)),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   bool _isDarkMode(BuildContext context) {
     if (_isDarkModeOverride != null) {
@@ -724,15 +1476,26 @@ class _DashboardPageState extends State<DashboardPage> {
         // Shiftbase Hero Punch Clock Card
         ShiftbasePunchClock(
           collaboratorName: cleanName,
-          storeName: 'Frisby Parque Arboleda',
-          station: 'Freidoras',
-          scheduledShift: '08:00 - 16:00',
+          storeName: _activeStore,
+          station: _activeStation,
+          scheduledShift: _activeScheduledHours,
           isDark: isDark,
           onClockToggle: () {
             HapticFeedback.mediumImpact();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  '¡Marcaje de turno registrado exitosamente en Frisby Turnos!',
+                  style: GoogleFonts.hankenGrotesk(color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+                backgroundColor: const Color(0xFF00C853),
+                behavior: SnackBarBehavior.floating,
+                duration: const Duration(seconds: 2),
+              ),
+            );
           },
           onSwitchShift: () {
-            setState(() => _currentIndex = 2);
+            _showStationPicker(isDark);
           },
         ),
         const SizedBox(height: 24),
@@ -786,13 +1549,13 @@ class _DashboardPageState extends State<DashboardPage> {
                     dayCode: 'HOY',
                     dayNumber: '09',
                     title: 'Turno Activo',
-                    timeRange: '08:00 - 16:00',
-                    station: 'Freidoras',
-                    store: 'Frisby Parque Arboleda',
+                    timeRange: _activeScheduledHours,
+                    station: _activeStation,
+                    store: _activeStore,
                     accentColor: const Color(0xFF00C853),
                     statusBadge: '1/3',
                     isDark: isDark,
-                    onSwapTap: () => setState(() => _currentIndex = 2),
+                    onSwapTap: () => _showShiftExchangeSheet('HOY 09 Nov', _activeScheduledHours, _activeStation, isDark),
                   ),
                   Divider(height: 1, indent: 68, color: isDark ? Colors.white10 : const Color(0xFFF0F1ED)),
                   ShiftbaseShiftCard(
@@ -801,10 +1564,10 @@ class _DashboardPageState extends State<DashboardPage> {
                     title: 'Tarde',
                     timeRange: '12:00 - 20:30',
                     station: 'Plancha',
-                    store: 'Frisby Parque Arboleda',
+                    store: _activeStore,
                     accentColor: const Color(0xFFFF9100),
                     isDark: isDark,
-                    onSwapTap: () => setState(() => _currentIndex = 2),
+                    onSwapTap: () => _showShiftExchangeSheet('MAR 10 Nov', '12:00 - 20:30', 'Plancha', isDark),
                   ),
                   Divider(height: 1, indent: 68, color: isDark ? Colors.white10 : const Color(0xFFF0F1ED)),
                   ShiftbaseShiftCard(
@@ -812,23 +1575,15 @@ class _DashboardPageState extends State<DashboardPage> {
                     dayNumber: '11',
                     title: 'Mañana',
                     timeRange: '09:00 - 17:30',
-                    station: 'Armado',
-                    store: 'Frisby Parque Arboleda',
+                    station: 'Armado y Empaque',
+                    store: _activeStore,
                     accentColor: const Color(0xFF7C4DFF),
                     isDark: isDark,
-                    onSwapTap: () => setState(() => _currentIndex = 2),
+                    onSwapTap: () => _showShiftExchangeSheet('MIÉ 11 Nov', '09:00 - 17:30', 'Armado y Empaque', isDark),
                   ),
                   Divider(height: 1, indent: 16, color: isDark ? Colors.white10 : const Color(0xFFF0F1ED)),
                   InkWell(
-                    onTap: () {
-                      _showNotificationDialog(
-                        'Especificar Disponibilidad',
-                        'Tu disponibilidad para este ciclo se encuentra registrada. Comunícate con Laura Restrepo (Admin) si necesitas modificarla.',
-                        'Válido hasta Domingo',
-                        true,
-                        isDark,
-                      );
-                    },
+                    onTap: () => _showAvailabilityWeeklySheet(isDark),
                     borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -902,36 +1657,20 @@ class _DashboardPageState extends State<DashboardPage> {
                 children: [
                   ShiftbaseBalanceRing(
                     title: 'Descansos y Vacaciones',
-                    subtitle: '64h 0m restantes acumuladas',
-                    progress: 0.80,
+                    subtitle: '${_vacacionesHours.toInt()}h 0m restantes acumuladas',
+                    progress: (_vacacionesHours / 80).clamp(0.0, 1.0),
                     ringColor: const Color(0xFF2E66E5),
                     isDark: isDark,
-                    onTap: () {
-                      _showNotificationDialog(
-                        'Descansos y Vacaciones',
-                        'Tienes 64 horas acumuladas de descanso compensatorio y vacaciones legales.',
-                        'Corte a la fecha',
-                        true,
-                        isDark,
-                      );
-                    },
+                    onTap: () => _showAbsenceRequestSheet(isDark),
                   ),
                   Divider(height: 1, indent: 60, color: isDark ? Colors.white10 : const Color(0xFFF0F1ED)),
                   ShiftbaseBalanceRing(
                     title: 'Permisos Médicos y Calamidad',
-                    subtitle: '16h 0m utilizadas este mes',
-                    progress: 0.25,
+                    subtitle: '${_permisosHours.toInt()}h 0m utilizadas este mes',
+                    progress: (_permisosHours / 40).clamp(0.0, 1.0),
                     ringColor: const Color(0xFF00C853),
                     isDark: isDark,
-                    onTap: () {
-                      _showNotificationDialog(
-                        'Permisos y Citas',
-                        'Has utilizado 16 horas con soporte médico aprobado por administración.',
-                        'Mes en curso',
-                        true,
-                        isDark,
-                      );
-                    },
+                    onTap: () => _showAbsenceRequestSheet(isDark),
                   ),
                 ],
               ),
@@ -1331,87 +2070,33 @@ class _DashboardPageState extends State<DashboardPage> {
         100,
       ),
       children: [
-        // SubTab Selector ("Mis Turnos" vs "Visión General (Equipo)")
-        Container(
-          height: 46,
-          decoration: BoxDecoration(
-            color: isDark ? Colors.white10 : const Color(0xFFF0F2F5),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: cardBorder),
-          ),
-          padding: const EdgeInsets.all(4),
-          child: Row(
-            children: [
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => setState(() => _selectedCalendarSubTab = 0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: _selectedCalendarSubTab == 0
-                          ? (isDark ? const Color(0xFFD2232A) : primaryRed)
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: _selectedCalendarSubTab == 0
-                          ? [
-                              BoxShadow(
-                                color: primaryRed.withValues(alpha: 0.3),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ]
-                          : null,
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      'Mis Turnos',
-                      style: GoogleFonts.hankenGrotesk(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: _selectedCalendarSubTab == 0
-                            ? Colors.white
-                            : subtextColor,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => setState(() => _selectedCalendarSubTab = 1),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: _selectedCalendarSubTab == 1
-                          ? (isDark ? const Color(0xFFD2232A) : primaryRed)
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: _selectedCalendarSubTab == 1
-                          ? [
-                              BoxShadow(
-                                color: primaryRed.withValues(alpha: 0.3),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ]
-                          : null,
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      'Visión General (Equipo)',
-                      style: GoogleFonts.hankenGrotesk(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: _selectedCalendarSubTab == 1
-                            ? Colors.white
-                            : subtextColor,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+        // Shiftbase 3-SubTab Selector: Mi Horario | Equipo | Turnos Abiertos
+        ShiftbaseSubTabBar(
+          tabs: const ['Mi Horario', 'Equipo', 'Turnos Abiertos'],
+          selectedIndex: _selectedCalendarSubTab.clamp(0, 2),
+          onTabSelected: (index) {
+            setState(() => _selectedCalendarSubTab = index);
+          },
+          isDark: isDark,
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 14),
+
+        // Shiftbase Date and Store Navigator Header
+        ShiftbaseDateNavigator(
+          title: 'Semana: 09 Nov - 15 Nov',
+          subtitle: _activeStore,
+          isDark: isDark,
+          onPrevious: () {
+            HapticFeedback.selectionClick();
+          },
+          onNext: () {
+            HapticFeedback.selectionClick();
+          },
+          onTapTitle: () {
+            _showStorePicker(isDark);
+          },
+        ),
+        const SizedBox(height: 16),
 
         if (_selectedCalendarSubTab == 0) ...[
           // 1. Calendario Selector 7 Días (Mis Turnos)
@@ -1686,7 +2371,7 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
             );
           }),
-        ] else ...[
+        ] else if (_selectedCalendarSubTab == 1) ...[
           // ==========================================
           // PESTAÑA: VISIÓN GENERAL DEL EQUIPO (Toda la semana interactiva)
           // ==========================================
@@ -2098,6 +2783,225 @@ class _DashboardPageState extends State<DashboardPage> {
                               ),
                             ),
                           ],
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+              ],
+            ),
+          ),
+        ] else ...[
+          // ==========================================
+          // PESTAÑA: TURNOS ABIERTOS (Shiftbase Open Shifts)
+          // ==========================================
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: cardBg,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: cardBorder),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Turnos Disponibles en Restaurante',
+                          style: GoogleFonts.sora(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: titleColor,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Postúlate para cubrir horas extra o sustituciones',
+                          style: GoogleFonts.hankenGrotesk(
+                            fontSize: 12,
+                            color: subtextColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFAC0017).withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        '3 Disponibles',
+                        style: GoogleFonts.hankenGrotesk(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFFAC0017),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // Lista de turnos abiertos
+                ...[
+                  {
+                    'id': 'open-shift-1',
+                    'day': 'JUE 12 Nov',
+                    'hours': '14:00 - 22:00',
+                    'station': 'Plancha',
+                    'color': const Color(0xFFFF9100),
+                    'urgency': 'Cubrimiento Prioritario',
+                  },
+                  {
+                    'id': 'open-shift-2',
+                    'day': 'VIE 13 Nov',
+                    'hours': '08:00 - 16:00',
+                    'station': 'Freidoras',
+                    'color': const Color(0xFF00C853),
+                    'urgency': 'Refuerzo de Almuerzo',
+                  },
+                  {
+                    'id': 'open-shift-3',
+                    'day': 'SÁB 14 Nov',
+                    'hours': '16:00 - 23:00',
+                    'station': 'Armado y Empaque',
+                    'color': const Color(0xFF7C4DFF),
+                    'urgency': 'Horas Pico Fin de Semana',
+                  },
+                ].map((shift) {
+                  final shiftId = shift['id'] as String;
+                  final isClaimed = _claimedOpenShifts.contains(shiftId);
+
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: isDark ? Colors.white.withValues(alpha: 0.04) : const Color(0xFFF9FAFB),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: isClaimed
+                            ? const Color(0xFF00C853)
+                            : (isDark ? Colors.white10 : const Color(0xFFE5E7EB)),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  width: 8,
+                                  height: 8,
+                                  decoration: BoxDecoration(
+                                    color: shift['color'] as Color,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  shift['station'] as String,
+                                  style: GoogleFonts.hankenGrotesk(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: isDark ? Colors.white : const Color(0xFF191C1E),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: (shift['color'] as Color).withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                shift['urgency'] as String,
+                                style: GoogleFonts.hankenGrotesk(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: shift['color'] as Color,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Icon(Icons.calendar_today_rounded, size: 14, color: isDark ? Colors.white60 : Colors.grey[600]),
+                            const SizedBox(width: 6),
+                            Text(
+                              shift['day'] as String,
+                              style: GoogleFonts.hankenGrotesk(fontSize: 12, color: isDark ? Colors.white70 : Colors.grey[700]),
+                            ),
+                            const SizedBox(width: 14),
+                            Icon(Icons.access_time_rounded, size: 14, color: isDark ? Colors.white60 : Colors.grey[600]),
+                            const SizedBox(width: 6),
+                            Text(
+                              shift['hours'] as String,
+                              style: GoogleFonts.hankenGrotesk(fontSize: 12, fontWeight: FontWeight.bold, color: const Color(0xFF00C853)),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 38,
+                          child: isClaimed
+                              ? OutlinedButton.icon(
+                                  onPressed: null,
+                                  icon: const Icon(Icons.check_circle_rounded, color: Color(0xFF00C853), size: 16),
+                                  label: Text(
+                                    'Postulado • En espera de aprobación',
+                                    style: GoogleFonts.hankenGrotesk(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      color: const Color(0xFF00C853),
+                                    ),
+                                  ),
+                                  style: OutlinedButton.styleFrom(
+                                    side: const BorderSide(color: Color(0xFF00C853)),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                  ),
+                                )
+                              : ElevatedButton(
+                                  onPressed: () => _claimOpenShift(
+                                    shiftId,
+                                    shift['day'] as String,
+                                    shift['hours'] as String,
+                                    shift['station'] as String,
+                                    isDark,
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFFAC0017),
+                                    foregroundColor: Colors.white,
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                  ),
+                                  child: Text(
+                                    'Tomar Turno',
+                                    style: GoogleFonts.hankenGrotesk(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
                         ),
                       ],
                     ),
