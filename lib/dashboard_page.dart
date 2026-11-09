@@ -1,8 +1,11 @@
 import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'google_fonts_wrapper.dart';
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -15,7 +18,7 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   int _currentIndex = 0;
-  
+
   // Theme override state
   bool? _isDarkModeOverride;
 
@@ -50,7 +53,15 @@ class _DashboardPageState extends State<DashboardPage> {
 
   String _getCurrentDateString() {
     final now = DateTime.now();
-    final weekdays = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+    final weekdays = [
+      'Lunes',
+      'Martes',
+      'Miércoles',
+      'Jueves',
+      'Viernes',
+      'Sábado',
+      'Domingo',
+    ];
     final months = [
       'Enero',
       'Febrero',
@@ -63,17 +74,25 @@ class _DashboardPageState extends State<DashboardPage> {
       'Septiembre',
       'Octubre',
       'Noviembre',
-      'Diciembre'
+      'Diciembre',
     ];
     final weekday = weekdays[now.weekday - 1];
     final month = months[now.month - 1];
     final period = now.hour >= 12 ? 'PM' : 'AM';
-    final hour = now.hour > 12 ? now.hour - 12 : (now.hour == 0 ? 12 : now.hour);
+    final hour = now.hour > 12
+        ? now.hour - 12
+        : (now.hour == 0 ? 12 : now.hour);
     final minute = now.minute.toString().padLeft(2, '0');
     return '$weekday, ${now.day} de $month | $hour:$minute $period';
   }
 
-  void _showNotificationDialog(String title, String body, String time, bool isIOS, bool isDark) {
+  void _showNotificationDialog(
+    String title,
+    String body,
+    String time,
+    bool isIOS,
+    bool isDark,
+  ) {
     final dialogBgColor = isIOS
         ? (isDark ? const Color(0xFF2C1B1A) : const Color(0xFFFFF1F0))
         : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
@@ -90,7 +109,9 @@ class _DashboardPageState extends State<DashboardPage> {
         backgroundColor: dialogBgColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: (isIOS || isDark) ? const BorderSide(color: Colors.white12) : BorderSide.none,
+          side: (isIOS || isDark)
+              ? const BorderSide(color: Colors.white12)
+              : BorderSide.none,
         ),
         title: Text(
           title,
@@ -105,9 +126,7 @@ class _DashboardPageState extends State<DashboardPage> {
           children: [
             Text(
               body,
-              style: GoogleFonts.hankenGrotesk(
-                color: dialogSubtextColor,
-              ),
+              style: GoogleFonts.hankenGrotesk(color: dialogSubtextColor),
             ),
             const SizedBox(height: 12),
             Text(
@@ -125,7 +144,9 @@ class _DashboardPageState extends State<DashboardPage> {
             child: Text(
               'Cerrar',
               style: GoogleFonts.hankenGrotesk(
-                color: isIOS ? const Color(0xFFD2232A) : const Color(0xFFAC0017),
+                color: isIOS
+                    ? const Color(0xFFD2232A)
+                    : const Color(0xFFAC0017),
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -138,9 +159,13 @@ class _DashboardPageState extends State<DashboardPage> {
   // ==================== Android/Web Layout ====================
   Widget _buildHomeTabAndroid(bool isDark) {
     final cleanName = widget.username.split('@').first;
-    
-    final titleColor = isDark ? const Color(0xFFE1E2E4) : const Color(0xFF191C1E);
-    final subtextColor = isDark ? const Color(0xFFC6C6C7) : const Color(0xFF545D80);
+
+    final titleColor = isDark
+        ? const Color(0xFFE1E2E4)
+        : const Color(0xFF191C1E);
+    final subtextColor = isDark
+        ? const Color(0xFFC6C6C7)
+        : const Color(0xFF545D80);
     final cardBgColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
 
     return ListView(
@@ -185,7 +210,10 @@ class _DashboardPageState extends State<DashboardPage> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFBD0E1E).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
@@ -258,7 +286,9 @@ class _DashboardPageState extends State<DashboardPage> {
                               width: 36,
                               height: 36,
                               decoration: BoxDecoration(
-                                color: isDark ? Colors.white12 : const Color(0xFFEDEEF0),
+                                color: isDark
+                                    ? Colors.white12
+                                    : const Color(0xFFEDEEF0),
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
@@ -293,7 +323,9 @@ class _DashboardPageState extends State<DashboardPage> {
                                     children: [
                                       Icon(
                                         Icons.local_fire_department,
-                                        color: isDark ? const Color(0xFFFFB3AD) : const Color(0xFF5C403D),
+                                        color: isDark
+                                            ? const Color(0xFFFFB3AD)
+                                            : const Color(0xFF5C403D),
                                         size: 18,
                                       ),
                                       const SizedBox(width: 4),
@@ -386,7 +418,9 @@ class _DashboardPageState extends State<DashboardPage> {
                     icon: Icons.calendar_month,
                     label: 'Calendario',
                     iconBgColor: const Color(0xFFCCD6FE).withValues(alpha: 0.3),
-                    iconColor: isDark ? const Color(0xFFBCC5ED) : const Color(0xFF545D80),
+                    iconColor: isDark
+                        ? const Color(0xFFBCC5ED)
+                        : const Color(0xFF545D80),
                     onTap: () => setState(() => _currentIndex = 1),
                     isDark: isDark,
                   ),
@@ -397,7 +431,9 @@ class _DashboardPageState extends State<DashboardPage> {
                     icon: Icons.storefront,
                     label: 'Mercado',
                     iconBgColor: const Color(0xFFFFDDB5).withValues(alpha: 0.3),
-                    iconColor: isDark ? const Color(0xFFFFB956) : const Color(0xFF754B00),
+                    iconColor: isDark
+                        ? const Color(0xFFFFB956)
+                        : const Color(0xFF754B00),
                     onTap: () => setState(() => _currentIndex = 2),
                     isDark: isDark,
                   ),
@@ -408,7 +444,9 @@ class _DashboardPageState extends State<DashboardPage> {
                     icon: Icons.event_available,
                     label: 'Disponibilidad',
                     iconBgColor: const Color(0xFFFFDAD6).withValues(alpha: 0.3),
-                    iconColor: isDark ? const Color(0xFFFFB3AD) : const Color(0xFFAC0017),
+                    iconColor: isDark
+                        ? const Color(0xFFFFB3AD)
+                        : const Color(0xFFAC0017),
                     onTap: () {
                       _showNotificationDialog(
                         'Disponibilidad',
@@ -457,7 +495,9 @@ class _DashboardPageState extends State<DashboardPage> {
                     style: GoogleFonts.hankenGrotesk(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
-                      color: isDark ? const Color(0xFFFFB3AD) : const Color(0xFFAC0017),
+                      color: isDark
+                          ? const Color(0xFFFFB3AD)
+                          : const Color(0xFFAC0017),
                     ),
                   ),
                 ),
@@ -469,8 +509,12 @@ class _DashboardPageState extends State<DashboardPage> {
               title: 'Turno aprobado',
               body: 'Tu solicitud de cambio para el Viernes ha sido aprobada.',
               time: 'Hace 2 horas',
-              iconColor: isDark ? const Color(0xFFFFB3AD) : const Color(0xFFBD0E1E),
-              bgColor: isDark ? const Color(0xFFD2232A).withValues(alpha: 0.2) : const Color(0xFFFFDAD6).withValues(alpha: 0.2),
+              iconColor: isDark
+                  ? const Color(0xFFFFB3AD)
+                  : const Color(0xFFBD0E1E),
+              bgColor: isDark
+                  ? const Color(0xFFD2232A).withValues(alpha: 0.2)
+                  : const Color(0xFFFFDAD6).withValues(alpha: 0.2),
               isDark: isDark,
             ),
             const SizedBox(height: 12),
@@ -479,8 +523,12 @@ class _DashboardPageState extends State<DashboardPage> {
               title: 'Nuevo horario publicado',
               body: 'Los horarios de la próxima semana ya están disponibles.',
               time: 'Ayer, 4:30 PM',
-              iconColor: isDark ? const Color(0xFFC6C6C7) : const Color(0xFF545D80),
-              bgColor: isDark ? Colors.white10 : const Color(0xFFCCD6FE).withValues(alpha: 0.3),
+              iconColor: isDark
+                  ? const Color(0xFFC6C6C7)
+                  : const Color(0xFF545D80),
+              bgColor: isDark
+                  ? Colors.white10
+                  : const Color(0xFFCCD6FE).withValues(alpha: 0.3),
               isDark: isDark,
             ),
           ],
@@ -527,11 +575,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     color: iconBgColor,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
-                    icon,
-                    color: iconColor,
-                    size: 24,
-                  ),
+                  child: Icon(icon, color: iconColor, size: 24),
                 ),
                 const SizedBox(height: 10),
                 Text(
@@ -539,7 +583,9 @@ class _DashboardPageState extends State<DashboardPage> {
                   style: GoogleFonts.hankenGrotesk(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
-                    color: isDark ? const Color(0xFFE1E2E4) : const Color(0xFF191C1E),
+                    color: isDark
+                        ? const Color(0xFFE1E2E4)
+                        : const Color(0xFF191C1E),
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -575,15 +621,8 @@ class _DashboardPageState extends State<DashboardPage> {
           Container(
             width: 32,
             height: 32,
-            decoration: BoxDecoration(
-              color: bgColor,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              icon,
-              color: iconColor,
-              size: 18,
-            ),
+            decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
+            child: Icon(icon, color: iconColor, size: 18),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -595,7 +634,9 @@ class _DashboardPageState extends State<DashboardPage> {
                   style: GoogleFonts.hankenGrotesk(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
-                    color: isDark ? const Color(0xFFE1E2E4) : const Color(0xFF191C1E),
+                    color: isDark
+                        ? const Color(0xFFE1E2E4)
+                        : const Color(0xFF191C1E),
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -603,7 +644,9 @@ class _DashboardPageState extends State<DashboardPage> {
                   body,
                   style: GoogleFonts.hankenGrotesk(
                     fontSize: 13,
-                    color: isDark ? const Color(0xFFC6C6C7) : const Color(0xFF545D80),
+                    color: isDark
+                        ? const Color(0xFFC6C6C7)
+                        : const Color(0xFF545D80),
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -622,21 +665,37 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-
   // ==================== iOS Layout ====================
   Widget _buildHomeTabIOS(bool isDark) {
     final cleanName = widget.username.split('@').first;
-    
-    final titleColor = isDark ? const Color(0xFFFBDBD8) : const Color(0xFF410003);
-    final subtextColor = isDark ? const Color(0xFFE5BDBA) : const Color(0xFF5C403D);
-    final cardBgColor = isDark ? Colors.white.withValues(alpha: 0.06) : Colors.white.withValues(alpha: 0.65);
-    final cardBorderColor = isDark ? Colors.white.withValues(alpha: 0.12) : Colors.black.withValues(alpha: 0.08);
+
+    final titleColor = isDark
+        ? const Color(0xFFFBDBD8)
+        : const Color(0xFF410003);
+    final subtextColor = isDark
+        ? const Color(0xFFE5BDBA)
+        : const Color(0xFF5C403D);
+    final cardBgColor = isDark
+        ? Colors.white.withValues(alpha: 0.06)
+        : Colors.white.withValues(alpha: 0.65);
+    final cardBorderColor = isDark
+        ? Colors.white.withValues(alpha: 0.12)
+        : Colors.black.withValues(alpha: 0.08);
     final dividerColor = isDark ? Colors.white12 : Colors.black12;
-    final iconWrapperBg = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.04);
-    final iconWrapperBorder = isDark ? Colors.white.withValues(alpha: 0.15) : Colors.black.withValues(alpha: 0.06);
+    final iconWrapperBg = isDark
+        ? Colors.white.withValues(alpha: 0.05)
+        : Colors.black.withValues(alpha: 0.04);
+    final iconWrapperBorder = isDark
+        ? Colors.white.withValues(alpha: 0.15)
+        : Colors.black.withValues(alpha: 0.06);
 
     return ListView(
-      padding: EdgeInsets.fromLTRB(20, MediaQuery.of(context).padding.top + 88, 20, 100),
+      padding: EdgeInsets.fromLTRB(
+        20,
+        MediaQuery.of(context).padding.top + 88,
+        20,
+        100,
+      ),
       children: [
         // Greeting
         Column(
@@ -678,7 +737,10 @@ class _DashboardPageState extends State<DashboardPage> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFD2232A).withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(20),
@@ -691,7 +753,9 @@ class _DashboardPageState extends State<DashboardPage> {
                     style: GoogleFonts.hankenGrotesk(
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
-                      color: isDark ? const Color(0xFFFFB3AD) : const Color(0xFFAC0017),
+                      color: isDark
+                          ? const Color(0xFFFFB3AD)
+                          : const Color(0xFFAC0017),
                       letterSpacing: 0.08,
                     ),
                   ),
@@ -699,7 +763,7 @@ class _DashboardPageState extends State<DashboardPage> {
               ],
             ),
             const SizedBox(height: 12),
-            
+
             // Glassmorphic Card container
             ClipRRect(
               borderRadius: BorderRadius.circular(24),
@@ -710,9 +774,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   decoration: BoxDecoration(
                     color: cardBgColor,
                     borderRadius: BorderRadius.circular(24),
-                    border: Border.all(
-                      color: cardBorderColor,
-                    ),
+                    border: Border.all(color: cardBorderColor),
                   ),
                   child: Stack(
                     children: [
@@ -726,11 +788,12 @@ class _DashboardPageState extends State<DashboardPage> {
                             height: 120,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: const Color(0xFFD2232A).withValues(alpha: 0.08),
+                              color: const Color(0xFFD2232A)
+                                  .withValues(alpha: 0.08),
                             ),
                           ),
                         ),
-                      
+
                       // Content
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -765,23 +828,20 @@ class _DashboardPageState extends State<DashboardPage> {
                                 decoration: BoxDecoration(
                                   color: iconWrapperBg,
                                   shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: iconWrapperBorder,
-                                  ),
+                                  border: Border.all(color: iconWrapperBorder),
                                 ),
                                 child: Icon(
                                   Icons.schedule,
-                                  color: isDark ? const Color(0xFFFFB3AD) : const Color(0xFFAC0017),
+                                  color: isDark
+                                      ? const Color(0xFFFFB3AD)
+                                      : const Color(0xFFAC0017),
                                   size: 22,
                                 ),
                               ),
                             ],
                           ),
                           const SizedBox(height: 16),
-                          Container(
-                            height: 1,
-                            color: dividerColor,
-                          ),
+                          Container(height: 1, color: dividerColor),
                           const SizedBox(height: 16),
                           Row(
                             children: [
@@ -803,7 +863,9 @@ class _DashboardPageState extends State<DashboardPage> {
                                       children: [
                                         Icon(
                                           Icons.local_fire_department,
-                                          color: isDark ? const Color(0xFFFFB3AD) : const Color(0xFFAC0017),
+                                          color: isDark
+                                              ? const Color(0xFFFFB3AD)
+                                              : const Color(0xFFAC0017),
                                           size: 20,
                                         ),
                                         const SizedBox(width: 6),
@@ -898,7 +960,9 @@ class _DashboardPageState extends State<DashboardPage> {
                     icon: Icons.calendar_month,
                     label: 'Calendario',
                     iconBgColor: iconWrapperBg,
-                    iconColor: isDark ? const Color(0xFFFFB3AD) : const Color(0xFFAC0017),
+                    iconColor: isDark
+                        ? const Color(0xFFFFB3AD)
+                        : const Color(0xFFAC0017),
                     onTap: () => setState(() => _currentIndex = 1),
                     isDark: isDark,
                   ),
@@ -909,7 +973,9 @@ class _DashboardPageState extends State<DashboardPage> {
                     icon: Icons.storefront,
                     label: 'Mercado',
                     iconBgColor: iconWrapperBg,
-                    iconColor: isDark ? const Color(0xFF85CFFF) : const Color(0xFF0074A3),
+                    iconColor: isDark
+                        ? const Color(0xFF85CFFF)
+                        : const Color(0xFF0074A3),
                     onTap: () => setState(() => _currentIndex = 2),
                     isDark: isDark,
                   ),
@@ -920,7 +986,9 @@ class _DashboardPageState extends State<DashboardPage> {
                     icon: Icons.event_available,
                     label: 'Disponibilidad',
                     iconBgColor: iconWrapperBg,
-                    iconColor: isDark ? const Color(0xFFFFB3AD) : const Color(0xFFAC0017),
+                    iconColor: isDark
+                        ? const Color(0xFFFFB3AD)
+                        : const Color(0xFFAC0017),
                     onTap: () {
                       _showNotificationDialog(
                         'Disponibilidad',
@@ -969,7 +1037,9 @@ class _DashboardPageState extends State<DashboardPage> {
                     style: GoogleFonts.hankenGrotesk(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
-                      color: isDark ? const Color(0xFFFFB3AD) : const Color(0xFFAC0017),
+                      color: isDark
+                          ? const Color(0xFFFFB3AD)
+                          : const Color(0xFFAC0017),
                     ),
                   ),
                 ),
@@ -981,9 +1051,11 @@ class _DashboardPageState extends State<DashboardPage> {
               title: 'Turno aprobado',
               body: 'Tu solicitud de cambio para el Viernes ha sido aprobada.',
               time: 'Hace 2 horas',
-              iconColor: isDark ? const Color(0xFFFFB3AD) : const Color(0xFFAC0017),
+              iconColor: isDark
+                  ? const Color(0xFFFFB3AD)
+                  : const Color(0xFFAC0017),
               bgColor: const Color(0xFFD2232A).withValues(alpha: 0.2),
-              borderAccentColor: isDark 
+              borderAccentColor: isDark
                   ? const Color(0xFFD2232A).withValues(alpha: 0.3)
                   : const Color(0xFFD2232A).withValues(alpha: 0.15),
               isDark: isDark,
@@ -994,8 +1066,12 @@ class _DashboardPageState extends State<DashboardPage> {
               title: 'Nuevo horario publicado',
               body: 'Los horarios de la próxima semana ya están disponibles.',
               time: 'Ayer, 4:30 PM',
-              iconColor: isDark ? const Color(0xFFC6C6C7) : const Color(0xFF545D80),
-              bgColor: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.03),
+              iconColor: isDark
+                  ? const Color(0xFFC6C6C7)
+                  : const Color(0xFF545D80),
+              bgColor: isDark
+                  ? Colors.white10
+                  : Colors.black.withValues(alpha: 0.03),
               borderAccentColor: cardBorderColor,
               isDark: isDark,
             ),
@@ -1013,8 +1089,12 @@ class _DashboardPageState extends State<DashboardPage> {
     required VoidCallback onTap,
     required bool isDark,
   }) {
-    final cardBgColor = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white.withValues(alpha: 0.6);
-    final cardBorderColor = isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.06);
+    final cardBgColor = isDark
+        ? Colors.white.withValues(alpha: 0.05)
+        : Colors.white.withValues(alpha: 0.6);
+    final cardBorderColor = isDark
+        ? Colors.white.withValues(alpha: 0.1)
+        : Colors.black.withValues(alpha: 0.06);
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
@@ -1024,9 +1104,7 @@ class _DashboardPageState extends State<DashboardPage> {
           decoration: BoxDecoration(
             color: cardBgColor,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: cardBorderColor,
-            ),
+            border: Border.all(color: cardBorderColor),
           ),
           child: Material(
             color: Colors.transparent,
@@ -1034,7 +1112,10 @@ class _DashboardPageState extends State<DashboardPage> {
               onTap: onTap,
               borderRadius: BorderRadius.circular(20),
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 8),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 20,
+                  horizontal: 8,
+                ),
                 child: Column(
                   children: [
                     Container(
@@ -1044,14 +1125,12 @@ class _DashboardPageState extends State<DashboardPage> {
                         color: iconBgColor,
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.03),
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.08)
+                              : Colors.black.withValues(alpha: 0.03),
                         ),
                       ),
-                      child: Icon(
-                        icon,
-                        color: iconColor,
-                        size: 24,
-                      ),
+                      child: Icon(icon, color: iconColor, size: 24),
                     ),
                     const SizedBox(height: 12),
                     Text(
@@ -1059,7 +1138,9 @@ class _DashboardPageState extends State<DashboardPage> {
                       style: GoogleFonts.hankenGrotesk(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        color: isDark ? const Color(0xFFFBDBD8) : const Color(0xFF191C1E),
+                        color: isDark
+                            ? const Color(0xFFFBDBD8)
+                            : const Color(0xFF191C1E),
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -1083,9 +1164,15 @@ class _DashboardPageState extends State<DashboardPage> {
     required Color borderAccentColor,
     required bool isDark,
   }) {
-    final cardBgColor = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white.withValues(alpha: 0.6);
-    final subtextColor = isDark ? const Color(0xFFE5BDBA) : const Color(0xFF5C403D);
-    final titleColor = isDark ? const Color(0xFFFBDBD8) : const Color(0xFF410003);
+    final cardBgColor = isDark
+        ? Colors.white.withValues(alpha: 0.05)
+        : Colors.white.withValues(alpha: 0.6);
+    final subtextColor = isDark
+        ? const Color(0xFFE5BDBA)
+        : const Color(0xFF5C403D);
+    final titleColor = isDark
+        ? const Color(0xFFFBDBD8)
+        : const Color(0xFF410003);
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
@@ -1096,9 +1183,7 @@ class _DashboardPageState extends State<DashboardPage> {
           decoration: BoxDecoration(
             color: cardBgColor,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: borderAccentColor,
-            ),
+            border: Border.all(color: borderAccentColor),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1110,14 +1195,12 @@ class _DashboardPageState extends State<DashboardPage> {
                   color: bgColor,
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.03),
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.08)
+                        : Colors.black.withValues(alpha: 0.03),
                   ),
                 ),
-                child: Icon(
-                  icon,
-                  color: iconColor,
-                  size: 20,
-                ),
+                child: Icon(icon, color: iconColor, size: 20),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -1158,10 +1241,10 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-
-
-
-  Widget _buildHtmlInspiredCalendarTab({required bool isIOS, required bool isDark}) {
+  Widget _buildHtmlInspiredCalendarTab({
+    required bool isIOS,
+    required bool isDark,
+  }) {
     final cleanUsername = widget.username.split('@').first;
     final primaryRed = const Color(0xFFAC0017);
     final titleColor = isIOS
@@ -1171,20 +1254,73 @@ class _DashboardPageState extends State<DashboardPage> {
         ? (isDark ? const Color(0xFFE5BDBA) : const Color(0xFF5C403D))
         : (isDark ? const Color(0xFFC6C6C7) : const Color(0xFF545D80));
     final cardBg = isIOS
-        ? (isDark ? const Color(0xFF3A2524).withValues(alpha: 0.5) : Colors.white.withValues(alpha: 0.85))
+        ? (isDark
+              ? const Color(0xFF3A2524).withValues(alpha: 0.5)
+              : Colors.white.withValues(alpha: 0.85))
         : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
     final cardBorder = isIOS
-        ? (isDark ? const Color(0xFFE5BDBA).withValues(alpha: 0.15) : Colors.black.withValues(alpha: 0.06))
+        ? (isDark
+              ? const Color(0xFFE5BDBA).withValues(alpha: 0.15)
+              : Colors.black.withValues(alpha: 0.06))
         : (isDark ? Colors.white12 : const Color(0xFFEDEEF0));
 
     final weekDays = [
-      {'day': 'Lun', 'num': '1', 'time': '08:00 - 16:00', 'type': 'Turno Laboral', 'isOff': false, 'status': 'check'},
-      {'day': 'Mar', 'num': '2', 'time': '08:00 - 16:00', 'type': 'Turno Laboral', 'isOff': false, 'status': 'check'},
-      {'day': 'Mié', 'num': '3', 'time': '08:00 - 16:00', 'type': 'Turno Laboral', 'isOff': false, 'status': 'check'},
-      {'day': 'Jue', 'num': '4', 'time': '08:00 - 16:00', 'type': 'Turno Laboral', 'isOff': false, 'status': 'current'},
-      {'day': 'Vie', 'num': '5', 'time': '08:00 - 16:00', 'type': 'Turno Laboral', 'isOff': false, 'status': 'pending'},
-      {'day': 'Sáb', 'num': '6', 'time': '08:00 - 16:00', 'type': 'Turno Laboral', 'isOff': false, 'status': 'pending'},
-      {'day': 'Dom', 'num': '7', 'time': 'Libre', 'type': 'Descanso Programado', 'isOff': true, 'status': 'descanso'},
+      {
+        'day': 'Lun',
+        'num': '1',
+        'time': '08:00 - 16:00',
+        'type': 'Turno Laboral',
+        'isOff': false,
+        'status': 'check',
+      },
+      {
+        'day': 'Mar',
+        'num': '2',
+        'time': '08:00 - 16:00',
+        'type': 'Turno Laboral',
+        'isOff': false,
+        'status': 'check',
+      },
+      {
+        'day': 'Mié',
+        'num': '3',
+        'time': '08:00 - 16:00',
+        'type': 'Turno Laboral',
+        'isOff': false,
+        'status': 'check',
+      },
+      {
+        'day': 'Jue',
+        'num': '4',
+        'time': '08:00 - 16:00',
+        'type': 'Turno Laboral',
+        'isOff': false,
+        'status': 'current',
+      },
+      {
+        'day': 'Vie',
+        'num': '5',
+        'time': '08:00 - 16:00',
+        'type': 'Turno Laboral',
+        'isOff': false,
+        'status': 'pending',
+      },
+      {
+        'day': 'Sáb',
+        'num': '6',
+        'time': '08:00 - 16:00',
+        'type': 'Turno Laboral',
+        'isOff': false,
+        'status': 'pending',
+      },
+      {
+        'day': 'Dom',
+        'num': '7',
+        'time': 'Libre',
+        'type': 'Descanso Programado',
+        'isOff': true,
+        'status': 'descanso',
+      },
     ];
 
     return ListView(
@@ -1221,7 +1357,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                 color: primaryRed.withValues(alpha: 0.3),
                                 blurRadius: 8,
                                 offset: const Offset(0, 2),
-                              )
+                              ),
                             ]
                           : null,
                     ),
@@ -1254,7 +1390,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                 color: primaryRed.withValues(alpha: 0.3),
                                 blurRadius: 8,
                                 offset: const Offset(0, 2),
-                              )
+                              ),
                             ]
                           : null,
                     ),
@@ -1345,12 +1481,16 @@ class _DashboardPageState extends State<DashboardPage> {
                           decoration: BoxDecoration(
                             color: isSelected
                                 ? primaryRed
-                                : (isDark ? Colors.white.withValues(alpha: 0.04) : const Color(0xFFF4F5F7)),
+                                : (isDark
+                                      ? Colors.white.withValues(alpha: 0.04)
+                                      : const Color(0xFFF4F5F7)),
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
                               color: isSelected
                                   ? primaryRed
-                                  : (isDark ? Colors.white10 : Colors.grey[200]!),
+                                  : (isDark
+                                        ? Colors.white10
+                                        : Colors.grey[200]!),
                             ),
                           ),
                           child: Column(
@@ -1360,10 +1500,14 @@ class _DashboardPageState extends State<DashboardPage> {
                                 d['day'] as String,
                                 style: GoogleFonts.hankenGrotesk(
                                   fontSize: 11,
-                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                                  fontWeight: isSelected
+                                      ? FontWeight.bold
+                                      : FontWeight.w600,
                                   color: isSelected
                                       ? Colors.white
-                                      : (d['isOff'] as bool ? const Color(0xFF0074A3) : subtextColor),
+                                      : (d['isOff'] as bool
+                                            ? const Color(0xFF0074A3)
+                                            : subtextColor),
                                 ),
                               ),
                               const SizedBox(height: 2),
@@ -1514,12 +1658,29 @@ class _DashboardPageState extends State<DashboardPage> {
                   Padding(
                     padding: const EdgeInsets.only(right: 14),
                     child: status == 'check'
-                        ? const Icon(Icons.check_circle, color: Color(0xFF2E7D32), size: 20)
+                        ? const Icon(
+                            Icons.check_circle,
+                            color: Color(0xFF2E7D32),
+                            size: 20,
+                          )
                         : (status == 'current'
-                            ? Icon(Icons.radio_button_checked, color: primaryRed, size: 20)
-                            : (status == 'descanso'
-                                ? const Text('😊', style: TextStyle(fontSize: 16))
-                                : Icon(Icons.circle_outlined, color: subtextColor.withValues(alpha: 0.5), size: 18))),
+                              ? Icon(
+                                  Icons.radio_button_checked,
+                                  color: primaryRed,
+                                  size: 20,
+                                )
+                              : (status == 'descanso'
+                                    ? const Text(
+                                        '😊',
+                                        style: TextStyle(fontSize: 16),
+                                      )
+                                    : Icon(
+                                        Icons.circle_outlined,
+                                        color: subtextColor.withValues(
+                                          alpha: 0.5,
+                                        ),
+                                        size: 18,
+                                      ))),
                   ),
                 ],
               ),
@@ -1571,7 +1732,10 @@ class _DashboardPageState extends State<DashboardPage> {
                       ],
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFF2E7D32).withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(8),
@@ -1603,13 +1767,19 @@ class _DashboardPageState extends State<DashboardPage> {
                           padding: const EdgeInsets.symmetric(vertical: 8),
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? (isDark ? const Color(0xFFD2232A) : primaryRed)
-                                : (isDark ? Colors.white.withValues(alpha: 0.04) : const Color(0xFFF4F5F7)),
+                                ? (isDark
+                                      ? const Color(0xFFD2232A)
+                                      : primaryRed)
+                                : (isDark
+                                      ? Colors.white.withValues(alpha: 0.04)
+                                      : const Color(0xFFF4F5F7)),
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
                               color: isSelected
                                   ? primaryRed
-                                  : (isDark ? Colors.white10 : Colors.grey[200]!),
+                                  : (isDark
+                                        ? Colors.white10
+                                        : Colors.grey[200]!),
                             ),
                           ),
                           child: Column(
@@ -1619,10 +1789,14 @@ class _DashboardPageState extends State<DashboardPage> {
                                 d['day'] as String,
                                 style: GoogleFonts.hankenGrotesk(
                                   fontSize: 11,
-                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                                  fontWeight: isSelected
+                                      ? FontWeight.bold
+                                      : FontWeight.w600,
                                   color: isSelected
                                       ? Colors.white
-                                      : (d['isOff'] as bool ? const Color(0xFF0074A3) : subtextColor),
+                                      : (d['isOff'] as bool
+                                            ? const Color(0xFF0074A3)
+                                            : subtextColor),
                                 ),
                               ),
                               const SizedBox(height: 2),
@@ -1674,9 +1848,15 @@ class _DashboardPageState extends State<DashboardPage> {
                   {
                     'name': '$cleanUsername (Tú)',
                     'role': 'Auxiliar Cocina',
-                    'initials': cleanUsername.length >= 2 ? cleanUsername.substring(0, 2).toUpperCase() : 'TU',
-                    'shift': _selectedTeamDayIndex == 6 ? 'Descanso' : '08:00 - 16:00',
-                    'status': _selectedTeamDayIndex == 6 ? 'Descanso' : 'Turno Mañana',
+                    'initials': cleanUsername.length >= 2
+                        ? cleanUsername.substring(0, 2).toUpperCase()
+                        : 'TU',
+                    'shift': _selectedTeamDayIndex == 6
+                        ? 'Descanso'
+                        : '08:00 - 16:00',
+                    'status': _selectedTeamDayIndex == 6
+                        ? 'Descanso'
+                        : 'Turno Mañana',
                     'isMe': true,
                     'isOff': _selectedTeamDayIndex == 6,
                   },
@@ -1684,8 +1864,14 @@ class _DashboardPageState extends State<DashboardPage> {
                     'name': 'Jelson R.',
                     'role': 'Supervisor #',
                     'initials': 'JR',
-                    'shift': _selectedTeamDayIndex == 5 ? 'Descanso' : (_selectedTeamDayIndex % 2 == 0 ? '08:00 - 15:00' : '12:00 - 21:00'),
-                    'status': _selectedTeamDayIndex == 5 ? 'Descanso' : 'En Turno',
+                    'shift': _selectedTeamDayIndex == 5
+                        ? 'Descanso'
+                        : (_selectedTeamDayIndex % 2 == 0
+                              ? '08:00 - 15:00'
+                              : '12:00 - 21:00'),
+                    'status': _selectedTeamDayIndex == 5
+                        ? 'Descanso'
+                        : 'En Turno',
                     'isMe': false,
                     'isOff': _selectedTeamDayIndex == 5,
                   },
@@ -1693,8 +1879,12 @@ class _DashboardPageState extends State<DashboardPage> {
                     'name': 'Maira T.',
                     'role': 'Supervisor #',
                     'initials': 'MT',
-                    'shift': _selectedTeamDayIndex == 1 ? 'Descanso' : '14:00 - 21:00',
-                    'status': _selectedTeamDayIndex == 1 ? 'Descanso' : 'Turno Tarde',
+                    'shift': _selectedTeamDayIndex == 1
+                        ? 'Descanso'
+                        : '14:00 - 21:00',
+                    'status': _selectedTeamDayIndex == 1
+                        ? 'Descanso'
+                        : 'Turno Tarde',
                     'isMe': false,
                     'isOff': _selectedTeamDayIndex == 1,
                   },
@@ -1702,8 +1892,12 @@ class _DashboardPageState extends State<DashboardPage> {
                     'name': 'Sandra P.',
                     'role': 'Combos D',
                     'initials': 'SP',
-                    'shift': _selectedTeamDayIndex == 2 ? 'Descanso' : '08:00 - 15:00',
-                    'status': _selectedTeamDayIndex == 2 ? 'Descanso' : 'Turno Mañana',
+                    'shift': _selectedTeamDayIndex == 2
+                        ? 'Descanso'
+                        : '08:00 - 15:00',
+                    'status': _selectedTeamDayIndex == 2
+                        ? 'Descanso'
+                        : 'Turno Mañana',
                     'isMe': false,
                     'isOff': _selectedTeamDayIndex == 2,
                   },
@@ -1711,8 +1905,12 @@ class _DashboardPageState extends State<DashboardPage> {
                     'name': 'Luisa M.',
                     'role': 'Combos D',
                     'initials': 'LM',
-                    'shift': _selectedTeamDayIndex == 3 ? 'Descanso' : '14:00 - 21:00',
-                    'status': _selectedTeamDayIndex == 3 ? 'Descanso' : 'Turno Tarde',
+                    'shift': _selectedTeamDayIndex == 3
+                        ? 'Descanso'
+                        : '14:00 - 21:00',
+                    'status': _selectedTeamDayIndex == 3
+                        ? 'Descanso'
+                        : 'Turno Tarde',
                     'isMe': false,
                     'isOff': _selectedTeamDayIndex == 3,
                   },
@@ -1720,8 +1918,12 @@ class _DashboardPageState extends State<DashboardPage> {
                     'name': 'Yenifer V.',
                     'role': 'Salón y Servicio',
                     'initials': 'YV',
-                    'shift': _selectedTeamDayIndex == 4 ? 'Descanso' : '12:00 - 16:00',
-                    'status': _selectedTeamDayIndex == 4 ? 'Descanso' : 'Turno Intermedio',
+                    'shift': _selectedTeamDayIndex == 4
+                        ? 'Descanso'
+                        : '12:00 - 16:00',
+                    'status': _selectedTeamDayIndex == 4
+                        ? 'Descanso'
+                        : 'Turno Intermedio',
                     'isMe': false,
                     'isOff': _selectedTeamDayIndex == 4,
                   },
@@ -1729,8 +1931,12 @@ class _DashboardPageState extends State<DashboardPage> {
                     'name': 'Adriana A.',
                     'role': 'Supervisor #',
                     'initials': 'AA',
-                    'shift': _selectedTeamDayIndex == 0 ? 'Descanso' : '14:00 - 21:00',
-                    'status': _selectedTeamDayIndex == 0 ? 'Descanso' : 'Turno Tarde',
+                    'shift': _selectedTeamDayIndex == 0
+                        ? 'Descanso'
+                        : '14:00 - 21:00',
+                    'status': _selectedTeamDayIndex == 0
+                        ? 'Descanso'
+                        : 'Turno Tarde',
                     'isMe': false,
                     'isOff': _selectedTeamDayIndex == 0,
                   },
@@ -1738,8 +1944,14 @@ class _DashboardPageState extends State<DashboardPage> {
                     'name': 'Ronaldo G.',
                     'role': 'Oficios Varios',
                     'initials': 'RG',
-                    'shift': _selectedTeamDayIndex == 6 ? '08:00 - 16:00' : (_selectedTeamDayIndex == 0 ? 'Descanso' : '12:00 - 20:00'),
-                    'status': _selectedTeamDayIndex == 0 ? 'Descanso' : 'En Turno',
+                    'shift': _selectedTeamDayIndex == 6
+                        ? '08:00 - 16:00'
+                        : (_selectedTeamDayIndex == 0
+                              ? 'Descanso'
+                              : '12:00 - 20:00'),
+                    'status': _selectedTeamDayIndex == 0
+                        ? 'Descanso'
+                        : 'En Turno',
                     'isMe': false,
                     'isOff': _selectedTeamDayIndex == 0,
                   },
@@ -1747,8 +1959,12 @@ class _DashboardPageState extends State<DashboardPage> {
                     'name': 'Jesús O.',
                     'role': 'Domicilios',
                     'initials': 'JO',
-                    'shift': _selectedTeamDayIndex == 4 ? 'Descanso' : '13:00 - 20:00',
-                    'status': _selectedTeamDayIndex == 4 ? 'Descanso' : 'Turno Tarde',
+                    'shift': _selectedTeamDayIndex == 4
+                        ? 'Descanso'
+                        : '13:00 - 20:00',
+                    'status': _selectedTeamDayIndex == 4
+                        ? 'Descanso'
+                        : 'Turno Tarde',
                     'isMe': false,
                     'isOff': _selectedTeamDayIndex == 4,
                   },
@@ -1756,8 +1972,14 @@ class _DashboardPageState extends State<DashboardPage> {
                     'name': 'Freddy L.',
                     'role': 'Domicilios',
                     'initials': 'FL',
-                    'shift': _selectedTeamDayIndex == 6 ? '12:00 - 21:00' : (_selectedTeamDayIndex == 2 ? 'Descanso' : '08:00 - 16:00'),
-                    'status': _selectedTeamDayIndex == 2 ? 'Descanso' : 'Turno Mañana',
+                    'shift': _selectedTeamDayIndex == 6
+                        ? '12:00 - 21:00'
+                        : (_selectedTeamDayIndex == 2
+                              ? 'Descanso'
+                              : '08:00 - 16:00'),
+                    'status': _selectedTeamDayIndex == 2
+                        ? 'Descanso'
+                        : 'Turno Mañana',
                     'isMe': false,
                     'isOff': _selectedTeamDayIndex == 2,
                   },
@@ -1771,7 +1993,9 @@ class _DashboardPageState extends State<DashboardPage> {
                     decoration: BoxDecoration(
                       color: isMe
                           ? primaryRed.withValues(alpha: isDark ? 0.15 : 0.06)
-                          : (isDark ? Colors.white.withValues(alpha: 0.03) : const Color(0xFFF9FAFB)),
+                          : (isDark
+                                ? Colors.white.withValues(alpha: 0.03)
+                                : const Color(0xFFF9FAFB)),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: isMe
@@ -1786,7 +2010,9 @@ class _DashboardPageState extends State<DashboardPage> {
                           radius: 16,
                           backgroundColor: isMe
                               ? primaryRed
-                              : (isOff ? Colors.grey[400] : const Color(0xFF545D80)),
+                              : (isOff
+                                    ? Colors.grey[400]
+                                    : const Color(0xFF545D80)),
                           child: Text(
                             collab['initials'] as String,
                             style: GoogleFonts.hankenGrotesk(
@@ -1807,21 +2033,30 @@ class _DashboardPageState extends State<DashboardPage> {
                                     collab['name'] as String,
                                     style: GoogleFonts.hankenGrotesk(
                                       fontSize: 13,
-                                      fontWeight: isMe ? FontWeight.bold : FontWeight.w600,
+                                      fontWeight: isMe
+                                          ? FontWeight.bold
+                                          : FontWeight.w600,
                                       color: isMe ? primaryRed : titleColor,
                                     ),
                                   ),
                                   if (isMe) ...[
                                     const SizedBox(width: 6),
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 5,
+                                        vertical: 1,
+                                      ),
                                       decoration: BoxDecoration(
                                         color: primaryRed,
                                         borderRadius: BorderRadius.circular(4),
                                       ),
                                       child: const Text(
                                         'TÚ',
-                                        style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 9,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -1846,7 +2081,9 @@ class _DashboardPageState extends State<DashboardPage> {
                               style: GoogleFonts.hankenGrotesk(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
-                                color: isOff ? const Color(0xFF0074A3) : titleColor,
+                                color: isOff
+                                    ? const Color(0xFF0074A3)
+                                    : titleColor,
                               ),
                             ),
                             const SizedBox(height: 2),
@@ -1883,7 +2120,6 @@ class _DashboardPageState extends State<DashboardPage> {
     return _buildHtmlInspiredCalendarTab(isIOS: true, isDark: isDark);
   }
 
-
   // ==================== General secondary vistas ====================
   Widget _buildMarketTab(bool isIOS, bool isDark) {
     final titleColor = isIOS
@@ -1892,18 +2128,28 @@ class _DashboardPageState extends State<DashboardPage> {
     final subtextColor = isIOS
         ? (isDark ? const Color(0xFFE5BDBA) : const Color(0xFF5C403D))
         : (isDark ? const Color(0xFFC6C6C7) : const Color(0xFF545D80));
-    final primaryColor = isDark ? const Color(0xFFFFB3AD) : const Color(0xFFAC0017);
+    final primaryColor = isDark
+        ? const Color(0xFFFFB3AD)
+        : const Color(0xFFAC0017);
     final cardBgColor = isIOS
-        ? (isDark ? const Color(0xFF3A2524).withValues(alpha: 0.5) : Colors.white.withValues(alpha: 0.55))
+        ? (isDark
+              ? const Color(0xFF3A2524).withValues(alpha: 0.5)
+              : Colors.white.withValues(alpha: 0.55))
         : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
     final cardBorderColor = isIOS
-        ? (isDark ? const Color(0xFFE5BDBA).withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05))
+        ? (isDark
+              ? const Color(0xFFE5BDBA).withValues(alpha: 0.1)
+              : Colors.black.withValues(alpha: 0.05))
         : (isDark ? Colors.white12 : const Color(0xFFEDEEF0));
     final switchBgColor = isIOS
-        ? (isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.04))
+        ? (isDark
+              ? Colors.white.withValues(alpha: 0.05)
+              : Colors.black.withValues(alpha: 0.04))
         : (isDark ? const Color(0xFF2C2C2C) : const Color(0xFFEDEEF0));
     final activeSwitchColor = isIOS
-        ? (isDark ? Colors.white.withValues(alpha: 0.1) : Colors.white.withValues(alpha: 0.8))
+        ? (isDark
+              ? Colors.white.withValues(alpha: 0.1)
+              : Colors.white.withValues(alpha: 0.8))
         : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
 
     // List of coworker trades
@@ -1929,12 +2175,12 @@ class _DashboardPageState extends State<DashboardPage> {
         'month': 'ABR',
         'hours': '8:00 AM - 4:00 PM',
         'location': 'Armenia Norte',
-      }
+      },
     ];
 
     void handleSolicitarTrade(int id) {
       if (_requestedTrades.contains(id)) return;
-      
+
       final trade = coworkersTrades.firstWhere((t) => t['id'] == id);
 
       showDialog(
@@ -1954,7 +2200,9 @@ class _DashboardPageState extends State<DashboardPage> {
             backgroundColor: dialogBgColor,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
-              side: (isIOS || isDark) ? const BorderSide(color: Colors.white12) : BorderSide.none,
+              side: (isIOS || isDark)
+                  ? const BorderSide(color: Colors.white12)
+                  : BorderSide.none,
             ),
             title: Text(
               'Confirmar Solicitud',
@@ -1965,18 +2213,14 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
             content: Text(
               '¿Deseas enviar una solicitud de trade a ${trade['name']} para trabajar el ${trade['weekday']} ${trade['day']} de ${trade['month']} en sucursal ${trade['location']}?',
-              style: GoogleFonts.hankenGrotesk(
-                color: dialogSubtextColor,
-              ),
+              style: GoogleFonts.hankenGrotesk(color: dialogSubtextColor),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: Text(
                   'Cancelar',
-                  style: GoogleFonts.hankenGrotesk(
-                    color: Colors.grey,
-                  ),
+                  style: GoogleFonts.hankenGrotesk(color: Colors.grey),
                 ),
               ),
               ElevatedButton(
@@ -2005,9 +2249,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
                 child: Text(
                   'Enviar',
-                  style: GoogleFonts.hankenGrotesk(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: GoogleFonts.hankenGrotesk(fontWeight: FontWeight.bold),
                 ),
               ),
             ],
@@ -2018,10 +2260,21 @@ class _DashboardPageState extends State<DashboardPage> {
 
     Widget buildSwitch() {
       final textStyleActive = isIOS
-          ? GoogleFonts.sora(fontSize: 13, fontWeight: FontWeight.bold, color: titleColor)
-          : GoogleFonts.hankenGrotesk(fontSize: 13, fontWeight: FontWeight.bold, color: isDark ? Colors.white : const Color(0xFF191C1E));
+          ? GoogleFonts.sora(
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: titleColor,
+            )
+          : GoogleFonts.hankenGrotesk(
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : const Color(0xFF191C1E),
+            );
       final textStyleInactive = isIOS
-          ? GoogleFonts.sora(fontSize: 13, color: subtextColor.withValues(alpha: 0.7))
+          ? GoogleFonts.sora(
+              fontSize: 13,
+              color: subtextColor.withValues(alpha: 0.7),
+            )
           : GoogleFonts.hankenGrotesk(fontSize: 13, color: subtextColor);
 
       Widget toggleButton(int index, String label) {
@@ -2034,13 +2287,15 @@ class _DashboardPageState extends State<DashboardPage> {
               decoration: BoxDecoration(
                 color: isActive ? activeSwitchColor : Colors.transparent,
                 borderRadius: BorderRadius.circular(30),
-                boxShadow: (isActive && !isIOS) ? [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ] : null,
+                boxShadow: (isActive && !isIOS)
+                    ? [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.1),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ]
+                    : null,
               ),
               alignment: Alignment.center,
               child: Text(
@@ -2075,8 +2330,16 @@ class _DashboardPageState extends State<DashboardPage> {
           Text(
             'Trades de Compañeros',
             style: isIOS
-                ? GoogleFonts.sora(fontSize: 18, fontWeight: FontWeight.bold, color: titleColor)
-                : GoogleFonts.hankenGrotesk(fontSize: 18, fontWeight: FontWeight.bold, color: titleColor),
+                ? GoogleFonts.sora(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: titleColor,
+                  )
+                : GoogleFonts.hankenGrotesk(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: titleColor,
+                  ),
           ),
           const SizedBox(height: 12),
           ...coworkersTrades.map((trade) {
@@ -2097,12 +2360,16 @@ class _DashboardPageState extends State<DashboardPage> {
                           width: 50,
                           height: 50,
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => Container(
-                            width: 50,
-                            height: 50,
-                            color: Colors.grey,
-                            child: const Icon(Icons.person, color: Colors.white),
-                          ),
+                          errorBuilder: (context, error, stackTrace) =>
+                              Container(
+                                width: 50,
+                                height: 50,
+                                color: Colors.grey,
+                                child: const Icon(
+                                  Icons.person,
+                                  color: Colors.white,
+                                ),
+                              ),
                         ),
                       ),
                       const SizedBox(width: 14),
@@ -2113,17 +2380,30 @@ class _DashboardPageState extends State<DashboardPage> {
                             Text(
                               '${trade['name']} (${trade['role']})',
                               style: isIOS
-                                  ? GoogleFonts.sora(fontSize: 15, fontWeight: FontWeight.bold, color: titleColor)
-                                  : GoogleFonts.hankenGrotesk(fontSize: 15, fontWeight: FontWeight.bold, color: titleColor),
+                                  ? GoogleFonts.sora(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                      color: titleColor,
+                                    )
+                                  : GoogleFonts.hankenGrotesk(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                      color: titleColor,
+                                    ),
                             ),
                             const SizedBox(height: 8),
                             Row(
                               children: [
                                 // Date badge
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
                                   decoration: BoxDecoration(
-                                    color: isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFF3F4F6),
+                                    color: isDark
+                                        ? Colors.white.withValues(alpha: 0.05)
+                                        : const Color(0xFFF3F4F6),
                                     borderRadius: BorderRadius.circular(8),
                                     border: Border.all(color: cardBorderColor),
                                   ),
@@ -2167,7 +2447,8 @@ class _DashboardPageState extends State<DashboardPage> {
                                 // Details
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         trade['hours'] as String,
@@ -2206,22 +2487,33 @@ class _DashboardPageState extends State<DashboardPage> {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // Action button
                   SizedBox(
                     width: double.infinity,
                     height: 48,
                     child: ElevatedButton(
-                      onPressed: isRequested ? null : () => handleSolicitarTrade(id),
+                      onPressed: isRequested
+                          ? null
+                          : () => handleSolicitarTrade(id),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: isRequested 
-                            ? Colors.green[800] 
-                            : (isIOS ? const Color(0xFF5D3F3B).withValues(alpha: isDark ? 0.4 : 0.2) : const Color(0xFF121C3B)),
-                        foregroundColor: isRequested ? Colors.white : (isIOS ? primaryColor : Colors.white),
+                        backgroundColor: isRequested
+                            ? Colors.green[800]
+                            : (isIOS
+                                  ? const Color(0xFF5D3F3B)
+                                        .withValues(alpha: isDark ? 0.4 : 0.2)
+                                  : const Color(0xFF121C3B)),
+                        foregroundColor: isRequested
+                            ? Colors.white
+                            : (isIOS ? primaryColor : Colors.white),
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),
-                          side: (isIOS && !isRequested) ? BorderSide(color: primaryColor.withValues(alpha: 0.3)) : BorderSide.none,
+                          side: (isIOS && !isRequested)
+                              ? BorderSide(
+                                  color: primaryColor.withValues(alpha: 0.3),
+                                )
+                              : BorderSide.none,
                         ),
                       ),
                       child: Row(
@@ -2273,7 +2565,9 @@ class _DashboardPageState extends State<DashboardPage> {
                   border: isDark ? Border.all(color: cardBorderColor) : null,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.08),
+                      color: Colors.black.withValues(
+                        alpha: isDark ? 0.2 : 0.08,
+                      ),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -2294,8 +2588,16 @@ class _DashboardPageState extends State<DashboardPage> {
           Text(
             'Mis Solicitudes y Cambios',
             style: isIOS
-                ? GoogleFonts.sora(fontSize: 18, fontWeight: FontWeight.bold, color: titleColor)
-                : GoogleFonts.hankenGrotesk(fontSize: 18, fontWeight: FontWeight.bold, color: titleColor),
+                ? GoogleFonts.sora(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: titleColor,
+                  )
+                : GoogleFonts.hankenGrotesk(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: titleColor,
+                  ),
           ),
           const SizedBox(height: 12),
           if (_requestedTrades.isEmpty)
@@ -2304,7 +2606,11 @@ class _DashboardPageState extends State<DashboardPage> {
                 padding: const EdgeInsets.symmetric(vertical: 40.0),
                 child: Column(
                   children: [
-                    Icon(Icons.swap_horizontal_circle, size: 64, color: subtextColor.withValues(alpha: 0.5)),
+                    Icon(
+                      Icons.swap_horizontal_circle,
+                      size: 64,
+                      color: subtextColor.withValues(alpha: 0.5),
+                    ),
                     const SizedBox(height: 12),
                     Text(
                       'No tienes solicitudes activas',
@@ -2345,7 +2651,11 @@ class _DashboardPageState extends State<DashboardPage> {
                           width: 40,
                           height: 40,
                           color: Colors.grey,
-                          child: const Icon(Icons.person, color: Colors.white, size: 18),
+                          child: const Icon(
+                            Icons.person,
+                            color: Colors.white,
+                            size: 18,
+                          ),
                         ),
                       ),
                     ),
@@ -2374,11 +2684,16 @@ class _DashboardPageState extends State<DashboardPage> {
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.orange.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+                        border: Border.all(
+                          color: Colors.orange.withValues(alpha: 0.3),
+                        ),
                       ),
                       child: Text(
                         'PENDIENTE',
@@ -2420,7 +2735,9 @@ class _DashboardPageState extends State<DashboardPage> {
                     border: isDark ? Border.all(color: cardBorderColor) : null,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+                        color: Colors.black.withValues(
+                          alpha: isDark ? 0.2 : 0.04,
+                        ),
                         blurRadius: 4,
                         offset: const Offset(0, 1),
                       ),
@@ -2455,15 +2772,23 @@ class _DashboardPageState extends State<DashboardPage> {
     final subtextColor = isIOS
         ? (isDark ? const Color(0xFFE5BDBA) : const Color(0xFF5C403D))
         : (isDark ? const Color(0xFFC6C6C7) : const Color(0xFF545D80));
-    final primaryColor = isDark ? const Color(0xFFFFB3AD) : const Color(0xFFAC0017);
+    final primaryColor = isDark
+        ? const Color(0xFFFFB3AD)
+        : const Color(0xFFAC0017);
     final cardBg = isIOS
-        ? (isDark ? const Color(0xFF3A2524).withValues(alpha: 0.5) : Colors.white.withValues(alpha: 0.65))
+        ? (isDark
+              ? const Color(0xFF3A2524).withValues(alpha: 0.5)
+              : Colors.white.withValues(alpha: 0.65))
         : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
     final cardBorder = isIOS
-        ? (isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.07))
+        ? (isDark
+              ? Colors.white.withValues(alpha: 0.1)
+              : Colors.black.withValues(alpha: 0.07))
         : (isDark ? Colors.white12 : const Color(0xFFEDEEF0));
 
-    final viewPaddingTop = isIOS ? MediaQuery.of(context).padding.top + 88.0 : 24.0;
+    final viewPaddingTop = isIOS
+        ? MediaQuery.of(context).padding.top + 88.0
+        : 24.0;
 
     // Stat chip helper
     Widget statChip(String value, String label, IconData icon, Color accent) {
@@ -2485,13 +2810,24 @@ class _DashboardPageState extends State<DashboardPage> {
             Text(
               value,
               style: isIOS
-                  ? GoogleFonts.sora(fontSize: 16, fontWeight: FontWeight.bold, color: titleColor)
-                  : GoogleFonts.hankenGrotesk(fontSize: 16, fontWeight: FontWeight.bold, color: titleColor),
+                  ? GoogleFonts.sora(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: titleColor,
+                    )
+                  : GoogleFonts.hankenGrotesk(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: titleColor,
+                    ),
             ),
             const SizedBox(height: 2),
             Text(
               label,
-              style: GoogleFonts.hankenGrotesk(fontSize: 11, color: subtextColor),
+              style: GoogleFonts.hankenGrotesk(
+                fontSize: 11,
+                color: subtextColor,
+              ),
               textAlign: TextAlign.center,
             ),
           ],
@@ -2566,8 +2902,16 @@ class _DashboardPageState extends State<DashboardPage> {
                   Text(
                     value,
                     style: isIOS
-                        ? GoogleFonts.sora(fontSize: 14, fontWeight: FontWeight.w600, color: titleColor)
-                        : GoogleFonts.hankenGrotesk(fontSize: 14, fontWeight: FontWeight.w600, color: titleColor),
+                        ? GoogleFonts.sora(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: titleColor,
+                          )
+                        : GoogleFonts.hankenGrotesk(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: titleColor,
+                          ),
                   ),
                 ],
               ),
@@ -2586,8 +2930,16 @@ class _DashboardPageState extends State<DashboardPage> {
             Text(
               'Información del Empleado',
               style: isIOS
-                  ? GoogleFonts.sora(fontSize: 16, fontWeight: FontWeight.bold, color: titleColor)
-                  : GoogleFonts.hankenGrotesk(fontSize: 16, fontWeight: FontWeight.bold, color: titleColor),
+                  ? GoogleFonts.sora(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: titleColor,
+                    )
+                  : GoogleFonts.hankenGrotesk(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: titleColor,
+                    ),
             ),
             const SizedBox(height: 12),
             Divider(color: cardBorder),
@@ -2597,7 +2949,11 @@ class _DashboardPageState extends State<DashboardPage> {
             Divider(color: cardBorder),
             infoRow(Icons.work, 'Cargo', 'Auxiliar de Cocina'),
             Divider(color: cardBorder),
-            infoRow(Icons.schedule, 'Tipo de Contrato', 'Tiempo Parcial – 6h/día'),
+            infoRow(
+              Icons.schedule,
+              'Tipo de Contrato',
+              'Tiempo Parcial – 6h/día',
+            ),
             Divider(color: cardBorder),
             infoRow(Icons.supervisor_account, 'Supervisor', 'María V.'),
           ],
@@ -2648,7 +3004,10 @@ class _DashboardPageState extends State<DashboardPage> {
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: primaryColor.withValues(alpha: 0.5), width: 2),
+                border: Border.all(
+                  color: primaryColor.withValues(alpha: 0.5),
+                  width: 2,
+                ),
                 boxShadow: [
                   BoxShadow(
                     color: primaryColor.withValues(alpha: 0.3),
@@ -2662,7 +3021,9 @@ class _DashboardPageState extends State<DashboardPage> {
                 height: 90,
                 decoration: BoxDecoration(
                   color: isIOS
-                      ? (isDark ? Colors.white.withValues(alpha: 0.08) : const Color(0xFFFFDAD6))
+                      ? (isDark
+                            ? Colors.white.withValues(alpha: 0.08)
+                            : const Color(0xFFFFDAD6))
                       : (isDark ? Colors.white10 : const Color(0xFFFFDAD6)),
                   shape: BoxShape.circle,
                 ),
@@ -2674,8 +3035,16 @@ class _DashboardPageState extends State<DashboardPage> {
             Text(
               cleanName,
               style: isIOS
-                  ? GoogleFonts.sora(fontSize: 24, fontWeight: FontWeight.bold, color: titleColor)
-                  : GoogleFonts.hankenGrotesk(fontSize: 22, fontWeight: FontWeight.bold, color: titleColor),
+                  ? GoogleFonts.sora(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: titleColor,
+                    )
+                  : GoogleFonts.hankenGrotesk(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: titleColor,
+                    ),
             ),
             const SizedBox(height: 6),
             Container(
@@ -2701,11 +3070,26 @@ class _DashboardPageState extends State<DashboardPage> {
         // Stats Grid
         Row(
           children: [
-            statChip('120 hrs', 'Horas\neste mes', Icons.access_time_filled, const Color(0xFFAC0017)),
+            statChip(
+              '120 hrs',
+              'Horas\neste mes',
+              Icons.access_time_filled,
+              const Color(0xFFAC0017),
+            ),
             const SizedBox(width: 8),
-            statChip('15 días', 'Turnos\nprog.', Icons.calendar_today, const Color(0xFFF7B640)),
+            statChip(
+              '15 días',
+              'Turnos\nprog.',
+              Icons.calendar_today,
+              const Color(0xFFF7B640),
+            ),
             const SizedBox(width: 8),
-            statChip('8 días', 'Descansos\nprog.', Icons.beach_access, const Color(0xFF0074A3)),
+            statChip(
+              '8 días',
+              'Descansos\nprog.',
+              Icons.beach_access,
+              const Color(0xFF0074A3),
+            ),
           ],
         ),
         const SizedBox(height: 24),
@@ -2733,7 +3117,9 @@ class _DashboardPageState extends State<DashboardPage> {
                       ),
                       backgroundColor: const Color(0xFFD2232A),
                       behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                   );
                 },
@@ -2751,27 +3137,39 @@ class _DashboardPageState extends State<DashboardPage> {
                   showDialog(
                     context: context,
                     builder: (context) => AlertDialog(
-                      backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      title: Text('Soporte Técnico',
+                      backgroundColor: isDark
+                          ? const Color(0xFF1E1E1E)
+                          : Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      title: Text(
+                        'Soporte Técnico',
                         style: GoogleFonts.hankenGrotesk(
-                          color: isDark ? const Color(0xFFE1E2E4) : const Color(0xFF121C3B),
+                          color: isDark
+                              ? const Color(0xFFE1E2E4)
+                              : const Color(0xFF121C3B),
                           fontWeight: FontWeight.bold,
-                        )),
+                        ),
+                      ),
                       content: Text(
                         'Para soporte, contacta a:\n\nMaría V.\nmv.soporte@frisby.com\n\nLínea interna: Ext. 400',
                         style: GoogleFonts.hankenGrotesk(
-                          color: isDark ? const Color(0xFFC6C6C7) : const Color(0xFF545D80),
+                          color: isDark
+                              ? const Color(0xFFC6C6C7)
+                              : const Color(0xFF545D80),
                         ),
                       ),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context),
-                          child: Text('Cerrar',
+                          child: Text(
+                            'Cerrar',
                             style: GoogleFonts.hankenGrotesk(
                               color: const Color(0xFFAC0017),
                               fontWeight: FontWeight.bold,
-                            )),
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -2820,10 +3218,14 @@ class _DashboardPageState extends State<DashboardPage> {
     required VoidCallback onTap,
   }) {
     final cardBg = isIOS
-        ? (isDark ? const Color(0xFF3A2524).withValues(alpha: 0.5) : Colors.white.withValues(alpha: 0.65))
+        ? (isDark
+              ? const Color(0xFF3A2524).withValues(alpha: 0.5)
+              : Colors.white.withValues(alpha: 0.65))
         : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
     final cardBorder = isIOS
-        ? (isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.07))
+        ? (isDark
+              ? Colors.white.withValues(alpha: 0.1)
+              : Colors.black.withValues(alpha: 0.07))
         : (isDark ? Colors.white12 : const Color(0xFFEDEEF0));
 
     Widget content = GestureDetector(
@@ -2849,7 +3251,9 @@ class _DashboardPageState extends State<DashboardPage> {
               style: GoogleFonts.hankenGrotesk(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: isDark ? const Color(0xFFE1E2E4) : const Color(0xFF191C1E),
+                color: isDark
+                    ? const Color(0xFFE1E2E4)
+                    : const Color(0xFF191C1E),
                 height: 1.3,
               ),
             ),
@@ -2909,7 +3313,9 @@ class _DashboardPageState extends State<DashboardPage> {
           backgroundColor: dialogBgColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
-            side: (isIOS || isDark) ? const BorderSide(color: Colors.white12) : BorderSide.none,
+            side: (isIOS || isDark)
+                ? const BorderSide(color: Colors.white12)
+                : BorderSide.none,
           ),
           title: Text(
             'Políticas de Cambios',
@@ -2923,7 +3329,10 @@ class _DashboardPageState extends State<DashboardPage> {
               children: [
                 Text(
                   '1. Plazo Límite:',
-                  style: GoogleFonts.hankenGrotesk(fontWeight: FontWeight.bold, color: dialogTextColor),
+                  style: GoogleFonts.hankenGrotesk(
+                    fontWeight: FontWeight.bold,
+                    color: dialogTextColor,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -2933,7 +3342,10 @@ class _DashboardPageState extends State<DashboardPage> {
                 const SizedBox(height: 12),
                 Text(
                   '2. Aprobación del Supervisor:',
-                  style: GoogleFonts.hankenGrotesk(fontWeight: FontWeight.bold, color: dialogTextColor),
+                  style: GoogleFonts.hankenGrotesk(
+                    fontWeight: FontWeight.bold,
+                    color: dialogTextColor,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -2943,7 +3355,10 @@ class _DashboardPageState extends State<DashboardPage> {
                 const SizedBox(height: 12),
                 Text(
                   '3. Límite de Cambios:',
-                  style: GoogleFonts.hankenGrotesk(fontWeight: FontWeight.bold, color: dialogTextColor),
+                  style: GoogleFonts.hankenGrotesk(
+                    fontWeight: FontWeight.bold,
+                    color: dialogTextColor,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -2959,7 +3374,9 @@ class _DashboardPageState extends State<DashboardPage> {
               child: Text(
                 'Entendido',
                 style: GoogleFonts.hankenGrotesk(
-                  color: isIOS ? const Color(0xFFD2232A) : const Color(0xFFAC0017),
+                  color: isIOS
+                      ? const Color(0xFFD2232A)
+                      : const Color(0xFFAC0017),
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -2988,7 +3405,9 @@ class _DashboardPageState extends State<DashboardPage> {
           backgroundColor: dialogBgColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
-            side: (isIOS || isDark) ? const BorderSide(color: Colors.white12) : BorderSide.none,
+            side: (isIOS || isDark)
+                ? const BorderSide(color: Colors.white12)
+                : BorderSide.none,
           ),
           title: Text(
             'Soporte Técnico',
@@ -3008,15 +3427,27 @@ class _DashboardPageState extends State<DashboardPage> {
               const SizedBox(height: 12),
               Text(
                 'Contacto del Supervisor:',
-                style: GoogleFonts.hankenGrotesk(fontWeight: FontWeight.bold, color: dialogTextColor),
+                style: GoogleFonts.hankenGrotesk(
+                  fontWeight: FontWeight.bold,
+                  color: dialogTextColor,
+                ),
               ),
-              Text('María V. | mv.soporte@frisby.com', style: GoogleFonts.hankenGrotesk(color: dialogSubtextColor)),
+              Text(
+                'María V. | mv.soporte@frisby.com',
+                style: GoogleFonts.hankenGrotesk(color: dialogSubtextColor),
+              ),
               const SizedBox(height: 8),
               Text(
                 'Línea de Atención Interna:',
-                style: GoogleFonts.hankenGrotesk(fontWeight: FontWeight.bold, color: dialogTextColor),
+                style: GoogleFonts.hankenGrotesk(
+                  fontWeight: FontWeight.bold,
+                  color: dialogTextColor,
+                ),
               ),
-              Text('+57 (606) 313-0000 Ext. 400', style: GoogleFonts.hankenGrotesk(color: dialogSubtextColor)),
+              Text(
+                '+57 (606) 313-0000 Ext. 400',
+                style: GoogleFonts.hankenGrotesk(color: dialogSubtextColor),
+              ),
             ],
           ),
           actions: [
@@ -3025,7 +3456,9 @@ class _DashboardPageState extends State<DashboardPage> {
               child: Text(
                 'Cerrar',
                 style: GoogleFonts.hankenGrotesk(
-                  color: isIOS ? const Color(0xFFD2232A) : const Color(0xFFAC0017),
+                  color: isIOS
+                      ? const Color(0xFFD2232A)
+                      : const Color(0xFFAC0017),
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -3044,9 +3477,9 @@ class _DashboardPageState extends State<DashboardPage> {
     final subtextColor = isIOS
         ? (isDark ? const Color(0xFFE5BDBA) : const Color(0xFF5C403D))
         : (isDark ? const Color(0xFFC6C6C7) : const Color(0xFF545D80));
-    final drawerBgColor = isIOS ? Colors.transparent : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
-
-
+    final drawerBgColor = isIOS
+        ? Colors.transparent
+        : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
 
     Widget drawerHeader() {
       if (isIOS) {
@@ -3059,11 +3492,19 @@ class _DashboardPageState extends State<DashboardPage> {
                 width: 64,
                 height: 64,
                 decoration: BoxDecoration(
-                  color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.05),
+                  color: isDark
+                      ? Colors.white10
+                      : Colors.black.withValues(alpha: 0.05),
                   shape: BoxShape.circle,
-                  border: Border.all(color: isDark ? Colors.white24 : Colors.black12),
+                  border: Border.all(
+                    color: isDark ? Colors.white24 : Colors.black12,
+                  ),
                 ),
-                child: const Icon(Icons.person, color: Color(0xFFAC0017), size: 36),
+                child: const Icon(
+                  Icons.person,
+                  color: Color(0xFFAC0017),
+                  size: 36,
+                ),
               ),
               const SizedBox(height: 16),
               Text(
@@ -3086,9 +3527,7 @@ class _DashboardPageState extends State<DashboardPage> {
         );
       } else {
         return DrawerHeader(
-          decoration: const BoxDecoration(
-            color: Color(0xFFAC0017),
-          ),
+          decoration: const BoxDecoration(color: Color(0xFFAC0017)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.end,
@@ -3132,8 +3571,16 @@ class _DashboardPageState extends State<DashboardPage> {
         title: Text(
           label,
           style: isIOS
-              ? GoogleFonts.sora(fontSize: 14, color: tileColor, fontWeight: color != null ? FontWeight.bold : FontWeight.w500)
-              : GoogleFonts.hankenGrotesk(fontSize: 14, color: tileColor, fontWeight: color != null ? FontWeight.bold : FontWeight.w500),
+              ? GoogleFonts.sora(
+                  fontSize: 14,
+                  color: tileColor,
+                  fontWeight: color != null ? FontWeight.bold : FontWeight.w500,
+                )
+              : GoogleFonts.hankenGrotesk(
+                  fontSize: 14,
+                  color: tileColor,
+                  fontWeight: color != null ? FontWeight.bold : FontWeight.w500,
+                ),
         ),
         onTap: onTap,
       );
@@ -3181,8 +3628,16 @@ class _DashboardPageState extends State<DashboardPage> {
           title: Text(
             'Modo Oscuro',
             style: isIOS
-                ? GoogleFonts.sora(fontSize: 14, color: titleColor, fontWeight: FontWeight.w500)
-                : GoogleFonts.hankenGrotesk(fontSize: 14, color: titleColor, fontWeight: FontWeight.w500),
+                ? GoogleFonts.sora(
+                    fontSize: 14,
+                    color: titleColor,
+                    fontWeight: FontWeight.w500,
+                  )
+                : GoogleFonts.hankenGrotesk(
+                    fontSize: 14,
+                    color: titleColor,
+                    fontWeight: FontWeight.w500,
+                  ),
           ),
           value: isDark,
           onChanged: (val) {
@@ -3224,8 +3679,12 @@ class _DashboardPageState extends State<DashboardPage> {
     );
 
     if (isIOS) {
-      final barBg = isDark ? const Color(0xFF2C1B1A).withValues(alpha: 0.8) : Colors.white.withValues(alpha: 0.8);
-      final barBorder = isDark ? Colors.white.withValues(alpha: 0.15) : Colors.black.withValues(alpha: 0.08);
+      final barBg = isDark
+          ? const Color(0xFF2C1B1A).withValues(alpha: 0.8)
+          : Colors.white.withValues(alpha: 0.8);
+      final barBorder = isDark
+          ? Colors.white.withValues(alpha: 0.15)
+          : Colors.black.withValues(alpha: 0.08);
 
       return Drawer(
         backgroundColor: Colors.transparent,
@@ -3235,9 +3694,7 @@ class _DashboardPageState extends State<DashboardPage> {
             child: Container(
               decoration: BoxDecoration(
                 color: barBg,
-                border: Border(
-                  right: BorderSide(color: barBorder),
-                ),
+                border: Border(right: BorderSide(color: barBorder)),
               ),
               child: SafeArea(child: listContent),
             ),
@@ -3245,10 +3702,7 @@ class _DashboardPageState extends State<DashboardPage> {
         ),
       );
     } else {
-      return Drawer(
-        backgroundColor: drawerBgColor,
-        child: listContent,
-      );
+      return Drawer(backgroundColor: drawerBgColor, child: listContent);
     }
   }
 
@@ -3268,12 +3722,13 @@ class _DashboardPageState extends State<DashboardPage> {
     // Active target platform is iOS
     final isIOS = !kIsWeb && Theme.of(context).platform == TargetPlatform.iOS;
 
-
     // Android / Web solid App Bar
     PreferredSizeWidget? mobileAppBarAndroid() {
       if (isDesktop || isIOS) return null;
-      
-      final appBarBg = isDark ? const Color(0xFF1F1F1F) : const Color(0xFFAC0017);
+
+      final appBarBg = isDark
+          ? const Color(0xFF1F1F1F)
+          : const Color(0xFFAC0017);
       final textColor = Colors.white;
 
       return AppBar(
@@ -3294,8 +3749,8 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
               )
             : Text(
-                _currentIndex == 1 
-                    ? 'Mi Calendario' 
+                _currentIndex == 1
+                    ? 'Mi Calendario'
                     : (_currentIndex == 2 ? 'Mercado de Turnos' : 'Mi Perfil'),
                 style: GoogleFonts.hankenGrotesk(
                   fontWeight: FontWeight.bold,
@@ -3344,9 +3799,15 @@ class _DashboardPageState extends State<DashboardPage> {
 
     // iOS Floating Glassmorphic TopAppBar
     Widget mobileAppBarIOS() {
-      final barBg = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white.withValues(alpha: 0.6);
-      final barBorder = isDark ? Colors.white.withValues(alpha: 0.15) : Colors.black.withValues(alpha: 0.08);
-      final accentIconColor = isDark ? const Color(0xFFFFB3AD) : const Color(0xFFAC0017);
+      final barBg = isDark
+          ? Colors.white.withValues(alpha: 0.05)
+          : Colors.white.withValues(alpha: 0.6);
+      final barBorder = isDark
+          ? Colors.white.withValues(alpha: 0.15)
+          : Colors.black.withValues(alpha: 0.08);
+      final accentIconColor = isDark
+          ? const Color(0xFFFFB3AD)
+          : const Color(0xFFAC0017);
 
       return Positioned(
         top: MediaQuery.of(context).padding.top + 8,
@@ -3361,9 +3822,7 @@ class _DashboardPageState extends State<DashboardPage> {
               decoration: BoxDecoration(
                 color: barBg,
                 borderRadius: BorderRadius.circular(999),
-                border: Border.all(
-                  color: barBorder,
-                ),
+                border: Border.all(color: barBorder),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
@@ -3400,7 +3859,10 @@ class _DashboardPageState extends State<DashboardPage> {
                       Stack(
                         children: [
                           IconButton(
-                            icon: Icon(Icons.notifications, color: accentIconColor),
+                            icon: Icon(
+                              Icons.notifications,
+                              color: accentIconColor,
+                            ),
                             onPressed: () {
                               _showNotificationDialog(
                                 'Alertas Recientes',
@@ -3439,45 +3901,68 @@ class _DashboardPageState extends State<DashboardPage> {
     Widget activeTabContent() {
       switch (_currentIndex) {
         case 0:
-          return isIOS ? _buildHomeTabIOS(isDark) : _buildHomeTabAndroid(isDark);
+          return isIOS
+              ? _buildHomeTabIOS(isDark)
+              : _buildHomeTabAndroid(isDark);
         case 1:
-          return isIOS ? _buildCalendarTabIOS(isDark) : _buildCalendarTabAndroid(isDark);
+          return isIOS
+              ? _buildCalendarTabIOS(isDark)
+              : _buildCalendarTabAndroid(isDark);
         case 2:
           return _buildMarketTab(isIOS, isDark);
         case 3:
           return _buildProfileTab(isIOS, isDark);
         default:
-          return isIOS ? _buildHomeTabIOS(isDark) : _buildHomeTabAndroid(isDark);
+          return isIOS
+              ? _buildHomeTabIOS(isDark)
+              : _buildHomeTabAndroid(isDark);
       }
     }
 
-    // Android/Web solid bottom nav bar
+    // Android/Web Liquid Glass bottom nav bar
     Widget bottomNavBarAndroid() {
-      final navBgColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+      final navBgColor = isDark
+          ? const Color(0xFF1E1E1E).withValues(alpha: 0.72)
+          : Colors.white.withValues(alpha: 0.78);
       final borderSide = BorderSide(
-        color: isDark ? Colors.white12 : Colors.grey[200]!,
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.15)
+            : Colors.black.withValues(alpha: 0.06),
         width: 1,
       );
 
-      return Container(
-        decoration: BoxDecoration(
-          color: navBgColor,
-          border: Border(
-            top: borderSide,
-          ),
-        ),
-        child: SafeArea(
-          top: false,
-          child: SizedBox(
-            height: 64,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildNavItemAndroid(0, Icons.home, 'Inicio', isDark),
-                _buildNavItemAndroid(1, Icons.calendar_month, 'Calendario', isDark),
-                _buildNavItemAndroid(2, Icons.storefront, 'Mercado', isDark),
-                _buildNavItemAndroid(3, Icons.person, 'Perfil', isDark),
-              ],
+      return ClipRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: Container(
+            decoration: BoxDecoration(
+              color: navBgColor,
+              border: Border(top: borderSide),
+            ),
+            child: SafeArea(
+              top: false,
+              child: SizedBox(
+                height: 64,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildNavItemAndroid(0, Icons.home, 'Inicio', isDark),
+                    _buildNavItemAndroid(
+                      1,
+                      Icons.calendar_month,
+                      'Calendario',
+                      isDark,
+                    ),
+                    _buildNavItemAndroid(
+                      2,
+                      Icons.storefront,
+                      'Mercado',
+                      isDark,
+                    ),
+                    _buildNavItemAndroid(3, Icons.person, 'Perfil', isDark),
+                  ],
+                ),
+              ),
             ),
           ),
         ),
@@ -3487,12 +3972,30 @@ class _DashboardPageState extends State<DashboardPage> {
     // iOS Floating Glassmorphic bottom nav bar (Apple Liquid Glass with Drag/Slide Gesture)
     Widget bottomNavBarIOS() {
       final isDarkMode = isDark;
-      final capsuleBg = isDarkMode
-          ? const Color(0xFF1E2127).withValues(alpha: 0.65)
-          : const Color(0xFFF0F2F6).withValues(alpha: 0.82);
+      final capsuleGradient = isDarkMode
+          ? LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white.withValues(alpha: 0.16),
+                const Color(0xFF1E2127).withValues(alpha: 0.35),
+                Colors.black.withValues(alpha: 0.50),
+              ],
+              stops: const [0.0, 0.45, 1.0],
+            )
+          : LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white.withValues(alpha: 0.38),
+                Colors.white.withValues(alpha: 0.12),
+                const Color(0xFFE2EBF5).withValues(alpha: 0.22),
+              ],
+              stops: const [0.0, 0.5, 1.0],
+            );
       final capsuleBorder = isDarkMode
-          ? Colors.white.withValues(alpha: 0.24)
-          : Colors.white.withValues(alpha: 0.85);
+          ? Colors.white.withValues(alpha: 0.32)
+          : Colors.white.withValues(alpha: 0.80);
 
       final navItems = [
         {'icon': Icons.home_rounded, 'label': 'Inicio'},
@@ -3509,27 +4012,37 @@ class _DashboardPageState extends State<DashboardPage> {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(44),
             child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 32, sigmaY: 32),
+              filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
               child: Container(
                 height: 66,
                 constraints: const BoxConstraints(maxWidth: 400),
                 decoration: BoxDecoration(
-                  color: capsuleBg,
+                  gradient: capsuleGradient,
                   borderRadius: BorderRadius.circular(44),
-                  border: Border.all(
-                    color: capsuleBorder,
-                    width: 1.4,
-                  ),
+                  border: Border.all(color: capsuleBorder, width: 1.5),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: isDarkMode ? 0.45 : 0.12),
+                      color: Colors.black.withValues(
+                        alpha: isDarkMode ? 0.35 : 0.08,
+                      ),
                       blurRadius: 28,
+                      spreadRadius: -2,
                       offset: const Offset(0, 10),
                     ),
                     BoxShadow(
-                      color: Colors.white.withValues(alpha: isDarkMode ? 0.12 : 0.6),
-                      blurRadius: 10,
+                      color: Colors.white.withValues(
+                        alpha: isDarkMode ? 0.16 : 0.95,
+                      ),
+                      blurRadius: 6,
                       offset: const Offset(0, -1),
+                    ),
+                    BoxShadow(
+                      color: Colors.white.withValues(
+                        alpha: isDarkMode ? 0.05 : 0.45,
+                      ),
+                      blurRadius: 14,
+                      spreadRadius: -3,
+                      offset: const Offset(0, 2),
                     ),
                   ],
                 ),
@@ -3543,8 +4056,14 @@ class _DashboardPageState extends State<DashboardPage> {
                     return GestureDetector(
                       behavior: HitTestBehavior.opaque,
                       onHorizontalDragUpdate: (details) {
-                        final localX = details.localPosition.dx.clamp(0.0, constraints.maxWidth);
-                        final newIndex = (localX / itemWidth).floor().clamp(0, totalItems - 1);
+                        final localX = details.localPosition.dx.clamp(
+                          0.0,
+                          constraints.maxWidth,
+                        );
+                        final newIndex = (localX / itemWidth).floor().clamp(
+                          0,
+                          totalItems - 1,
+                        );
                         if (newIndex != _currentIndex) {
                           HapticFeedback.selectionClick();
                           setState(() => _currentIndex = newIndex);
@@ -3564,39 +4083,50 @@ class _DashboardPageState extends State<DashboardPage> {
                             bottom: 0,
                             width: itemWidth,
                             child: Container(
-                              margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+                              margin: const EdgeInsets.symmetric(
+                                horizontal: 2,
+                                vertical: 1,
+                              ),
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,
                                   colors: isDarkMode
                                       ? [
-                                          Colors.white.withValues(alpha: 0.30),
-                                          Colors.white.withValues(alpha: 0.10),
+                                          Colors.white.withValues(alpha: 0.28),
+                                          Colors.white.withValues(alpha: 0.08),
+                                          const Color(0xFF1E2530)
+                                              .withValues(alpha: 0.20),
                                         ]
                                       : [
-                                          Colors.white.withValues(alpha: 0.95),
-                                          const Color(0xFFE2E7EE).withValues(alpha: 0.88),
+                                          Colors.white.withValues(alpha: 0.55),
+                                          Colors.white.withValues(alpha: 0.18),
+                                          const Color(0xFFE8EEF5)
+                                              .withValues(alpha: 0.32),
                                         ],
                                 ),
                                 borderRadius: BorderRadius.circular(36),
                                 border: Border.all(
                                   color: isDarkMode
                                       ? Colors.white.withValues(alpha: 0.45)
-                                      : Colors.white,
+                                      : Colors.white.withValues(alpha: 0.90),
                                   width: 1.4,
                                 ),
                                 boxShadow: [
                                   BoxShadow(
                                     color: isDarkMode
-                                        ? const Color(0xFF007AFF).withValues(alpha: 0.3)
-                                        : Colors.black.withValues(alpha: 0.08),
-                                    blurRadius: 12,
+                                        ? const Color(0xFF007AFF)
+                                              .withValues(alpha: 0.30)
+                                        : const Color(0xFF007AFF)
+                                              .withValues(alpha: 0.15),
+                                    blurRadius: 10,
                                     offset: const Offset(0, 3),
                                   ),
                                   BoxShadow(
-                                    color: Colors.white.withValues(alpha: isDarkMode ? 0.15 : 0.8),
-                                    blurRadius: 6,
+                                    color: Colors.white.withValues(
+                                      alpha: isDarkMode ? 0.20 : 0.95,
+                                    ),
+                                    blurRadius: 4,
                                     offset: const Offset(0, -1),
                                   ),
                                 ],
@@ -3612,7 +4142,8 @@ class _DashboardPageState extends State<DashboardPage> {
                               const activeColor = Color(0xFF007AFF);
                               final inactiveColor = isDarkMode
                                   ? Colors.white.withValues(alpha: 0.65)
-                                  : const Color(0xFF1C1C1E).withValues(alpha: 0.65);
+                                  : const Color(0xFF1C1C1E)
+                                        .withValues(alpha: 0.65);
 
                               return Expanded(
                                 child: GestureDetector(
@@ -3626,20 +4157,30 @@ class _DashboardPageState extends State<DashboardPage> {
                                     children: [
                                       AnimatedScale(
                                         scale: isActive ? 1.12 : 1.0,
-                                        duration: const Duration(milliseconds: 200),
+                                        duration: const Duration(
+                                          milliseconds: 200,
+                                        ),
                                         child: Icon(
                                           item['icon'] as IconData,
                                           size: 22,
-                                          color: isActive ? activeColor : inactiveColor,
+                                          color: isActive
+                                              ? activeColor
+                                              : inactiveColor,
                                         ),
                                       ),
                                       const SizedBox(height: 2),
                                       AnimatedDefaultTextStyle(
-                                        duration: const Duration(milliseconds: 200),
+                                        duration: const Duration(
+                                          milliseconds: 200,
+                                        ),
                                         style: GoogleFonts.hankenGrotesk(
                                           fontSize: 10.5,
-                                          fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                                          color: isActive ? activeColor : inactiveColor,
+                                          fontWeight: isActive
+                                              ? FontWeight.w700
+                                              : FontWeight.w500,
+                                          color: isActive
+                                              ? activeColor
+                                              : inactiveColor,
                                           letterSpacing: -0.2,
                                         ),
                                         child: Text(item['label'] as String),
@@ -3665,7 +4206,8 @@ class _DashboardPageState extends State<DashboardPage> {
     // Outer layout builder
     Widget mainCanvas() {
       return Scaffold(
-        backgroundColor: Colors.transparent, // Handled by outer body background decoration
+        backgroundColor:
+            Colors.transparent, // Handled by outer body background decoration
         appBar: mobileAppBarAndroid(),
         drawer: _buildDrawer(isIOS, isDark),
         body: Stack(
@@ -3675,7 +4217,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
             // Floating header for iOS
             if (isIOS) mobileAppBarIOS(),
-            
+
             // Bottom navigation bar
             Positioned(
               left: 0,
@@ -3691,26 +4233,29 @@ class _DashboardPageState extends State<DashboardPage> {
     Widget innerAppContainer() {
       if (isIOS) {
         // Render with radial glow stack for iOS theme
-        final iosGradStart = isDark ? const Color(0xFF1F0F0E) : const Color(0xFFFFF8F7);
-        final iosGradEnd = isDark ? const Color(0xFF190A09) : const Color(0xFFF4F5F7);
-        final radialColor1 = isDark 
-            ? const Color(0xFFD2232A).withValues(alpha: 0.15) 
+        final iosGradStart = isDark
+            ? const Color(0xFF1F0F0E)
+            : const Color(0xFFFFF8F7);
+        final iosGradEnd = isDark
+            ? const Color(0xFF190A09)
+            : const Color(0xFFF4F5F7);
+        final radialColor1 = isDark
+            ? const Color(0xFFD2232A).withValues(alpha: 0.15)
             : const Color(0xFFD2232A).withValues(alpha: 0.04);
-        final radialColor2 = isDark 
-            ? const Color(0xFFD2232A).withValues(alpha: 0.1) 
+        final radialColor2 = isDark
+            ? const Color(0xFFD2232A).withValues(alpha: 0.1)
             : const Color(0xFFAC0017).withValues(alpha: 0.03);
 
         return Container(
           clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
-            borderRadius: isDesktop ? BorderRadius.circular(40) : BorderRadius.zero,
+            borderRadius: isDesktop
+                ? BorderRadius.circular(40)
+                : BorderRadius.zero,
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
-                iosGradStart,
-                iosGradEnd,
-              ],
+              colors: [iosGradStart, iosGradEnd],
             ),
           ),
           child: Stack(
@@ -3725,15 +4270,12 @@ class _DashboardPageState extends State<DashboardPage> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
-                      colors: [
-                        radialColor1,
-                        Colors.transparent,
-                      ],
+                      colors: [radialColor1, Colors.transparent],
                     ),
                   ),
                 ),
               ),
-              
+
               // Radial Glow 2 (Right-Top)
               Positioned(
                 right: -100,
@@ -3744,15 +4286,12 @@ class _DashboardPageState extends State<DashboardPage> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
-                      colors: [
-                        radialColor2,
-                        Colors.transparent,
-                      ],
+                      colors: [radialColor2, Colors.transparent],
                     ),
                   ),
                 ),
               ),
-              
+
               // The main canvas
               mainCanvas(),
             ],
@@ -3760,12 +4299,12 @@ class _DashboardPageState extends State<DashboardPage> {
         );
       } else {
         // Normal Android / Web container
-        final androidBgColor = isDark ? const Color(0xFF121212) : const Color(0xFFF4F5F7);
+        final androidBgColor = isDark
+            ? const Color(0xFF121212)
+            : const Color(0xFFF4F5F7);
 
         return Container(
-          decoration: BoxDecoration(
-            color: androidBgColor,
-          ),
+          decoration: BoxDecoration(color: androidBgColor),
           child: mainCanvas(),
         );
       }
@@ -3774,7 +4313,8 @@ class _DashboardPageState extends State<DashboardPage> {
     final statusBarStyle = isDark
         ? SystemUiOverlayStyle.light.copyWith(
             statusBarColor: Colors.transparent,
-            statusBarBrightness: Brightness.dark, // iOS: text/icons are light/white
+            statusBarBrightness:
+                Brightness.dark, // iOS: text/icons are light/white
             statusBarIconBrightness: Brightness.light, // Android: light icons
           )
         : SystemUiOverlayStyle.dark.copyWith(
@@ -3786,7 +4326,9 @@ class _DashboardPageState extends State<DashboardPage> {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: statusBarStyle,
       child: Scaffold(
-        backgroundColor: isDark ? const Color(0xFF121212) : const Color(0xFFF4F5F7),
+        backgroundColor: isDark
+            ? const Color(0xFF121212)
+            : const Color(0xFFF4F5F7),
         body: innerAppContainer(),
       ),
     );
@@ -3817,7 +4359,9 @@ class _DashboardPageState extends State<DashboardPage> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: isActive ? primaryRed.withValues(alpha: isDark ? 0.25 : 0.12) : Colors.transparent,
+              color: isActive
+                  ? primaryRed.withValues(alpha: isDark ? 0.25 : 0.12)
+                  : Colors.transparent,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Row(
@@ -3825,7 +4369,9 @@ class _DashboardPageState extends State<DashboardPage> {
                 Icon(
                   icon,
                   size: 20,
-                  color: isActive ? primaryRed : (isDark ? Colors.white70 : const Color(0xFF4B5563)),
+                  color: isActive
+                      ? primaryRed
+                      : (isDark ? Colors.white70 : const Color(0xFF4B5563)),
                 ),
                 const SizedBox(width: 12),
                 Text(
@@ -3833,7 +4379,9 @@ class _DashboardPageState extends State<DashboardPage> {
                   style: GoogleFonts.hankenGrotesk(
                     fontSize: 14,
                     fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
-                    color: isActive ? primaryRed : (isDark ? Colors.white : const Color(0xFF1F2937)),
+                    color: isActive
+                        ? primaryRed
+                        : (isDark ? Colors.white : const Color(0xFF1F2937)),
                   ),
                 ),
               ],
@@ -3900,19 +4448,30 @@ class _DashboardPageState extends State<DashboardPage> {
                         height: 28,
                         errorBuilder: (c, e, s) => Text(
                           'Frisby',
-                          style: GoogleFonts.sora(fontSize: 22, fontWeight: FontWeight.bold, color: primaryRed),
+                          style: GoogleFonts.sora(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: primaryRed,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: primaryRed.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
                           'COLABORADOR',
-                          style: GoogleFonts.hankenGrotesk(fontSize: 10, fontWeight: FontWeight.bold, color: primaryRed),
+                          style: GoogleFonts.hankenGrotesk(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: primaryRed,
+                          ),
                         ),
                       ),
                     ],
@@ -3922,7 +4481,10 @@ class _DashboardPageState extends State<DashboardPage> {
                 // Store badge
                 Container(
                   margin: const EdgeInsets.all(12),
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
                     color: isDark ? Colors.white10 : const Color(0xFFF3F4F6),
                     borderRadius: BorderRadius.circular(10),
@@ -3930,7 +4492,11 @@ class _DashboardPageState extends State<DashboardPage> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.storefront, size: 18, color: Color(0xFFAC0017)),
+                      const Icon(
+                        Icons.storefront,
+                        size: 18,
+                        color: Color(0xFFAC0017),
+                      ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Column(
@@ -3938,12 +4504,19 @@ class _DashboardPageState extends State<DashboardPage> {
                           children: [
                             Text(
                               'Frisby Parque Arboleda',
-                              style: GoogleFonts.hankenGrotesk(fontSize: 12, fontWeight: FontWeight.w600, color: titleColor),
+                              style: GoogleFonts.hankenGrotesk(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: titleColor,
+                              ),
                               overflow: TextOverflow.ellipsis,
                             ),
                             Text(
                               'Estación: Freidoras',
-                              style: GoogleFonts.hankenGrotesk(fontSize: 11, color: subtextColor),
+                              style: GoogleFonts.hankenGrotesk(
+                                fontSize: 11,
+                                color: subtextColor,
+                              ),
                             ),
                           ],
                         ),
@@ -3958,10 +4531,26 @@ class _DashboardPageState extends State<DashboardPage> {
                     padding: EdgeInsets.zero,
                     children: [
                       sectionTitle('MI JORNADA'),
-                      navItem(index: 0, icon: Icons.home_outlined, title: 'Inicio / Mi Turno'),
-                      navItem(index: 1, icon: Icons.calendar_month_outlined, title: 'Mi Calendario'),
-                      navItem(index: 2, icon: Icons.swap_horiz_outlined, title: 'Mercado de Turnos'),
-                      navItem(index: 3, icon: Icons.person_outline, title: 'Mi Perfil y Horas'),
+                      navItem(
+                        index: 0,
+                        icon: Icons.home_outlined,
+                        title: 'Inicio / Mi Turno',
+                      ),
+                      navItem(
+                        index: 1,
+                        icon: Icons.calendar_month_outlined,
+                        title: 'Mi Calendario',
+                      ),
+                      navItem(
+                        index: 2,
+                        icon: Icons.swap_horiz_outlined,
+                        title: 'Mercado de Turnos',
+                      ),
+                      navItem(
+                        index: 3,
+                        icon: Icons.person_outline,
+                        title: 'Mi Perfil y Horas',
+                      ),
 
                       sectionTitle('ACCIONES RÁPIDAS'),
                       navItem(
@@ -4000,8 +4589,14 @@ class _DashboardPageState extends State<DashboardPage> {
                         radius: 18,
                         backgroundColor: primaryRed.withValues(alpha: 0.12),
                         child: Text(
-                          cleanUsername.length >= 2 ? cleanUsername.substring(0, 2).toUpperCase() : 'CO',
-                          style: GoogleFonts.hankenGrotesk(fontSize: 11, fontWeight: FontWeight.bold, color: primaryRed),
+                          cleanUsername.length >= 2
+                              ? cleanUsername.substring(0, 2).toUpperCase()
+                              : 'CO',
+                          style: GoogleFonts.hankenGrotesk(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: primaryRed,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -4012,15 +4607,29 @@ class _DashboardPageState extends State<DashboardPage> {
                           children: [
                             Text(
                               cleanUsername,
-                              style: GoogleFonts.hankenGrotesk(fontWeight: FontWeight.bold, fontSize: 13, color: titleColor),
+                              style: GoogleFonts.hankenGrotesk(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                                color: titleColor,
+                              ),
                               overflow: TextOverflow.ellipsis,
                             ),
-                            Text('Colaborador Activo', style: GoogleFonts.hankenGrotesk(fontSize: 11, color: subtextColor)),
+                            Text(
+                              'Colaborador Activo',
+                              style: GoogleFonts.hankenGrotesk(
+                                fontSize: 11,
+                                color: subtextColor,
+                              ),
+                            ),
                           ],
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.logout, size: 18, color: Color(0xFFBA1A1A)),
+                        icon: const Icon(
+                          Icons.logout,
+                          size: 18,
+                          color: Color(0xFFBA1A1A),
+                        ),
                         onPressed: _logout,
                         tooltip: 'Cerrar Sesión',
                       ),
@@ -4049,17 +4658,33 @@ class _DashboardPageState extends State<DashboardPage> {
                       // Breadcrumb
                       Row(
                         children: [
-                          Text('Frisby', style: GoogleFonts.hankenGrotesk(fontSize: 13, color: subtextColor)),
+                          Text(
+                            'Frisby',
+                            style: GoogleFonts.hankenGrotesk(
+                              fontSize: 13,
+                              color: subtextColor,
+                            ),
+                          ),
                           const SizedBox(width: 6),
-                          const Icon(Icons.chevron_right, size: 16, color: Colors.grey),
+                          const Icon(
+                            Icons.chevron_right,
+                            size: 16,
+                            color: Colors.grey,
+                          ),
                           const SizedBox(width: 6),
                           Text(
                             _currentIndex == 0
                                 ? 'Inicio y Mi Turno'
                                 : (_currentIndex == 1
-                                    ? 'Mi Calendario'
-                                    : (_currentIndex == 2 ? 'Mercado de Turnos' : 'Mi Perfil')),
-                            style: GoogleFonts.hankenGrotesk(fontSize: 13, fontWeight: FontWeight.bold, color: titleColor),
+                                      ? 'Mi Calendario'
+                                      : (_currentIndex == 2
+                                            ? 'Mercado de Turnos'
+                                            : 'Mi Perfil')),
+                            style: GoogleFonts.hankenGrotesk(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: titleColor,
+                            ),
                           ),
                         ],
                       ),
@@ -4069,30 +4694,51 @@ class _DashboardPageState extends State<DashboardPage> {
                         children: [
                           // Clock
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
                             decoration: BoxDecoration(
-                              color: isDark ? Colors.white10 : const Color(0xFFF3F4F6),
+                              color: isDark
+                                  ? Colors.white10
+                                  : const Color(0xFFF3F4F6),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Row(
                               children: [
-                                const Icon(Icons.schedule, size: 14, color: Color(0xFFAC0017)),
+                                const Icon(
+                                  Icons.schedule,
+                                  size: 14,
+                                  color: Color(0xFFAC0017),
+                                ),
                                 const SizedBox(width: 6),
                                 Text(
                                   _getCurrentDateString(),
-                                  style: GoogleFonts.hankenGrotesk(fontSize: 12, fontWeight: FontWeight.w500, color: titleColor),
+                                  style: GoogleFonts.hankenGrotesk(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    color: titleColor,
+                                  ),
                                 ),
                               ],
                             ),
                           ),
                           const SizedBox(width: 8),
                           IconButton(
-                            icon: Icon(isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined, color: titleColor),
+                            icon: Icon(
+                              isDark
+                                  ? Icons.light_mode_outlined
+                                  : Icons.dark_mode_outlined,
+                              color: titleColor,
+                            ),
                             onPressed: _toggleTheme,
                             tooltip: 'Cambiar Tema',
                           ),
                           IconButton(
-                            icon: const Icon(Icons.notifications_outlined, color: Color(0xFFAC0017)),
+                            icon: const Icon(
+                              Icons.notifications_outlined,
+                              color: Color(0xFFAC0017),
+                            ),
                             onPressed: () {
                               _showNotificationDialog(
                                 'Alertas Recientes',
@@ -4128,10 +4774,19 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   // Nav Item Builder for Android/Web (Solid style with active pill background)
-  Widget _buildNavItemAndroid(int index, IconData icon, String label, bool isDark) {
+  Widget _buildNavItemAndroid(
+    int index,
+    IconData icon,
+    String label,
+    bool isDark,
+  ) {
     final isActive = _currentIndex == index;
-    final activeColor = isDark ? const Color(0xFFFFB3AD) : const Color(0xFFAC0017);
-    final inactiveColor = isDark ? const Color(0xFFC6C6C7) : const Color(0xFF545D80);
+    final activeColor = isDark
+        ? const Color(0xFFFFB3AD)
+        : const Color(0xFFAC0017);
+    final inactiveColor = isDark
+        ? const Color(0xFFC6C6C7)
+        : const Color(0xFF545D80);
 
     return Material(
       color: Colors.transparent,
@@ -4150,7 +4805,8 @@ class _DashboardPageState extends State<DashboardPage> {
                     width: 48,
                     height: 28,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFD2232A).withValues(alpha: isDark ? 0.25 : 0.20),
+                      color: const Color(0xFFD2232A)
+                          .withValues(alpha: isDark ? 0.25 : 0.20),
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
@@ -4168,7 +4824,9 @@ class _DashboardPageState extends State<DashboardPage> {
                     label,
                     style: GoogleFonts.hankenGrotesk(
                       fontSize: 11,
-                      fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                      fontWeight: isActive
+                          ? FontWeight.bold
+                          : FontWeight.normal,
                       color: isActive ? activeColor : inactiveColor,
                     ),
                   ),
@@ -4181,4 +4839,3 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 }
-

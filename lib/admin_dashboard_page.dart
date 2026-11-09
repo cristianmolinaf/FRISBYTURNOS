@@ -1,9 +1,13 @@
 import 'dart:ui';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'google_fonts_wrapper.dart';
+
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 import 'login_page.dart';
 import 'create_shift_page.dart';
 import 'widgets/frisby_weekly_schedule_sheet.dart';
@@ -24,7 +28,8 @@ class AdminDashboardPage extends StatefulWidget {
   State<AdminDashboardPage> createState() => _AdminDashboardPageState();
 }
 
-class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTickerProviderStateMixin {
+class _AdminDashboardPageState extends State<AdminDashboardPage>
+    with SingleTickerProviderStateMixin {
   int _currentIndex = 0;
   String _currentStore = 'Frisby Parque Arboleda';
   final String _currentZone = 'Zona Eje Cafetero';
@@ -35,7 +40,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
   late Animation<double> _pulseGlowAnimation;
 
   bool _isIOS(BuildContext context) {
-    return Theme.of(context).platform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.iOS;
+    return Theme.of(context).platform == TargetPlatform.iOS ||
+        defaultTargetPlatform == TargetPlatform.iOS;
   }
 
   // Real-time Operational Alerts & AI Scheduling Suggestions
@@ -92,7 +98,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
       'station': 'Toda la Cuadrilla',
       'time': 'Fin de Semana',
       'description': 'Cumplimiento del 100% en descansos dominicales consecutivos según la normativa laboral Frisby.',
-      'suggestion': 'Mantener la plantilla actual sin modificaciones para el domingo.',
+      'suggestion':
+          'Mantener la plantilla actual sin modificaciones para el domingo.',
       'actionLabel': 'Ver Malla Semanal',
       'actionStation': 'General',
       'actionStart': '08:00',
@@ -115,9 +122,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
       'typeKey': 'cambio',
       'icon': Icons.swap_horiz,
       'time': 'Hace 2h',
-      'avatar':
-          'https://lh3.googleusercontent.com/aida-public/AB6AXuBNY0vcgDJNmdb9NZ6AH_zOekOlaUC4PMOwi2TWudtjoqVSymtElDz8RZ48dIRBk1I-Jk4oT72ucqI9I5p4VZYV2IquJdzqWeUjGVX3sor_r4TWeag7j-Iu3IW17JjJjlA3miDuuUK0DyJXIlWIvQE4HjrBhVKJ_TN9QQnmylHmNs1bwlifFbuQWiCdNlb04K1YupZ5oiXA99431dOkIUBvkfn-EYGjZX_uSzDLYQ3TulWLIuifQ4YrVA',
-      'details': 'Solicita ceder turno de Freidoras (08:00 - 16:00) a Laura Morales.',
+      'avatar': 'https://lh3.googleusercontent.com/aida-public/AB6AXuBNY0vcgDJNmdb9NZ6AH_zOekOlaUC4PMOwi2TWudtjoqVSymtElDz8RZ48dIRBk1I-Jk4oT72ucqI9I5p4VZYV2IquJdzqWeUjGVX3sor_r4TWeag7j-Iu3IW17JjJjlA3miDuuUK0DyJXIlWIvQE4HjrBhVKJ_TN9QQnmylHmNs1bwlifFbuQWiCdNlb04K1YupZ5oiXA99431dOkIUBvkfn-EYGjZX_uSzDLYQ3TulWLIuifQ4YrVA',
+      'details':
+          'Solicita ceder turno de Freidoras (08:00 - 16:00) a Laura Morales.',
       'status': 'pendiente',
     },
     {
@@ -127,9 +134,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
       'typeKey': 'permiso',
       'icon': Icons.medical_services,
       'time': 'Hace 4h',
-      'avatar':
-          'https://lh3.googleusercontent.com/aida-public/AB6AXuCIHDgQ7NsN4YIAqdqt1jAnGNQPzGH3diy_zs-wT5c6rqderXgGYClNBff8SQPYnHcOykCxKY6CqA5qErolIOT-lQEbu0WXK4DQVChrvdsfOgaQ6RdXwT8vcVFy16XnOQrEZSmze0mTKzib4TiV24TGVdn5Eb9Qx817ccP5uxkft6_i8gcCePhXF2MnoHiAjgchwWs_Btwjq3xdOHajQB0F99k5zOuour4yncwohz0szSv3OjLyfJlN_w',
-      'details': 'Cita médica odontológica programada para mañana a las 10:00 AM.',
+      'avatar': 'https://lh3.googleusercontent.com/aida-public/AB6AXuCIHDgQ7NsN4YIAqdqt1jAnGNQPzGH3diy_zs-wT5c6rqderXgGYClNBff8SQPYnHcOykCxKY6CqA5qErolIOT-lQEbu0WXK4DQVChrvdsfOgaQ6RdXwT8vcVFy16XnOQrEZSmze0mTKzib4TiV24TGVdn5Eb9Qx817ccP5uxkft6_i8gcCePhXF2MnoHiAjgchwWs_Btwjq3xdOHajQB0F99k5zOuour4yncwohz0szSv3OjLyfJlN_w',
+      'details':
+          'Cita médica odontológica programada para mañana a las 10:00 AM.',
       'status': 'pendiente',
     },
     {
@@ -328,7 +335,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFBA1A1A),
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
             ),
             child: const Text('Salir'),
           ),
@@ -396,7 +405,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
       builder: (ctx) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
           backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           title: Row(
             children: [
               const Icon(Icons.palette_outlined, color: Color(0xFFAC0017)),
@@ -415,41 +426,89 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                title: Text('Automático (Del Sistema)', style: GoogleFonts.hankenGrotesk(fontWeight: _isDarkModeOverride == null ? FontWeight.bold : FontWeight.normal)),
-                subtitle: Text('Sigue el tema configurado en tu dispositivo', style: GoogleFonts.hankenGrotesk(fontSize: 12)),
-                leading: const Icon(Icons.brightness_auto, color: Color(0xFFAC0017)),
-                trailing: _isDarkModeOverride == null ? const Icon(Icons.check, color: Color(0xFF2E7D32)) : null,
+                title: Text(
+                  'Automático (Del Sistema)',
+                  style: GoogleFonts.hankenGrotesk(
+                    fontWeight: _isDarkModeOverride == null
+                        ? FontWeight.bold
+                        : FontWeight.normal,
+                  ),
+                ),
+                subtitle: Text(
+                  'Sigue el tema configurado en tu dispositivo',
+                  style: GoogleFonts.hankenGrotesk(fontSize: 12),
+                ),
+                leading: const Icon(
+                  Icons.brightness_auto,
+                  color: Color(0xFFAC0017),
+                ),
+                trailing: _isDarkModeOverride == null
+                    ? const Icon(Icons.check, color: Color(0xFF2E7D32))
+                    : null,
                 onTap: () {
                   setState(() => _isDarkModeOverride = null);
                   Navigator.pop(ctx);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Tema cambiado a: Del Sistema'), behavior: SnackBarBehavior.floating),
+                    const SnackBar(
+                      content: Text('Tema cambiado a: Del Sistema'),
+                      behavior: SnackBarBehavior.floating,
+                    ),
                   );
                 },
               ),
               ListTile(
-                title: Text('Modo Claro', style: GoogleFonts.hankenGrotesk(fontWeight: _isDarkModeOverride == false ? FontWeight.bold : FontWeight.normal)),
-                subtitle: Text('Fondos claros y alto contraste', style: GoogleFonts.hankenGrotesk(fontSize: 12)),
+                title: Text(
+                  'Modo Claro',
+                  style: GoogleFonts.hankenGrotesk(
+                    fontWeight: _isDarkModeOverride == false
+                        ? FontWeight.bold
+                        : FontWeight.normal,
+                  ),
+                ),
+                subtitle: Text(
+                  'Fondos claros y alto contraste',
+                  style: GoogleFonts.hankenGrotesk(fontSize: 12),
+                ),
                 leading: const Icon(Icons.light_mode, color: Color(0xFF966100)),
-                trailing: _isDarkModeOverride == false ? const Icon(Icons.check, color: Color(0xFF2E7D32)) : null,
+                trailing: _isDarkModeOverride == false
+                    ? const Icon(Icons.check, color: Color(0xFF2E7D32))
+                    : null,
                 onTap: () {
                   setState(() => _isDarkModeOverride = false);
                   Navigator.pop(ctx);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Tema cambiado a: Modo Claro'), behavior: SnackBarBehavior.floating),
+                    const SnackBar(
+                      content: Text('Tema cambiado a: Modo Claro'),
+                      behavior: SnackBarBehavior.floating,
+                    ),
                   );
                 },
               ),
               ListTile(
-                title: Text('Modo Oscuro', style: GoogleFonts.hankenGrotesk(fontWeight: _isDarkModeOverride == true ? FontWeight.bold : FontWeight.normal)),
-                subtitle: Text('Fondos oscuros y confort visual', style: GoogleFonts.hankenGrotesk(fontSize: 12)),
+                title: Text(
+                  'Modo Oscuro',
+                  style: GoogleFonts.hankenGrotesk(
+                    fontWeight: _isDarkModeOverride == true
+                        ? FontWeight.bold
+                        : FontWeight.normal,
+                  ),
+                ),
+                subtitle: Text(
+                  'Fondos oscuros y confort visual',
+                  style: GoogleFonts.hankenGrotesk(fontSize: 12),
+                ),
                 leading: const Icon(Icons.dark_mode, color: Color(0xFF545D80)),
-                trailing: _isDarkModeOverride == true ? const Icon(Icons.check, color: Color(0xFF2E7D32)) : null,
+                trailing: _isDarkModeOverride == true
+                    ? const Icon(Icons.check, color: Color(0xFF2E7D32))
+                    : null,
                 onTap: () {
                   setState(() => _isDarkModeOverride = true);
                   Navigator.pop(ctx);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Tema cambiado a: Modo Oscuro'), behavior: SnackBarBehavior.floating),
+                    const SnackBar(
+                      content: Text('Tema cambiado a: Modo Oscuro'),
+                      behavior: SnackBarBehavior.floating,
+                    ),
                   );
                 },
               ),
@@ -460,11 +519,16 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
     );
   }
 
-
   // --- BOTÓN Y MODAL DE ALERTAS OPERATIVAS PARPADEANTE ---
 
-  Widget _buildPulsingAlertButton({required bool isIOS, required bool isDark, bool isCompact = false}) {
-    final criticalCount = _operationalAlerts.where((a) => a['level'] == 'critical' || a['level'] == 'urgent').length;
+  Widget _buildPulsingAlertButton({
+    required bool isIOS,
+    required bool isDark,
+    bool isCompact = false,
+  }) {
+    final criticalCount = _operationalAlerts
+        .where((a) => a['level'] == 'critical' || a['level'] == 'urgent')
+        .length;
 
     return AnimatedBuilder(
       animation: _alertPulseController,
@@ -506,11 +570,17 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                   top: -2,
                   right: -2,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 5,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: alertRed,
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: isDark ? Colors.black : Colors.white, width: 1.5),
+                      border: Border.all(
+                        color: isDark ? Colors.black : Colors.white,
+                        width: 1.5,
+                      ),
                     ),
                     child: Text(
                       '$criticalCount',
@@ -537,7 +607,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
               decoration: BoxDecoration(
                 color: isDark
                     ? alertRed.withValues(alpha: 0.2 * glow)
-                    : const Color(0xFFFFEBEE).withValues(alpha: 0.8 + 0.2 * glow),
+                    : const Color(0xFFFFEBEE)
+                          .withValues(alpha: 0.8 + 0.2 * glow),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
                   color: alertRed.withValues(alpha: 0.5 + 0.5 * glow),
@@ -639,10 +710,15 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFD2232A).withValues(alpha: 0.15),
+                          color: const Color(0xFFD2232A)
+                              .withValues(alpha: 0.15),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.crisis_alert, color: Color(0xFFD2232A), size: 24),
+                        child: const Icon(
+                          Icons.crisis_alert,
+                          color: Color(0xFFD2232A),
+                          size: 24,
+                        ),
                       ),
                       const SizedBox(width: 12),
                       Column(
@@ -690,10 +766,14 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                     return Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFF9FAFB),
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.05)
+                            : const Color(0xFFF9FAFB),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: alertColor.withValues(alpha: isDark ? 0.35 : 0.25),
+                          color: alertColor.withValues(
+                            alpha: isDark ? 0.35 : 0.25,
+                          ),
                           width: 1.5,
                         ),
                       ),
@@ -709,7 +789,11 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                                   color: alertColor.withValues(alpha: 0.15),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
-                                child: Icon(alert['icon'] as IconData, color: alertColor, size: 20),
+                                child: Icon(
+                                  alert['icon'] as IconData,
+                                  color: alertColor,
+                                  size: 20,
+                                ),
                               ),
                               const SizedBox(width: 12),
                               Expanded(
@@ -717,7 +801,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         Expanded(
                                           child: Text(
@@ -730,13 +815,21 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                                           ),
                                         ),
                                         Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 3,
+                                          ),
                                           decoration: BoxDecoration(
-                                            color: alertColor.withValues(alpha: 0.15),
-                                            borderRadius: BorderRadius.circular(20),
+                                            color: alertColor.withValues(
+                                              alpha: 0.15,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              20,
+                                            ),
                                           ),
                                           child: Text(
-                                            (alert['level'] as String).toUpperCase(),
+                                            (alert['level'] as String)
+                                                .toUpperCase(),
                                             style: GoogleFonts.hankenGrotesk(
                                               fontSize: 10,
                                               fontWeight: FontWeight.w800,
@@ -775,12 +868,18 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                               color: isDark ? Colors.black26 : Colors.white,
                               borderRadius: BorderRadius.circular(10),
                               border: Border.all(
-                                color: isDark ? Colors.white12 : Colors.grey[200]!,
+                                color: isDark
+                                    ? Colors.white12
+                                    : Colors.grey[200]!,
                               ),
                             ),
                             child: Row(
                               children: [
-                                const Icon(Icons.lightbulb_outline, size: 16, color: Color(0xFFF7B640)),
+                                const Icon(
+                                  Icons.lightbulb_outline,
+                                  size: 16,
+                                  color: Color(0xFFF7B640),
+                                ),
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
@@ -788,7 +887,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                                     style: GoogleFonts.hankenGrotesk(
                                       fontSize: 12,
                                       fontStyle: FontStyle.italic,
-                                      color: isDark ? Colors.white70 : const Color(0xFF424242),
+                                      color: isDark
+                                          ? Colors.white70
+                                          : const Color(0xFF424242),
                                     ),
                                   ),
                                 ),
@@ -809,8 +910,13 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                                 backgroundColor: alertColor,
                                 foregroundColor: Colors.white,
                                 elevation: 0,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
                               ),
                             ),
                           ),
@@ -841,7 +947,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
         backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: isDark ? const BorderSide(color: Colors.white12) : BorderSide.none,
+          side: isDark
+              ? const BorderSide(color: Colors.white12)
+              : BorderSide.none,
         ),
         title: Row(
           children: [
@@ -863,28 +971,39 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
           children: [
             Text(
               'Tienes ${_pendingRequests.length} solicitudes pendientes por gestionar en la sucursal.',
-              style: GoogleFonts.hankenGrotesk(color: subtextColor, fontSize: 14),
+              style: GoogleFonts.hankenGrotesk(
+                color: subtextColor,
+                fontSize: 14,
+              ),
             ),
             const SizedBox(height: 12),
-            ..._pendingRequests.take(2).map((r) => Padding(
-                  padding: const EdgeInsets.only(bottom: 6.0),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.circle, size: 8, color: Color(0xFFAC0017)),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          '${r['name']} - ${r['type']}',
-                          style: GoogleFonts.hankenGrotesk(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: titleColor,
+            ..._pendingRequests
+                .take(2)
+                .map(
+                  (r) => Padding(
+                    padding: const EdgeInsets.only(bottom: 6.0),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.circle,
+                          size: 8,
+                          color: Color(0xFFAC0017),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            '${r['name']} - ${r['type']}',
+                            style: GoogleFonts.hankenGrotesk(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: titleColor,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                )),
+                ),
           ],
         ),
         actions: [
@@ -919,7 +1038,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                 'id': newShift['id'],
                 'user': newShift['colaborador_nombre'],
                 'type': 'Asignación de Turno',
-                'detail': '${newShift['estacion']} • ${newShift['hora_inicio']} - ${newShift['hora_fin']}',
+                'detail':
+                    '${newShift['estacion']} • ${newShift['hora_inicio']} - ${newShift['hora_fin']}',
                 'time': 'Justo ahora',
                 'status': 'Aprobada',
                 'actionBy': 'Admin',
@@ -976,14 +1096,18 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                   fillColor: fieldFill,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: isDark ? const BorderSide(color: Colors.white12) : BorderSide.none,
+                    borderSide: isDark
+                        ? const BorderSide(color: Colors.white12)
+                        : BorderSide.none,
                   ),
                 ),
                 items: _teamMembers
-                    .map((m) => DropdownMenuItem<String>(
-                          value: m['name'] as String,
-                          child: Text(m['name'] as String),
-                        ))
+                    .map(
+                      (m) => DropdownMenuItem<String>(
+                        value: m['name'] as String,
+                        child: Text(m['name'] as String),
+                      ),
+                    )
                     .toList(),
                 onChanged: (val) {
                   if (val != null) setModalState(() => selectedEmployee = val);
@@ -1000,14 +1124,15 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                   fillColor: fieldFill,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: isDark ? const BorderSide(color: Colors.white12) : BorderSide.none,
+                    borderSide: isDark
+                        ? const BorderSide(color: Colors.white12)
+                        : BorderSide.none,
                   ),
                 ),
                 items: ['Freidoras', 'Plancha', 'Caja', 'Armado', 'Domicilios']
-                    .map((s) => DropdownMenuItem<String>(
-                          value: s,
-                          child: Text(s),
-                        ))
+                    .map(
+                      (s) => DropdownMenuItem<String>(value: s, child: Text(s)),
+                    )
                     .toList(),
                 onChanged: (val) {
                   if (val != null) setModalState(() => selectedStation = val);
@@ -1020,8 +1145,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                 child: ElevatedButton(
                   onPressed: () {
                     setState(() {
-                      final idx = _teamMembers
-                          .indexWhere((m) => m['name'] == selectedEmployee);
+                      final idx = _teamMembers.indexWhere(
+                        (m) => m['name'] == selectedEmployee,
+                      );
                       if (idx != -1) {
                         _teamMembers[idx]['station'] = selectedStation;
                       }
@@ -1077,7 +1203,11 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
       ),
       builder: (ctx) => Padding(
         padding: EdgeInsets.fromLTRB(
-            24, 24, 24, MediaQuery.of(context).viewInsets.bottom + 24),
+          24,
+          24,
+          24,
+          MediaQuery.of(context).viewInsets.bottom + 24,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1104,7 +1234,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                 fillColor: fieldFill,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: isDark ? const BorderSide(color: Colors.white12) : BorderSide.none,
+                  borderSide: isDark
+                      ? const BorderSide(color: Colors.white12)
+                      : BorderSide.none,
                 ),
               ),
             ),
@@ -1166,7 +1298,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
       builder: (ctx) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
           backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           title: Row(
             children: [
               const Icon(Icons.store, color: Color(0xFFAC0017)),
@@ -1189,12 +1323,18 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                 title: Text(
                   s,
                   style: GoogleFonts.hankenGrotesk(
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                    color: isSelected ? const Color(0xFFAC0017) : (isDark ? Colors.white : Colors.black87),
+                    fontWeight: isSelected
+                        ? FontWeight.bold
+                        : FontWeight.normal,
+                    color: isSelected
+                        ? const Color(0xFFAC0017)
+                        : (isDark ? Colors.white : Colors.black87),
                   ),
                 ),
                 leading: Icon(
-                  isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
+                  isSelected
+                      ? Icons.radio_button_checked
+                      : Icons.radio_button_off,
                   color: isSelected ? const Color(0xFFAC0017) : Colors.grey,
                 ),
                 onTap: () {
@@ -1247,7 +1387,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                         style: GoogleFonts.hankenGrotesk(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.white : const Color(0xFF191C1E),
+                          color: isDark
+                              ? Colors.white
+                              : const Color(0xFF191C1E),
                         ),
                       ),
                       Text(
@@ -1336,83 +1478,99 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
               ],
             ),
             const SizedBox(height: 16),
-            ...templates.map((tpl) => Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: isDark ? Colors.white10 : const Color(0xFFF8F9FB),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: isDark ? Colors.white12 : const Color(0xFFE0E0E0),
-                    ),
+            ...templates.map(
+              (tpl) => Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.white10 : const Color(0xFFF8F9FB),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: isDark ? Colors.white12 : const Color(0xFFE0E0E0),
                   ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  tpl['title'] as String,
-                                  style: GoogleFonts.hankenGrotesk(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                    color: isDark ? Colors.white : const Color(0xFF191C1E),
-                                  ),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                tpl['title'] as String,
+                                style: GoogleFonts.hankenGrotesk(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: isDark
+                                      ? Colors.white
+                                      : const Color(0xFF191C1E),
                                 ),
-                                const SizedBox(width: 8),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                  decoration: BoxDecoration(
-                                    color: (tpl['color'] as Color).withValues(alpha: 0.15),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: Text(
-                                    tpl['tag'] as String,
-                                    style: GoogleFonts.hankenGrotesk(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
-                                      color: tpl['color'] as Color,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              tpl['desc'] as String,
-                              style: GoogleFonts.hankenGrotesk(
-                                fontSize: 12,
-                                color: isDark ? Colors.white60 : Colors.grey[600],
                               ),
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: (tpl['color'] as Color).withValues(
+                                    alpha: 0.15,
+                                  ),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  tpl['tag'] as String,
+                                  style: GoogleFonts.hankenGrotesk(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                    color: tpl['color'] as Color,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            tpl['desc'] as String,
+                            style: GoogleFonts.hankenGrotesk(
+                              fontSize: 12,
+                              color: isDark ? Colors.white60 : Colors.grey[600],
                             ),
-                          ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Plantilla "${tpl['title']}" aplicada exitosamente a la semana.',
+                            ),
+                            backgroundColor: const Color(0xFF2E7D32),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFAC0017),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 8,
                         ),
                       ),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Plantilla "${tpl['title']}" aplicada exitosamente a la semana.'),
-                              backgroundColor: const Color(0xFF2E7D32),
-                              behavior: SnackBarBehavior.floating,
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFAC0017),
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                        ),
-                        child: const Text('Aplicar'),
-                      ),
-                    ],
-                  ),
-                )),
+                      child: const Text('Aplicar'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -1434,7 +1592,12 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
       ),
       builder: (ctx) => StatefulBuilder(
         builder: (context, setModalState) => Padding(
-          padding: EdgeInsets.fromLTRB(24, 24, 24, MediaQuery.of(context).viewInsets.bottom + 24),
+          padding: EdgeInsets.fromLTRB(
+            24,
+            24,
+            24,
+            MediaQuery.of(context).viewInsets.bottom + 24,
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1450,36 +1613,51 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
               const SizedBox(height: 16),
               TextField(
                 controller: nameCtrl,
-                style: GoogleFonts.hankenGrotesk(color: isDark ? Colors.white : Colors.black87),
+                style: GoogleFonts.hankenGrotesk(
+                  color: isDark ? Colors.white : Colors.black87,
+                ),
                 decoration: InputDecoration(
                   labelText: 'Nombre Completo',
                   filled: true,
                   fillColor: isDark ? Colors.white10 : Colors.grey[100],
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: cedulaCtrl,
                 keyboardType: TextInputType.number,
-                style: GoogleFonts.hankenGrotesk(color: isDark ? Colors.white : Colors.black87),
+                style: GoogleFonts.hankenGrotesk(
+                  color: isDark ? Colors.white : Colors.black87,
+                ),
                 decoration: InputDecoration(
                   labelText: 'Número de Cédula',
                   filled: true,
                   fillColor: isDark ? Colors.white10 : Colors.grey[100],
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
                 initialValue: station,
                 dropdownColor: isDark ? const Color(0xFF2C2C2C) : Colors.white,
-                style: GoogleFonts.hankenGrotesk(color: isDark ? Colors.white : Colors.black87),
+                style: GoogleFonts.hankenGrotesk(
+                  color: isDark ? Colors.white : Colors.black87,
+                ),
                 decoration: InputDecoration(
                   labelText: 'Estación Principal',
                   filled: true,
                   fillColor: isDark ? Colors.white10 : Colors.grey[100],
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
                 items: ['Freidoras', 'Plancha', 'Caja', 'Armado', 'Domicilios']
                     .map((s) => DropdownMenuItem(value: s, child: Text(s)))
@@ -1511,7 +1689,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                       Navigator.pop(context);
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('Colaborador $name registrado exitosamente.'),
+                          content: Text(
+                            'Colaborador $name registrado exitosamente.',
+                          ),
                           backgroundColor: const Color(0xFF2E7D32),
                           behavior: SnackBarBehavior.floating,
                         ),
@@ -1521,9 +1701,14 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFAC0017),
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
                   ),
-                  child: const Text('Registrar en Sistema', style: TextStyle(fontWeight: FontWeight.bold)),
+                  child: const Text(
+                    'Registrar en Sistema',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
             ],
@@ -1534,7 +1719,13 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
   }
 
   void _showSkillsMatrixModal(bool isDark) {
-    final stationsList = ['Freidoras', 'Plancha', 'Caja', 'Armado', 'Domicilios'];
+    final stationsList = [
+      'Freidoras',
+      'Plancha',
+      'Caja',
+      'Armado',
+      'Domicilios',
+    ];
 
     showModalBottomSheet(
       context: context,
@@ -1564,7 +1755,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                         style: GoogleFonts.hankenGrotesk(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.white : const Color(0xFF191C1E),
+                          color: isDark
+                              ? Colors.white
+                              : const Color(0xFF191C1E),
                         ),
                       ),
                       Text(
@@ -1576,7 +1769,10 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                       ),
                     ],
                   ),
-                  IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  ),
                 ],
               ),
               const SizedBox(height: 16),
@@ -1586,14 +1782,21 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                   itemCount: _teamMembers.length,
                   itemBuilder: (context, i) {
                     final m = _teamMembers[i];
-                    final skills = (m['skills'] as List<dynamic>?) ?? [m['station']];
+                    final skills =
+                        (m['skills'] as List<dynamic>?) ?? [m['station']];
                     return Container(
                       margin: const EdgeInsets.only(bottom: 12),
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: isDark ? Colors.white10 : const Color(0xFFF8F9FB),
+                        color: isDark
+                            ? Colors.white10
+                            : const Color(0xFFF8F9FB),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: isDark ? Colors.white12 : const Color(0xFFE0E0E0)),
+                        border: Border.all(
+                          color: isDark
+                              ? Colors.white12
+                              : const Color(0xFFE0E0E0),
+                        ),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1603,7 +1806,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                             style: GoogleFonts.hankenGrotesk(
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
-                              color: isDark ? Colors.white : const Color(0xFF191C1E),
+                              color: isDark
+                                  ? Colors.white
+                                  : const Color(0xFF191C1E),
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -1613,28 +1818,42 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                             children: stationsList.map((st) {
                               final hasSkill = skills.contains(st);
                               return Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
                                 decoration: BoxDecoration(
                                   color: hasSkill
-                                      ? const Color(0xFF2E7D32).withValues(alpha: 0.15)
-                                      : (isDark ? Colors.white12 : Colors.grey[200]),
+                                      ? const Color(0xFF2E7D32)
+                                            .withValues(alpha: 0.15)
+                                      : (isDark
+                                            ? Colors.white12
+                                            : Colors.grey[200]),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Icon(
-                                      hasSkill ? Icons.check_circle : Icons.circle_outlined,
+                                      hasSkill
+                                          ? Icons.check_circle
+                                          : Icons.circle_outlined,
                                       size: 14,
-                                      color: hasSkill ? const Color(0xFF2E7D32) : Colors.grey,
+                                      color: hasSkill
+                                          ? const Color(0xFF2E7D32)
+                                          : Colors.grey,
                                     ),
                                     const SizedBox(width: 4),
                                     Text(
                                       st,
                                       style: GoogleFonts.hankenGrotesk(
                                         fontSize: 11,
-                                        fontWeight: hasSkill ? FontWeight.bold : FontWeight.normal,
-                                        color: hasSkill ? const Color(0xFF2E7D32) : Colors.grey,
+                                        fontWeight: hasSkill
+                                            ? FontWeight.bold
+                                            : FontWeight.normal,
+                                        color: hasSkill
+                                            ? const Color(0xFF2E7D32)
+                                            : Colors.grey,
                                       ),
                                     ),
                                   ],
@@ -1680,7 +1899,10 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                     color: isDark ? Colors.white : const Color(0xFF191C1E),
                   ),
                 ),
-                IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
               ],
             ),
             const SizedBox(height: 16),
@@ -1695,8 +1917,21 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                     ),
                     child: Column(
                       children: [
-                        Text('96.4%', style: GoogleFonts.hankenGrotesk(fontSize: 24, fontWeight: FontWeight.bold, color: const Color(0xFF2E7D32))),
-                        Text('Puntualidad', style: GoogleFonts.hankenGrotesk(fontSize: 12, color: const Color(0xFF2E7D32))),
+                        Text(
+                          '96.4%',
+                          style: GoogleFonts.hankenGrotesk(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF2E7D32),
+                          ),
+                        ),
+                        Text(
+                          'Puntualidad',
+                          style: GoogleFonts.hankenGrotesk(
+                            fontSize: 12,
+                            color: const Color(0xFF2E7D32),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -1711,8 +1946,21 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                     ),
                     child: Column(
                       children: [
-                        Text('384 hrs', style: GoogleFonts.hankenGrotesk(fontSize: 24, fontWeight: FontWeight.bold, color: const Color(0xFFAC0017))),
-                        Text('Horas Cumplidas', style: GoogleFonts.hankenGrotesk(fontSize: 12, color: const Color(0xFFAC0017))),
+                        Text(
+                          '384 hrs',
+                          style: GoogleFonts.hankenGrotesk(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFFAC0017),
+                          ),
+                        ),
+                        Text(
+                          'Horas Cumplidas',
+                          style: GoogleFonts.hankenGrotesk(
+                            fontSize: 12,
+                            color: const Color(0xFFAC0017),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -1720,16 +1968,38 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
               ],
             ),
             const SizedBox(height: 16),
-            Text('Últimos Registros de Marcación', style: GoogleFonts.hankenGrotesk(fontWeight: FontWeight.bold, fontSize: 14)),
+            Text(
+              'Últimos Registros de Marcación',
+              style: GoogleFonts.hankenGrotesk(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+            ),
             const SizedBox(height: 8),
-            ..._teamMembers.take(3).map((m) => ListTile(
-                  dense: true,
-                  contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.timer_outlined, color: Color(0xFFAC0017)),
-                  title: Text(m['name'], style: GoogleFonts.hankenGrotesk(fontWeight: FontWeight.w600)),
-                  subtitle: const Text('Ingreso: 07:58 AM • En turno'),
-                  trailing: const Icon(Icons.check_circle, color: Color(0xFF2E7D32), size: 18),
-                )),
+            ..._teamMembers
+                .take(3)
+                .map(
+                  (m) => ListTile(
+                    dense: true,
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(
+                      Icons.timer_outlined,
+                      color: Color(0xFFAC0017),
+                    ),
+                    title: Text(
+                      m['name'],
+                      style: GoogleFonts.hankenGrotesk(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    subtitle: const Text('Ingreso: 07:58 AM • En turno'),
+                    trailing: const Icon(
+                      Icons.check_circle,
+                      color: Color(0xFF2E7D32),
+                      size: 18,
+                    ),
+                  ),
+                ),
           ],
         ),
       ),
@@ -1749,7 +2019,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('✅ Reporte descargado: Malla_${_currentStore.replaceAll(' ', '_')}.pdf'),
+            content: Text(
+              '✅ Reporte descargado: Malla_${_currentStore.replaceAll(' ', '_')}.pdf',
+            ),
             backgroundColor: const Color(0xFF2E7D32),
             behavior: SnackBarBehavior.floating,
           ),
@@ -1783,61 +2055,84 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                     color: isDark ? Colors.white : const Color(0xFF191C1E),
                   ),
                 ),
-                IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
               ],
             ),
             const SizedBox(height: 16),
             if (_approvalHistory.isEmpty)
-              const Center(child: Text('No hay historial de solicitudes registradas.'))
+              const Center(
+                child: Text('No hay historial de solicitudes registradas.'),
+              )
             else
-              ..._approvalHistory.map((item) => Container(
-                    margin: const EdgeInsets.only(bottom: 10),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: isDark ? Colors.white10 : const Color(0xFFF8F9FB),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: isDark ? Colors.white12 : const Color(0xFFE0E0E0)),
+              ..._approvalHistory.map(
+                (item) => Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.white10 : const Color(0xFFF8F9FB),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: isDark ? Colors.white12 : const Color(0xFFE0E0E0),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              item['name'] as String,
-                              style: GoogleFonts.hankenGrotesk(fontWeight: FontWeight.bold, fontSize: 14),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item['name'] as String,
+                            style: GoogleFonts.hankenGrotesk(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
                             ),
-                            Text(
-                              item['action'] as String,
-                              style: GoogleFonts.hankenGrotesk(fontSize: 12, color: Colors.grey[600]),
-                            ),
-                            Text(
-                              item['date'] as String,
-                              style: GoogleFonts.hankenGrotesk(fontSize: 11, color: Colors.grey[500]),
-                            ),
-                          ],
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: (item['isApproved'] as bool)
-                                ? const Color(0xFF2E7D32).withValues(alpha: 0.15)
-                                : const Color(0xFFBA1A1A).withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(10),
                           ),
-                          child: Text(
-                            item['status'] as String,
+                          Text(
+                            item['action'] as String,
+                            style: GoogleFonts.hankenGrotesk(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          Text(
+                            item['date'] as String,
                             style: GoogleFonts.hankenGrotesk(
                               fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              color: (item['isApproved'] as bool) ? const Color(0xFF2E7D32) : const Color(0xFFBA1A1A),
+                              color: Colors.grey[500],
                             ),
                           ),
+                        ],
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
                         ),
-                      ],
-                    ),
-                  )),
+                        decoration: BoxDecoration(
+                          color: (item['isApproved'] as bool)
+                              ? const Color(0xFF2E7D32).withValues(alpha: 0.15)
+                              : const Color(0xFFBA1A1A).withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          item['status'] as String,
+                          style: GoogleFonts.hankenGrotesk(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: (item['isApproved'] as bool)
+                                ? const Color(0xFF2E7D32)
+                                : const Color(0xFFBA1A1A),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -1868,8 +2163,20 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Ing. Carlos Mendoza', style: GoogleFonts.hankenGrotesk(fontSize: 16, fontWeight: FontWeight.bold)),
-            Text('Supervisión Eje Cafetero • Frisby Colombia', style: GoogleFonts.hankenGrotesk(fontSize: 12, color: Colors.grey[600])),
+            Text(
+              'Ing. Carlos Mendoza',
+              style: GoogleFonts.hankenGrotesk(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text(
+              'Supervisión Eje Cafetero • Frisby Colombia',
+              style: GoogleFonts.hankenGrotesk(
+                fontSize: 12,
+                color: Colors.grey[600],
+              ),
+            ),
             const SizedBox(height: 16),
             ListTile(
               dense: true,
@@ -1891,7 +2198,11 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
               onTap: () {
                 Navigator.pop(ctx);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Abriendo canal WhatsApp con Jefe de Zona...')),
+                  const SnackBar(
+                    content: Text(
+                      'Abriendo canal WhatsApp con Jefe de Zona...',
+                    ),
+                  ),
                 );
               },
             ),
@@ -1920,8 +2231,14 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
         ? (isDark ? const Color(0xFF1F1A1B) : Colors.white)
         : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
     final cardBorder = isIOS
-        ? Border.all(color: isDark ? Colors.white.withValues(alpha: 0.08) : const Color(0xFFEBECEF))
-        : (isDark ? Border.all(color: Colors.white10) : Border.all(color: const Color(0xFFEBECEF)));
+        ? Border.all(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.08)
+                : const Color(0xFFEBECEF),
+          )
+        : (isDark
+              ? Border.all(color: Colors.white10)
+              : Border.all(color: const Color(0xFFEBECEF)));
     final cardShadow = [
       BoxShadow(
         color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.03),
@@ -1964,7 +2281,11 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                           color: primaryRed.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: Icon(Icons.storefront_rounded, color: primaryRed, size: 20),
+                        child: Icon(
+                          Icons.storefront_rounded,
+                          color: primaryRed,
+                          size: 20,
+                        ),
                       ),
                       const SizedBox(width: 10),
                       Column(
@@ -1993,9 +2314,14 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                     onTap: () => _showSwitchStoreDialog(isDark),
                     borderRadius: BorderRadius.circular(20),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
                       decoration: BoxDecoration(
-                        color: isDark ? Colors.white10 : const Color(0xFFF3F4F6),
+                        color: isDark
+                            ? Colors.white10
+                            : const Color(0xFFF3F4F6),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
@@ -2018,7 +2344,10 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
               ),
               const SizedBox(height: 14),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: isDark ? Colors.black26 : const Color(0xFFF8F9FA),
                   borderRadius: BorderRadius.circular(12),
@@ -2074,11 +2403,15 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
               borderRadius: BorderRadius.circular(16),
               child: Container(
                 margin: const EdgeInsets.only(bottom: 16),
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: isDark
                       ? alertRed.withValues(alpha: 0.12 + 0.08 * glow)
-                      : const Color(0xFFFFF1F2).withValues(alpha: 0.85 + 0.15 * glow),
+                      : const Color(0xFFFFF1F2)
+                            .withValues(alpha: 0.85 + 0.15 * glow),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                     color: alertRed.withValues(alpha: 0.35 + 0.35 * glow),
@@ -2100,7 +2433,11 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                         color: alertRed.withValues(alpha: 0.85 + 0.15 * glow),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.bolt_rounded, color: Colors.white, size: 18),
+                      child: const Icon(
+                        Icons.bolt_rounded,
+                        color: Colors.white,
+                        size: 18,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -2114,7 +2451,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                                 style: GoogleFonts.hankenGrotesk(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 13,
-                                  color: isDark ? const Color(0xFFFFB3AD) : alertRed,
+                                  color: isDark
+                                      ? const Color(0xFFFFB3AD)
+                                      : alertRed,
                                 ),
                               ),
                               const SizedBox(width: 6),
@@ -2146,7 +2485,11 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                         ],
                       ),
                     ),
-                    Icon(Icons.arrow_forward_ios_rounded, color: alertRed, size: 14),
+                    Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      color: alertRed,
+                      size: 14,
+                    ),
                   ],
                 ),
               ),
@@ -2183,12 +2526,20 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                             color: primaryRed.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: Icon(Icons.people_alt_rounded, color: primaryRed, size: 20),
+                          child: Icon(
+                            Icons.people_alt_rounded,
+                            color: primaryRed,
+                            size: 20,
+                          ),
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 7,
+                            vertical: 3,
+                          ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF2E7D32).withValues(alpha: 0.12),
+                            color: const Color(0xFF2E7D32)
+                                .withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
@@ -2252,7 +2603,10 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                   // Novedades
                   Container(
                     height: 71,
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
                       color: cardBgColor,
                       borderRadius: BorderRadius.circular(16),
@@ -2264,11 +2618,15 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                         Container(
                           padding: const EdgeInsets.all(7),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFE65100).withValues(alpha: 0.12),
+                            color: const Color(0xFFE65100)
+                                .withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: const Icon(Icons.assignment_late_outlined,
-                              color: Color(0xFFE65100), size: 18),
+                          child: const Icon(
+                            Icons.assignment_late_outlined,
+                            color: Color(0xFFE65100),
+                            size: 18,
+                          ),
                         ),
                         const SizedBox(width: 10),
                         Expanded(
@@ -2304,7 +2662,10 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                   // Cobertura Bar
                   Container(
                     height: 71,
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
                       color: cardBgColor,
                       borderRadius: BorderRadius.circular(16),
@@ -2345,7 +2706,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                             backgroundColor: isDark
                                 ? Colors.white12
                                 : const Color(0xFFF3F4F6),
-                            valueColor: AlwaysStoppedAnimation<Color>(primaryRed),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              primaryRed,
+                            ),
                           ),
                         ),
                       ],
@@ -2473,7 +2836,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
             ),
           )
         else
-          ..._pendingRequests.map((req) => _buildRequestCard(req, isIOS, isDark)),
+          ..._pendingRequests.map(
+            (req) => _buildRequestCard(req, isIOS, isDark),
+          ),
       ],
     );
   }
@@ -2490,8 +2855,14 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
         ? (isDark ? const Color(0xFF1F1A1B) : Colors.white)
         : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
     final cardBorder = isIOS
-        ? Border.all(color: isDark ? Colors.white.withValues(alpha: 0.08) : const Color(0xFFEBECEF))
-        : (isDark ? Border.all(color: Colors.white10) : Border.all(color: const Color(0xFFEBECEF)));
+        ? Border.all(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.08)
+                : const Color(0xFFEBECEF),
+          )
+        : (isDark
+              ? Border.all(color: Colors.white10)
+              : Border.all(color: const Color(0xFFEBECEF)));
 
     return InkWell(
       onTap: onTap,
@@ -2537,13 +2908,18 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
     );
   }
 
-
   Widget _buildRequestCard(Map<String, dynamic> req, bool isIOS, bool isDark) {
     final cardBgColor = isIOS
-        ? (isDark ? Colors.white.withValues(alpha: 0.06) : Colors.white.withValues(alpha: 0.65))
+        ? (isDark
+              ? Colors.white.withValues(alpha: 0.06)
+              : Colors.white.withValues(alpha: 0.65))
         : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
     final cardBorder = isIOS
-        ? Border.all(color: isDark ? Colors.white.withValues(alpha: 0.12) : Colors.black.withValues(alpha: 0.08))
+        ? Border.all(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.12)
+                : Colors.black.withValues(alpha: 0.08),
+          )
         : (isDark ? Border.all(color: Colors.white12) : null);
     final titleColor = isIOS
         ? (isDark ? const Color(0xFFFBDBD8) : const Color(0xFF410003))
@@ -2597,8 +2973,11 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                       const SizedBox(height: 2),
                       Row(
                         children: [
-                          Icon(req['icon'] as IconData,
-                              size: 14, color: secondaryNavy),
+                          Icon(
+                            req['icon'] as IconData,
+                            size: 14,
+                            color: secondaryNavy,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             req['type'],
@@ -2640,7 +3019,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                   child: ElevatedButton(
                     onPressed: () => _handleRejectRequest(req),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: isDark ? Colors.white10 : const Color(0xFFE7E8EA),
+                      backgroundColor: isDark
+                          ? Colors.white10
+                          : const Color(0xFFE7E8EA),
                       foregroundColor: isDark ? Colors.white70 : Colors.black87,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
@@ -2697,13 +3078,21 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
         ? (isDark ? const Color(0xFFE5BDBA) : const Color(0xFF5C403D))
         : (isDark ? const Color(0xFFC6C6C7) : const Color(0xFF545D80));
     final cardBgColor = isIOS
-        ? (isDark ? Colors.white.withValues(alpha: 0.06) : Colors.white.withValues(alpha: 0.65))
+        ? (isDark
+              ? Colors.white.withValues(alpha: 0.06)
+              : Colors.white.withValues(alpha: 0.65))
         : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
     final cardBorder = isIOS
-        ? Border.all(color: isDark ? Colors.white.withValues(alpha: 0.12) : Colors.black.withValues(alpha: 0.08))
+        ? Border.all(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.12)
+                : Colors.black.withValues(alpha: 0.08),
+          )
         : (isDark ? Border.all(color: Colors.white12) : null);
 
-    final cambios = _pendingRequests.where((r) => r['typeKey'] == 'cambio').toList();
+    final cambios = _pendingRequests
+        .where((r) => r['typeKey'] == 'cambio')
+        .toList();
 
     return ListView(
       padding: EdgeInsets.fromLTRB(
@@ -2724,10 +3113,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
         const SizedBox(height: 6),
         Text(
           'Revisa y aprueba solicitudes entre colaboradores del restaurante',
-          style: GoogleFonts.hankenGrotesk(
-            fontSize: 13,
-            color: subtextColor,
-          ),
+          style: GoogleFonts.hankenGrotesk(fontSize: 13, color: subtextColor),
         ),
         const SizedBox(height: 20),
         if (cambios.isEmpty)
@@ -2740,8 +3126,11 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
             ),
             child: Column(
               children: [
-                const Icon(Icons.check_circle_outline,
-                    color: Color(0xFF2E7D32), size: 48),
+                const Icon(
+                  Icons.check_circle_outline,
+                  color: Color(0xFF2E7D32),
+                  size: 48,
+                ),
                 const SizedBox(height: 12),
                 Text(
                   'Al día',
@@ -2777,13 +3166,21 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
         ? (isDark ? const Color(0xFFE5BDBA) : const Color(0xFF5C403D))
         : (isDark ? const Color(0xFFC6C6C7) : const Color(0xFF545D80));
     final cardBgColor = isIOS
-        ? (isDark ? Colors.white.withValues(alpha: 0.06) : Colors.white.withValues(alpha: 0.65))
+        ? (isDark
+              ? Colors.white.withValues(alpha: 0.06)
+              : Colors.white.withValues(alpha: 0.65))
         : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
     final cardBorder = isIOS
-        ? Border.all(color: isDark ? Colors.white.withValues(alpha: 0.12) : Colors.black.withValues(alpha: 0.08))
+        ? Border.all(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.12)
+                : Colors.black.withValues(alpha: 0.08),
+          )
         : (isDark ? Border.all(color: Colors.white12) : null);
 
-    final permisos = _pendingRequests.where((r) => r['typeKey'] == 'permiso').toList();
+    final permisos = _pendingRequests
+        .where((r) => r['typeKey'] == 'permiso')
+        .toList();
 
     return ListView(
       padding: EdgeInsets.fromLTRB(
@@ -2804,10 +3201,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
         const SizedBox(height: 6),
         Text(
           'Gestiona incapacidades, citas médicas y calamidades del equipo',
-          style: GoogleFonts.hankenGrotesk(
-            fontSize: 13,
-            color: subtextColor,
-          ),
+          style: GoogleFonts.hankenGrotesk(fontSize: 13, color: subtextColor),
         ),
         const SizedBox(height: 20),
         if (permisos.isEmpty)
@@ -2820,8 +3214,11 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
             ),
             child: Column(
               children: [
-                const Icon(Icons.health_and_safety_outlined,
-                    color: Color(0xFF2E7D32), size: 48),
+                const Icon(
+                  Icons.health_and_safety_outlined,
+                  color: Color(0xFF2E7D32),
+                  size: 48,
+                ),
                 const SizedBox(height: 12),
                 Text(
                   'Sin Novedades Pendientes',
@@ -2857,10 +3254,16 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
         ? (isDark ? const Color(0xFFE5BDBA) : const Color(0xFF5C403D))
         : (isDark ? const Color(0xFFC6C6C7) : const Color(0xFF545D80));
     final cardBgColor = isIOS
-        ? (isDark ? Colors.white.withValues(alpha: 0.06) : Colors.white.withValues(alpha: 0.65))
+        ? (isDark
+              ? Colors.white.withValues(alpha: 0.06)
+              : Colors.white.withValues(alpha: 0.65))
         : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
     final cardBorder = isIOS
-        ? Border.all(color: isDark ? Colors.white.withValues(alpha: 0.12) : Colors.black.withValues(alpha: 0.08))
+        ? Border.all(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.12)
+                : Colors.black.withValues(alpha: 0.08),
+          )
         : (isDark ? Border.all(color: Colors.white12) : null);
     final primaryRed = const Color(0xFFAC0017);
 
@@ -2896,15 +3299,34 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                 ),
               ],
             ),
-            IconButton(
+            ElevatedButton.icon(
               onPressed: () => _showRegisterEmployeeModal(isDark),
-              icon: Icon(Icons.person_add_alt_1_outlined, color: primaryRed),
+              icon: const Icon(Icons.person_add_alt_1_rounded, size: 18),
+              label: Text(
+                'Registrar',
+                style: GoogleFonts.hankenGrotesk(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primaryRed,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
+              ),
             ),
           ],
         ),
         const SizedBox(height: 16),
         ..._teamMembers.map((member) {
-          final isWorking = member['status'] == 'En turno' || member['status'] == 'Admin';
+          final isWorking =
+              member['status'] == 'En turno' || member['status'] == 'Admin';
           return Container(
             margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.all(16),
@@ -2951,9 +3373,12 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                         children: [
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 2),
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF545D80).withValues(alpha: 0.12),
+                              color: const Color(0xFF545D80)
+                                  .withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
@@ -2979,8 +3404,10 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                   ),
                 ),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: isWorking
                         ? Colors.green.withValues(alpha: 0.15)
@@ -3036,7 +3463,12 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
     }) {
       return ListTile(
         dense: true,
-        leading: Icon(icon, color: iconColor ?? (isDark ? Colors.white70 : const Color(0xFF545D80)), size: 22),
+        leading: Icon(
+          icon,
+          color:
+              iconColor ?? (isDark ? Colors.white70 : const Color(0xFF545D80)),
+          size: 22,
+        ),
         title: Text(
           title,
           style: GoogleFonts.hankenGrotesk(
@@ -3046,7 +3478,13 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
           ),
         ),
         subtitle: subtitle != null
-            ? Text(subtitle, style: GoogleFonts.hankenGrotesk(fontSize: 11, color: subtextColor))
+            ? Text(
+                subtitle,
+                style: GoogleFonts.hankenGrotesk(
+                  fontSize: 11,
+                  color: subtextColor,
+                ),
+              )
             : null,
         onTap: () {
           Navigator.pop(context);
@@ -3060,9 +3498,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
       child: Column(
         children: [
           UserAccountsDrawerHeader(
-            decoration: const BoxDecoration(
-              color: Color(0xFFAC0017),
-            ),
+            decoration: const BoxDecoration(color: Color(0xFFAC0017)),
             accountName: Row(
               children: [
                 Text(
@@ -3074,7 +3510,10 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                 ),
                 const SizedBox(width: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white24,
                     borderRadius: BorderRadius.circular(10),
@@ -3138,12 +3577,6 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                 // 2. PERSONAL
                 sectionHeader('PERSONAL'),
                 drawerItem(
-                  icon: Icons.person_add_alt_1,
-                  title: 'Registrar Colaborador',
-                  subtitle: 'Dar de alta nuevo empleado',
-                  onTap: () => _showRegisterEmployeeModal(isDark),
-                ),
-                drawerItem(
                   icon: Icons.verified_user_outlined,
                   title: 'Matriz de Habilidades',
                   subtitle: 'Polivalencia y estaciones',
@@ -3180,7 +3613,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                 drawerItem(
                   icon: _isDarkModeOverride == null
                       ? Icons.brightness_auto
-                      : (_isDarkModeOverride! ? Icons.dark_mode : Icons.light_mode),
+                      : (_isDarkModeOverride!
+                            ? Icons.dark_mode
+                            : Icons.light_mode),
                   title: 'Apariencia / Tema',
                   subtitle: _isDarkModeOverride == null
                       ? 'Automático (Del Sistema)'
@@ -3252,11 +3687,31 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: GoogleFonts.hankenGrotesk(fontSize: 12, fontWeight: FontWeight.w600, color: subtextColor)),
+              Text(
+                title,
+                style: GoogleFonts.hankenGrotesk(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: subtextColor,
+                ),
+              ),
               const SizedBox(height: 6),
-              Text(value, style: GoogleFonts.hankenGrotesk(fontSize: 26, fontWeight: FontWeight.bold, color: titleColor)),
+              Text(
+                value,
+                style: GoogleFonts.hankenGrotesk(
+                  fontSize: 26,
+                  fontWeight: FontWeight.bold,
+                  color: titleColor,
+                ),
+              ),
               const SizedBox(height: 4),
-              Text(subtitle, style: GoogleFonts.hankenGrotesk(fontSize: 11, color: subtextColor)),
+              Text(
+                subtitle,
+                style: GoogleFonts.hankenGrotesk(
+                  fontSize: 11,
+                  color: subtextColor,
+                ),
+              ),
             ],
           ),
           Container(
@@ -3297,7 +3752,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: isActive ? primaryRed.withValues(alpha: isDark ? 0.25 : 0.12) : Colors.transparent,
+              color: isActive
+                  ? primaryRed.withValues(alpha: isDark ? 0.25 : 0.12)
+                  : Colors.transparent,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Row(
@@ -3305,7 +3762,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                 Icon(
                   icon,
                   size: 20,
-                  color: isActive ? primaryRed : (isDark ? Colors.white70 : const Color(0xFF4B5563)),
+                  color: isActive
+                      ? primaryRed
+                      : (isDark ? Colors.white70 : const Color(0xFF4B5563)),
                 ),
                 const SizedBox(width: 12),
                 Text(
@@ -3313,7 +3772,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                   style: GoogleFonts.hankenGrotesk(
                     fontSize: 14,
                     fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
-                    color: isActive ? primaryRed : (isDark ? Colors.white : const Color(0xFF1F2937)),
+                    color: isActive
+                        ? primaryRed
+                        : (isDark ? Colors.white : const Color(0xFF1F2937)),
                   ),
                 ),
               ],
@@ -3365,19 +3826,30 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                         height: 28,
                         errorBuilder: (c, e, s) => Text(
                           'Frisby',
-                          style: GoogleFonts.sora(fontSize: 22, fontWeight: FontWeight.bold, color: primaryRed),
+                          style: GoogleFonts.sora(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: primaryRed,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: primaryRed.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
                           'WEB ADMIN',
-                          style: GoogleFonts.hankenGrotesk(fontSize: 10, fontWeight: FontWeight.bold, color: primaryRed),
+                          style: GoogleFonts.hankenGrotesk(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: primaryRed,
+                          ),
                         ),
                       ),
                     ],
@@ -3389,7 +3861,10 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                   onTap: () => _showSwitchStoreDialog(isDark),
                   child: Container(
                     margin: const EdgeInsets.all(12),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
                       color: isDark ? Colors.white10 : const Color(0xFFF3F4F6),
                       borderRadius: BorderRadius.circular(10),
@@ -3397,16 +3872,28 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.storefront, size: 18, color: Color(0xFFAC0017)),
+                        const Icon(
+                          Icons.storefront,
+                          size: 18,
+                          color: Color(0xFFAC0017),
+                        ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             _currentStore,
-                            style: GoogleFonts.hankenGrotesk(fontSize: 12, fontWeight: FontWeight.w600, color: titleColor),
+                            style: GoogleFonts.hankenGrotesk(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: titleColor,
+                            ),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        const Icon(Icons.keyboard_arrow_down, size: 16, color: Colors.grey),
+                        const Icon(
+                          Icons.keyboard_arrow_down,
+                          size: 16,
+                          color: Colors.grey,
+                        ),
                       ],
                     ),
                   ),
@@ -3418,23 +3905,84 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                     padding: EdgeInsets.zero,
                     children: [
                       sectionTitle('GESTIÓN DE TURNOS'),
-                      navItem(index: 0, icon: Icons.dashboard_outlined, title: 'Panel General'),
-                      navItem(index: 99, icon: Icons.edit_calendar, title: 'Crear Turnos', customTap: _navigateToCreateShiftPage),
-                      navItem(index: 1, icon: Icons.swap_horiz_outlined, title: 'Mercado de Turnos'),
-                      navItem(index: 2, icon: Icons.medical_services_outlined, title: 'Permisos y Ausencias'),
-                      navItem(index: 3, icon: Icons.group_outlined, title: 'Cuadrilla y Personal'),
+                      navItem(
+                        index: 0,
+                        icon: Icons.dashboard_outlined,
+                        title: 'Panel General',
+                      ),
+                      navItem(
+                        index: 99,
+                        icon: Icons.edit_calendar,
+                        title: 'Crear Turnos',
+                        customTap: _navigateToCreateShiftPage,
+                      ),
+                      navItem(
+                        index: 1,
+                        icon: Icons.swap_horiz_outlined,
+                        title: 'Mercado de Turnos',
+                      ),
+                      navItem(
+                        index: 2,
+                        icon: Icons.medical_services_outlined,
+                        title: 'Permisos y Ausencias',
+                      ),
+                      navItem(
+                        index: 3,
+                        icon: Icons.group_outlined,
+                        title: 'Cuadrilla y Personal',
+                      ),
 
                       sectionTitle('HERRAMIENTAS OPERATIVAS'),
-                      navItem(index: 99, icon: Icons.calendar_view_week, title: 'Malla Semanal', customTap: () => _showWeeklyScheduleModal(isDark)),
-                      navItem(index: 99, icon: Icons.auto_awesome_outlined, title: 'Plantillas de Horario', customTap: () => _showShiftTemplatesModal(isDark)),
-                      navItem(index: 99, icon: Icons.verified_user_outlined, title: 'Matriz de Habilidades', customTap: () => _showSkillsMatrixModal(isDark)),
-                      navItem(index: 99, icon: Icons.analytics_outlined, title: 'Reporte de Asistencia', customTap: () => _showAttendanceReportModal(isDark)),
-                      navItem(index: 99, icon: Icons.download_outlined, title: 'Exportar Reporte', customTap: _handleExportSchedule),
-                      navItem(index: 99, icon: Icons.history_outlined, title: 'Historial de Aprobación', customTap: () => _showApprovalHistoryModal(isDark)),
+                      navItem(
+                        index: 99,
+                        icon: Icons.calendar_view_week,
+                        title: 'Malla Semanal',
+                        customTap: () => _showWeeklyScheduleModal(isDark),
+                      ),
+                      navItem(
+                        index: 99,
+                        icon: Icons.auto_awesome_outlined,
+                        title: 'Plantillas de Horario',
+                        customTap: () => _showShiftTemplatesModal(isDark),
+                      ),
+                      navItem(
+                        index: 99,
+                        icon: Icons.verified_user_outlined,
+                        title: 'Matriz de Habilidades',
+                        customTap: () => _showSkillsMatrixModal(isDark),
+                      ),
+                      navItem(
+                        index: 99,
+                        icon: Icons.analytics_outlined,
+                        title: 'Reporte de Asistencia',
+                        customTap: () => _showAttendanceReportModal(isDark),
+                      ),
+                      navItem(
+                        index: 99,
+                        icon: Icons.download_outlined,
+                        title: 'Exportar Reporte',
+                        customTap: _handleExportSchedule,
+                      ),
+                      navItem(
+                        index: 99,
+                        icon: Icons.history_outlined,
+                        title: 'Historial de Aprobación',
+                        customTap: () => _showApprovalHistoryModal(isDark),
+                      ),
 
                       sectionTitle('CONFIGURACIÓN'),
-                      navItem(index: 99, icon: Icons.support_agent, title: 'Jefe de Zona', customTap: () => _showZoneManagerContactModal(isDark)),
-                      navItem(index: 99, icon: Icons.palette_outlined, title: 'Apariencia / Tema', customTap: () => _showThemeSelectorDialog(isDark)),
+                      navItem(
+                        index: 99,
+                        icon: Icons.support_agent,
+                        title: 'Jefe de Zona',
+                        customTap: () => _showZoneManagerContactModal(isDark),
+                      ),
+                      navItem(
+                        index: 99,
+                        icon: Icons.palette_outlined,
+                        title: 'Apariencia / Tema',
+                        customTap: () => _showThemeSelectorDialog(isDark),
+                      ),
                     ],
                   ),
                 ),
@@ -3461,14 +4009,28 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                           children: [
                             Text(
                               widget.profileName ?? 'Laura Restrepo',
-                              style: GoogleFonts.hankenGrotesk(fontWeight: FontWeight.bold, fontSize: 13, color: titleColor),
+                              style: GoogleFonts.hankenGrotesk(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                                color: titleColor,
+                              ),
                             ),
-                            Text('Administrador', style: GoogleFonts.hankenGrotesk(fontSize: 11, color: subtextColor)),
+                            Text(
+                              'Administrador',
+                              style: GoogleFonts.hankenGrotesk(
+                                fontSize: 11,
+                                color: subtextColor,
+                              ),
+                            ),
                           ],
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.logout, size: 18, color: Color(0xFFBA1A1A)),
+                        icon: const Icon(
+                          Icons.logout,
+                          size: 18,
+                          color: Color(0xFFBA1A1A),
+                        ),
                         onPressed: () => _confirmSignOut(isDark),
                         tooltip: 'Cerrar Sesión',
                       ),
@@ -3497,51 +4059,89 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                       // Breadcrumb
                       Row(
                         children: [
-                          Text('Frisby', style: GoogleFonts.hankenGrotesk(fontSize: 13, color: subtextColor)),
+                          Text(
+                            'Frisby',
+                            style: GoogleFonts.hankenGrotesk(
+                              fontSize: 13,
+                              color: subtextColor,
+                            ),
+                          ),
                           const SizedBox(width: 6),
-                          const Icon(Icons.chevron_right, size: 16, color: Colors.grey),
+                          const Icon(
+                            Icons.chevron_right,
+                            size: 16,
+                            color: Colors.grey,
+                          ),
                           const SizedBox(width: 6),
-                          Text(_currentStore, style: GoogleFonts.hankenGrotesk(fontSize: 13, fontWeight: FontWeight.bold, color: titleColor)),
+                          Text(
+                            _currentStore,
+                            style: GoogleFonts.hankenGrotesk(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: titleColor,
+                            ),
+                          ),
                         ],
                       ),
 
                       // Right Header Actions
                       Row(
                         children: [
-                          _buildPulsingAlertButton(isIOS: false, isDark: isDark),
+                          _buildPulsingAlertButton(
+                            isIOS: false,
+                            isDark: isDark,
+                          ),
                           const SizedBox(width: 14),
                           ElevatedButton.icon(
-                            onPressed: () => _showCreateShiftModal(false, isDark),
+                            onPressed: () =>
+                                _showCreateShiftModal(false, isDark),
                             icon: const Icon(Icons.add, size: 18),
                             label: const Text('Crear Turno'),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: primaryRed,
                               foregroundColor: Colors.white,
                               elevation: 0,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 10,
+                              ),
                             ),
                           ),
                           const SizedBox(width: 12),
                           OutlinedButton.icon(
-                            onPressed: () => _showAssignStationModal(false, isDark),
+                            onPressed: () =>
+                                _showAssignStationModal(false, isDark),
                             icon: const Icon(Icons.restaurant, size: 16),
                             label: const Text('Asignar Estación'),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: titleColor,
                               side: BorderSide(color: borderColor),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
                             ),
                           ),
                           const SizedBox(width: 12),
                           IconButton(
-                            icon: Icon(isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined, color: titleColor),
+                            icon: Icon(
+                              isDark
+                                  ? Icons.light_mode_outlined
+                                  : Icons.dark_mode_outlined,
+                              color: titleColor,
+                            ),
                             onPressed: () => _showThemeSelectorDialog(isDark),
                             tooltip: 'Cambiar Tema',
                           ),
                           IconButton(
-                            icon: const Icon(Icons.notifications_outlined, color: Color(0xFFAC0017)),
-                            onPressed: () => _showNotificationDialog(false, isDark),
+                            icon: const Icon(
+                              Icons.notifications_outlined,
+                              color: Color(0xFFAC0017),
+                            ),
+                            onPressed: () =>
+                                _showNotificationDialog(false, isDark),
                             tooltip: 'Notificaciones',
                           ),
                         ],
@@ -3634,10 +4234,12 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             'Cuadrilla de Operación y Estaciones',
@@ -3649,25 +4251,20 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                                           ),
                                           Text(
                                             'Personal asignado para el turno actual en $_currentStore',
-                                            style: GoogleFonts.hankenGrotesk(fontSize: 12, color: subtextColor),
+                                            style: GoogleFonts.hankenGrotesk(
+                                              fontSize: 12,
+                                              color: subtextColor,
+                                            ),
                                           ),
                                         ],
                                       ),
                                       Row(
                                         children: [
-                                          OutlinedButton.icon(
-                                            onPressed: () => _showRegisterEmployeeModal(isDark),
-                                            icon: const Icon(Icons.person_add_alt, size: 14),
-                                            label: const Text('Nuevo Colaborador'),
-                                            style: OutlinedButton.styleFrom(
-                                              foregroundColor: primaryRed,
-                                              side: const BorderSide(color: Color(0xFFAC0017)),
-                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                            ),
-                                          ),
-                                          const SizedBox(width: 8),
                                           IconButton(
-                                            icon: const Icon(Icons.refresh, size: 18),
+                                            icon: const Icon(
+                                              Icons.refresh,
+                                              size: 18,
+                                            ),
                                             onPressed: _fetchSupabaseData,
                                             tooltip: 'Actualizar',
                                           ),
@@ -3690,84 +4287,207 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                                       children: [
                                         TableRow(
                                           decoration: BoxDecoration(
-                                            color: isDark ? Colors.white10 : const Color(0xFFF9FAFB),
+                                            color: isDark
+                                                ? Colors.white10
+                                                : const Color(0xFFF9FAFB),
                                           ),
                                           children: [
-                                            _tableHeaderCell('COLABORADOR', isDark),
-                                            _tableHeaderCell('ESTACIÓN', isDark),
+                                            _tableHeaderCell(
+                                              'COLABORADOR',
+                                              isDark,
+                                            ),
+                                            _tableHeaderCell(
+                                              'ESTACIÓN',
+                                              isDark,
+                                            ),
                                             _tableHeaderCell('HORARIO', isDark),
                                             _tableHeaderCell('EQUIPO', isDark),
                                             _tableHeaderCell('ESTADO', isDark),
                                           ],
                                         ),
                                         ..._teamMembers.map((m) {
-                                          final isWorking = m['status'] == 'En turno' || m['status'] == 'Admin';
+                                          final isWorking =
+                                              m['status'] == 'En turno' ||
+                                              m['status'] == 'Admin';
                                           return TableRow(
                                             decoration: BoxDecoration(
-                                              border: Border(bottom: BorderSide(color: borderColor)),
+                                              border: Border(
+                                                bottom: BorderSide(
+                                                  color: borderColor,
+                                                ),
+                                              ),
                                             ),
                                             children: [
                                               Padding(
-                                                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      vertical: 12,
+                                                      horizontal: 8,
+                                                    ),
                                                 child: Row(
                                                   children: [
                                                     CircleAvatar(
                                                       radius: 14,
-                                                      backgroundColor: primaryRed.withValues(alpha: 0.12),
+                                                      backgroundColor:
+                                                          primaryRed.withValues(
+                                                            alpha: 0.12,
+                                                          ),
                                                       child: Text(
-                                                        m['name'].substring(0, 2).toUpperCase(),
-                                                        style: GoogleFonts.hankenGrotesk(fontSize: 10, fontWeight: FontWeight.bold, color: primaryRed),
+                                                        m['name']
+                                                            .substring(0, 2)
+                                                            .toUpperCase(),
+                                                        style:
+                                                            GoogleFonts.hankenGrotesk(
+                                                              fontSize: 10,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color: primaryRed,
+                                                            ),
                                                       ),
                                                     ),
                                                     const SizedBox(width: 10),
                                                     Column(
-                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
                                                       children: [
-                                                        Text(m['name'], style: GoogleFonts.hankenGrotesk(fontWeight: FontWeight.w600, fontSize: 13, color: titleColor)),
-                                                        Text('CC ${m['cedula']}', style: GoogleFonts.hankenGrotesk(fontSize: 11, color: subtextColor)),
+                                                        Text(
+                                                          m['name'],
+                                                          style:
+                                                              GoogleFonts.hankenGrotesk(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600,
+                                                                fontSize: 13,
+                                                                color:
+                                                                    titleColor,
+                                                              ),
+                                                        ),
+                                                        Text(
+                                                          'CC ${m['cedula']}',
+                                                          style:
+                                                              GoogleFonts.hankenGrotesk(
+                                                                fontSize: 11,
+                                                                color:
+                                                                    subtextColor,
+                                                              ),
+                                                        ),
                                                       ],
                                                     ),
                                                   ],
                                                 ),
                                               ),
                                               Padding(
-                                                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      vertical: 14,
+                                                      horizontal: 8,
+                                                    ),
                                                 child: Align(
-                                                  alignment: Alignment.centerLeft,
+                                                  alignment:
+                                                      Alignment.centerLeft,
                                                   child: Container(
-                                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 8,
+                                                          vertical: 3,
+                                                        ),
                                                     decoration: BoxDecoration(
-                                                      color: const Color(0xFF545D80).withValues(alpha: 0.12),
-                                                      borderRadius: BorderRadius.circular(6),
+                                                      color: const Color(
+                                                        0xFF545D80,
+                                                      ).withValues(alpha: 0.12),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            6,
+                                                          ),
                                                     ),
                                                     child: Text(
                                                       m['station'],
-                                                      style: GoogleFonts.hankenGrotesk(fontSize: 11, fontWeight: FontWeight.bold, color: const Color(0xFF545D80)),
+                                                      style:
+                                                          GoogleFonts.hankenGrotesk(
+                                                            fontSize: 11,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            color: const Color(
+                                                              0xFF545D80,
+                                                            ),
+                                                          ),
                                                     ),
                                                   ),
                                                 ),
                                               ),
                                               Padding(
-                                                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
-                                                child: Text(m['shift'], style: GoogleFonts.hankenGrotesk(fontSize: 12, color: titleColor)),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      vertical: 14,
+                                                      horizontal: 8,
+                                                    ),
+                                                child: Text(
+                                                  m['shift'],
+                                                  style:
+                                                      GoogleFonts.hankenGrotesk(
+                                                        fontSize: 12,
+                                                        color: titleColor,
+                                                      ),
+                                                ),
                                               ),
                                               Padding(
-                                                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
-                                                child: Text(m['team'], style: GoogleFonts.hankenGrotesk(fontSize: 12, color: subtextColor)),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      vertical: 14,
+                                                      horizontal: 8,
+                                                    ),
+                                                child: Text(
+                                                  m['team'],
+                                                  style:
+                                                      GoogleFonts.hankenGrotesk(
+                                                        fontSize: 12,
+                                                        color: subtextColor,
+                                                      ),
+                                                ),
                                               ),
                                               Padding(
-                                                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      vertical: 12,
+                                                      horizontal: 8,
+                                                    ),
                                                 child: Align(
-                                                  alignment: Alignment.centerLeft,
+                                                  alignment:
+                                                      Alignment.centerLeft,
                                                   child: Container(
-                                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 8,
+                                                          vertical: 3,
+                                                        ),
                                                     decoration: BoxDecoration(
-                                                      color: isWorking ? Colors.green.withValues(alpha: 0.15) : Colors.orange.withValues(alpha: 0.15),
-                                                      borderRadius: BorderRadius.circular(12),
+                                                      color: isWorking
+                                                          ? Colors.green
+                                                                .withValues(
+                                                                  alpha: 0.15,
+                                                                )
+                                                          : Colors.orange
+                                                                .withValues(
+                                                                  alpha: 0.15,
+                                                                ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            12,
+                                                          ),
                                                     ),
                                                     child: Text(
                                                       m['status'],
-                                                      style: GoogleFonts.hankenGrotesk(fontSize: 11, fontWeight: FontWeight.bold, color: isWorking ? Colors.green[800] : Colors.orange[800]),
+                                                      style: GoogleFonts.hankenGrotesk(
+                                                        fontSize: 11,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: isWorking
+                                                            ? Colors.green[800]
+                                                            : Colors
+                                                                  .orange[800],
+                                                      ),
                                                     ),
                                                   ),
                                                 ),
@@ -3798,24 +4518,40 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                                     border: Border.all(color: borderColor),
                                   ),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
                                             'Solicitudes Pendientes',
-                                            style: GoogleFonts.hankenGrotesk(fontSize: 15, fontWeight: FontWeight.bold, color: titleColor),
+                                            style: GoogleFonts.hankenGrotesk(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.bold,
+                                              color: titleColor,
+                                            ),
                                           ),
                                           Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 2,
+                                            ),
                                             decoration: BoxDecoration(
-                                              color: primaryRed.withValues(alpha: 0.12),
-                                              borderRadius: BorderRadius.circular(10),
+                                              color: primaryRed.withValues(
+                                                alpha: 0.12,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
                                             ),
                                             child: Text(
                                               '${_pendingRequests.length}',
-                                              style: GoogleFonts.hankenGrotesk(fontSize: 11, fontWeight: FontWeight.bold, color: primaryRed),
+                                              style: GoogleFonts.hankenGrotesk(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.bold,
+                                                color: primaryRed,
+                                              ),
                                             ),
                                           ),
                                         ],
@@ -3823,13 +4559,27 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                                       const SizedBox(height: 12),
                                       if (_pendingRequests.isEmpty)
                                         Padding(
-                                          padding: const EdgeInsets.symmetric(vertical: 20),
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 20,
+                                          ),
                                           child: Center(
-                                            child: Text('🎉 No hay solicitudes pendientes.', style: GoogleFonts.hankenGrotesk(color: subtextColor, fontSize: 13)),
+                                            child: Text(
+                                              '🎉 No hay solicitudes pendientes.',
+                                              style: GoogleFonts.hankenGrotesk(
+                                                color: subtextColor,
+                                                fontSize: 13,
+                                              ),
+                                            ),
                                           ),
                                         )
                                       else
-                                        ..._pendingRequests.map((req) => _buildRequestCard(req, false, isDark)),
+                                        ..._pendingRequests.map(
+                                          (req) => _buildRequestCard(
+                                            req,
+                                            false,
+                                            isDark,
+                                          ),
+                                        ),
                                     ],
                                   ),
                                 ),
@@ -3849,10 +4599,19 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
     );
   }
 
-  Widget _buildNavItemAndroid(int index, IconData icon, String label, bool isDark) {
+  Widget _buildNavItemAndroid(
+    int index,
+    IconData icon,
+    String label,
+    bool isDark,
+  ) {
     final isActive = _currentIndex == index;
-    final activeColor = isDark ? const Color(0xFFFFB3AD) : const Color(0xFFAC0017);
-    final inactiveColor = isDark ? const Color(0xFFC6C6C7) : const Color(0xFF545D80);
+    final activeColor = isDark
+        ? const Color(0xFFFFB3AD)
+        : const Color(0xFFAC0017);
+    final inactiveColor = isDark
+        ? const Color(0xFFC6C6C7)
+        : const Color(0xFF545D80);
 
     return Material(
       color: Colors.transparent,
@@ -3871,7 +4630,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                     width: 48,
                     height: 28,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFD2232A).withValues(alpha: isDark ? 0.25 : 0.20),
+                      color: const Color(0xFFD2232A)
+                          .withValues(alpha: isDark ? 0.25 : 0.20),
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
@@ -3889,7 +4649,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                     label,
                     style: GoogleFonts.hankenGrotesk(
                       fontSize: 11,
-                      fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                      fontWeight: isActive
+                          ? FontWeight.bold
+                          : FontWeight.normal,
                       color: isActive ? activeColor : inactiveColor,
                     ),
                   ),
@@ -3901,7 +4663,6 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
       ),
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -3917,9 +4678,15 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
 
     // iOS Floating Glassmorphic TopAppBar
     Widget mobileAppBarIOS() {
-      final barBg = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white.withValues(alpha: 0.6);
-      final barBorder = isDark ? Colors.white.withValues(alpha: 0.15) : Colors.black.withValues(alpha: 0.08);
-      final accentIconColor = isDark ? const Color(0xFFFFB3AD) : const Color(0xFFAC0017);
+      final barBg = isDark
+          ? Colors.white.withValues(alpha: 0.05)
+          : Colors.white.withValues(alpha: 0.6);
+      final barBorder = isDark
+          ? Colors.white.withValues(alpha: 0.15)
+          : Colors.black.withValues(alpha: 0.08);
+      final accentIconColor = isDark
+          ? const Color(0xFFFFB3AD)
+          : const Color(0xFFAC0017);
 
       return Positioned(
         top: MediaQuery.of(context).padding.top + 8,
@@ -3934,9 +4701,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
               decoration: BoxDecoration(
                 color: barBg,
                 borderRadius: BorderRadius.circular(999),
-                border: Border.all(
-                  color: barBorder,
-                ),
+                border: Border.all(color: barBorder),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
@@ -3969,15 +4734,25 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                   ),
                   Row(
                     children: [
-                      _buildPulsingAlertButton(isIOS: true, isDark: isDark, isCompact: true),
+                      _buildPulsingAlertButton(
+                        isIOS: true,
+                        isDark: isDark,
+                        isCompact: true,
+                      ),
                       const SizedBox(width: 4),
                       IconButton(
-                        icon: Icon(Icons.add_circle_outline, color: accentIconColor),
+                        icon: Icon(
+                          Icons.add_circle_outline,
+                          color: accentIconColor,
+                        ),
                         tooltip: 'Crear Turno',
                         onPressed: _navigateToCreateShiftPage,
                       ),
                       IconButton(
-                        icon: Icon(Icons.notifications_outlined, color: accentIconColor),
+                        icon: Icon(
+                          Icons.notifications_outlined,
+                          color: accentIconColor,
+                        ),
                         onPressed: () => _showNotificationDialog(true, isDark),
                       ),
                     ],
@@ -3994,7 +4769,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
     PreferredSizeWidget? mobileAppBarAndroid() {
       if (isDesktop || isIOS) return null;
 
-      final appBarBg = isDark ? const Color(0xFF1F1F1F) : const Color(0xFFAC0017);
+      final appBarBg = isDark
+          ? const Color(0xFF1F1F1F)
+          : const Color(0xFFAC0017);
 
       return AppBar(
         backgroundColor: appBarBg,
@@ -4019,7 +4796,11 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
           ),
         ),
         actions: [
-          _buildPulsingAlertButton(isIOS: false, isDark: isDark, isCompact: true),
+          _buildPulsingAlertButton(
+            isIOS: false,
+            isDark: isDark,
+            isCompact: true,
+          ),
           const SizedBox(width: 4),
           IconButton(
             icon: const Icon(Icons.add_circle_outline, color: Colors.white),
@@ -4037,12 +4818,30 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
     // iOS Floating Glassmorphic bottom nav bar (Apple Liquid Glass with Drag/Slide Gesture)
     Widget bottomNavBarIOS() {
       final isDarkMode = isDark;
-      final capsuleBg = isDarkMode
-          ? const Color(0xFF1E2127).withValues(alpha: 0.65)
-          : const Color(0xFFF0F2F6).withValues(alpha: 0.82);
+      final capsuleGradient = isDarkMode
+          ? LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white.withValues(alpha: 0.16),
+                const Color(0xFF1E2127).withValues(alpha: 0.35),
+                Colors.black.withValues(alpha: 0.50),
+              ],
+              stops: const [0.0, 0.45, 1.0],
+            )
+          : LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white.withValues(alpha: 0.38),
+                Colors.white.withValues(alpha: 0.12),
+                const Color(0xFFE2EBF5).withValues(alpha: 0.22),
+              ],
+              stops: const [0.0, 0.5, 1.0],
+            );
       final capsuleBorder = isDarkMode
-          ? Colors.white.withValues(alpha: 0.24)
-          : Colors.white.withValues(alpha: 0.85);
+          ? Colors.white.withValues(alpha: 0.32)
+          : Colors.white.withValues(alpha: 0.80);
 
       final navItems = [
         {'icon': Icons.event_note_rounded, 'label': 'Turnos'},
@@ -4059,27 +4858,37 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
           child: ClipRRect(
             borderRadius: BorderRadius.circular(44),
             child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 32, sigmaY: 32),
+              filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
               child: Container(
                 height: 66,
                 constraints: const BoxConstraints(maxWidth: 400),
                 decoration: BoxDecoration(
-                  color: capsuleBg,
+                  gradient: capsuleGradient,
                   borderRadius: BorderRadius.circular(44),
-                  border: Border.all(
-                    color: capsuleBorder,
-                    width: 1.4,
-                  ),
+                  border: Border.all(color: capsuleBorder, width: 1.5),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: isDarkMode ? 0.45 : 0.12),
+                      color: Colors.black.withValues(
+                        alpha: isDarkMode ? 0.35 : 0.08,
+                      ),
                       blurRadius: 28,
+                      spreadRadius: -2,
                       offset: const Offset(0, 10),
                     ),
                     BoxShadow(
-                      color: Colors.white.withValues(alpha: isDarkMode ? 0.12 : 0.6),
-                      blurRadius: 10,
+                      color: Colors.white.withValues(
+                        alpha: isDarkMode ? 0.16 : 0.95,
+                      ),
+                      blurRadius: 6,
                       offset: const Offset(0, -1),
+                    ),
+                    BoxShadow(
+                      color: Colors.white.withValues(
+                        alpha: isDarkMode ? 0.05 : 0.45,
+                      ),
+                      blurRadius: 14,
+                      spreadRadius: -3,
+                      offset: const Offset(0, 2),
                     ),
                   ],
                 ),
@@ -4093,8 +4902,14 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                     return GestureDetector(
                       behavior: HitTestBehavior.opaque,
                       onHorizontalDragUpdate: (details) {
-                        final localX = details.localPosition.dx.clamp(0.0, constraints.maxWidth);
-                        final newIndex = (localX / itemWidth).floor().clamp(0, totalItems - 1);
+                        final localX = details.localPosition.dx.clamp(
+                          0.0,
+                          constraints.maxWidth,
+                        );
+                        final newIndex = (localX / itemWidth).floor().clamp(
+                          0,
+                          totalItems - 1,
+                        );
                         if (newIndex != _currentIndex) {
                           HapticFeedback.selectionClick();
                           setState(() => _currentIndex = newIndex);
@@ -4114,39 +4929,50 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                             bottom: 0,
                             width: itemWidth,
                             child: Container(
-                              margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+                              margin: const EdgeInsets.symmetric(
+                                horizontal: 2,
+                                vertical: 1,
+                              ),
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,
                                   colors: isDarkMode
                                       ? [
-                                          Colors.white.withValues(alpha: 0.30),
-                                          Colors.white.withValues(alpha: 0.10),
+                                          Colors.white.withValues(alpha: 0.28),
+                                          Colors.white.withValues(alpha: 0.08),
+                                          const Color(0xFF1E2530)
+                                              .withValues(alpha: 0.20),
                                         ]
                                       : [
-                                          Colors.white.withValues(alpha: 0.95),
-                                          const Color(0xFFE2E7EE).withValues(alpha: 0.88),
+                                          Colors.white.withValues(alpha: 0.55),
+                                          Colors.white.withValues(alpha: 0.18),
+                                          const Color(0xFFE8EEF5)
+                                              .withValues(alpha: 0.32),
                                         ],
                                 ),
                                 borderRadius: BorderRadius.circular(36),
                                 border: Border.all(
                                   color: isDarkMode
                                       ? Colors.white.withValues(alpha: 0.45)
-                                      : Colors.white,
+                                      : Colors.white.withValues(alpha: 0.90),
                                   width: 1.4,
                                 ),
                                 boxShadow: [
                                   BoxShadow(
                                     color: isDarkMode
-                                        ? const Color(0xFF007AFF).withValues(alpha: 0.3)
-                                        : Colors.black.withValues(alpha: 0.08),
-                                    blurRadius: 12,
+                                        ? const Color(0xFF007AFF)
+                                              .withValues(alpha: 0.30)
+                                        : const Color(0xFF007AFF)
+                                              .withValues(alpha: 0.15),
+                                    blurRadius: 10,
                                     offset: const Offset(0, 3),
                                   ),
                                   BoxShadow(
-                                    color: Colors.white.withValues(alpha: isDarkMode ? 0.15 : 0.8),
-                                    blurRadius: 6,
+                                    color: Colors.white.withValues(
+                                      alpha: isDarkMode ? 0.20 : 0.95,
+                                    ),
+                                    blurRadius: 4,
                                     offset: const Offset(0, -1),
                                   ),
                                 ],
@@ -4162,7 +4988,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                               const activeColor = Color(0xFF007AFF);
                               final inactiveColor = isDarkMode
                                   ? Colors.white.withValues(alpha: 0.65)
-                                  : const Color(0xFF1C1C1E).withValues(alpha: 0.65);
+                                  : const Color(0xFF1C1C1E)
+                                        .withValues(alpha: 0.65);
 
                               return Expanded(
                                 child: GestureDetector(
@@ -4176,20 +5003,30 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                                     children: [
                                       AnimatedScale(
                                         scale: isActive ? 1.12 : 1.0,
-                                        duration: const Duration(milliseconds: 200),
+                                        duration: const Duration(
+                                          milliseconds: 200,
+                                        ),
                                         child: Icon(
                                           item['icon'] as IconData,
                                           size: 22,
-                                          color: isActive ? activeColor : inactiveColor,
+                                          color: isActive
+                                              ? activeColor
+                                              : inactiveColor,
                                         ),
                                       ),
                                       const SizedBox(height: 2),
                                       AnimatedDefaultTextStyle(
-                                        duration: const Duration(milliseconds: 200),
+                                        duration: const Duration(
+                                          milliseconds: 200,
+                                        ),
                                         style: GoogleFonts.hankenGrotesk(
                                           fontSize: 10.5,
-                                          fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                                          color: isActive ? activeColor : inactiveColor,
+                                          fontWeight: isActive
+                                              ? FontWeight.w700
+                                              : FontWeight.w500,
+                                          color: isActive
+                                              ? activeColor
+                                              : inactiveColor,
                                           letterSpacing: -0.2,
                                         ),
                                         child: Text(item['label'] as String),
@@ -4212,33 +5049,55 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
       );
     }
 
-    // Android Solid Bottom Nav
+    // Android Liquid Glass Bottom Nav
     Widget bottomNavBarAndroid() {
-      final navBgColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+      final navBgColor = isDark
+          ? const Color(0xFF1E1E1E).withValues(alpha: 0.72)
+          : Colors.white.withValues(alpha: 0.78);
       final borderSide = BorderSide(
-        color: isDark ? Colors.white12 : Colors.grey[200]!,
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.15)
+            : Colors.black.withValues(alpha: 0.06),
         width: 1,
       );
 
-      return Container(
-        decoration: BoxDecoration(
-          color: navBgColor,
-          border: Border(
-            top: borderSide,
-          ),
-        ),
-        child: SafeArea(
-          top: false,
-          child: SizedBox(
-            height: 64,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildNavItemAndroid(0, Icons.event_note, 'Turnos', isDark),
-                _buildNavItemAndroid(1, Icons.swap_horiz, 'Cambios', isDark),
-                _buildNavItemAndroid(2, Icons.medical_services_outlined, 'Permisos', isDark),
-                _buildNavItemAndroid(3, Icons.group_outlined, 'Equipo', isDark),
-              ],
+      return ClipRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: Container(
+            decoration: BoxDecoration(
+              color: navBgColor,
+              border: Border(top: borderSide),
+            ),
+            child: SafeArea(
+              top: false,
+              child: SizedBox(
+                height: 64,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildNavItemAndroid(0, Icons.event_note, 'Turnos', isDark),
+                    _buildNavItemAndroid(
+                      1,
+                      Icons.swap_horiz,
+                      'Cambios',
+                      isDark,
+                    ),
+                    _buildNavItemAndroid(
+                      2,
+                      Icons.medical_services_outlined,
+                      'Permisos',
+                      isDark,
+                    ),
+                    _buildNavItemAndroid(
+                      3,
+                      Icons.group_outlined,
+                      'Equipo',
+                      isDark,
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
         ),
@@ -4275,7 +5134,10 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
             icon: const Icon(Icons.add_task),
             label: Text(
               'Crear Turno',
-              style: GoogleFonts.hankenGrotesk(fontWeight: FontWeight.bold, fontSize: 14),
+              style: GoogleFonts.hankenGrotesk(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
             ),
           ),
         ),
@@ -4296,13 +5158,17 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
 
     Widget innerAppContainer() {
       if (isIOS) {
-        final iosGradStart = isDark ? const Color(0xFF1F0F0E) : const Color(0xFFFFF8F7);
-        final iosGradEnd = isDark ? const Color(0xFF190A09) : const Color(0xFFF4F5F7);
-        final radialColor1 = isDark 
-            ? const Color(0xFFD2232A).withValues(alpha: 0.15) 
+        final iosGradStart = isDark
+            ? const Color(0xFF1F0F0E)
+            : const Color(0xFFFFF8F7);
+        final iosGradEnd = isDark
+            ? const Color(0xFF190A09)
+            : const Color(0xFFF4F5F7);
+        final radialColor1 = isDark
+            ? const Color(0xFFD2232A).withValues(alpha: 0.15)
             : const Color(0xFFD2232A).withValues(alpha: 0.04);
-        final radialColor2 = isDark 
-            ? const Color(0xFFD2232A).withValues(alpha: 0.1) 
+        final radialColor2 = isDark
+            ? const Color(0xFFD2232A).withValues(alpha: 0.1)
             : const Color(0xFFAC0017).withValues(alpha: 0.03);
 
         return Container(
@@ -4312,10 +5178,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
-                iosGradStart,
-                iosGradEnd,
-              ],
+              colors: [iosGradStart, iosGradEnd],
             ),
           ),
           child: Stack(
@@ -4329,10 +5192,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
-                      colors: [
-                        radialColor1,
-                        Colors.transparent,
-                      ],
+                      colors: [radialColor1, Colors.transparent],
                     ),
                   ),
                 ),
@@ -4346,10 +5206,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
-                      colors: [
-                        radialColor2,
-                        Colors.transparent,
-                      ],
+                      colors: [radialColor2, Colors.transparent],
                     ),
                   ),
                 ),
@@ -4359,11 +5216,11 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
           ),
         );
       } else {
-        final androidBgColor = isDark ? const Color(0xFF121212) : const Color(0xFFF4F5F7);
+        final androidBgColor = isDark
+            ? const Color(0xFF121212)
+            : const Color(0xFFF4F5F7);
         return Container(
-          decoration: BoxDecoration(
-            color: androidBgColor,
-          ),
+          decoration: BoxDecoration(color: androidBgColor),
           child: mainCanvas(),
         );
       }
@@ -4372,7 +5229,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
     final statusBarStyle = isDark
         ? SystemUiOverlayStyle.light.copyWith(
             statusBarColor: Colors.transparent,
-            statusBarBrightness: Brightness.dark, // iOS: text/icons are light/white
+            statusBarBrightness:
+                Brightness.dark, // iOS: text/icons are light/white
             statusBarIconBrightness: Brightness.light, // Android: light icons
           )
         : SystemUiOverlayStyle.dark.copyWith(
@@ -4384,7 +5242,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> with SingleTick
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: statusBarStyle,
       child: Scaffold(
-        backgroundColor: isDark ? const Color(0xFF121212) : const Color(0xFFF4F5F7),
+        backgroundColor: isDark
+            ? const Color(0xFF121212)
+            : const Color(0xFFF4F5F7),
         body: innerAppContainer(),
       ),
     );

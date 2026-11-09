@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+
 import 'google_fonts_wrapper.dart';
 import 'widgets/frisby_weekly_schedule_sheet.dart';
 
@@ -43,7 +44,10 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
     final isDesktop = mediaQuery.size.width > 800;
-    final isIOS = widget.forceIOS ?? (Theme.of(context).platform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.iOS);
+    final isIOS =
+        widget.forceIOS ??
+        (Theme.of(context).platform == TargetPlatform.iOS ||
+            defaultTargetPlatform == TargetPlatform.iOS);
     final isDark = _isDarkMode(context);
 
     if (isDesktop) {
@@ -60,11 +64,19 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
   // ==========================================
   Widget _buildDesktopLayout(bool isDark) {
     const primaryRed = Color(0xFFAC0017);
-    final surfaceBg = isDark ? const Color(0xFF141414) : const Color(0xFFF8F9FB);
+    final surfaceBg = isDark
+        ? const Color(0xFF141414)
+        : const Color(0xFFF8F9FB);
     final sidebarBg = isDark ? const Color(0xFF1E1E1E) : Colors.white;
-    final titleColor = isDark ? const Color(0xFFE1E2E4) : const Color(0xFF191C1E);
-    final subtextColor = isDark ? const Color(0xFFC6C6C7) : const Color(0xFF545D80);
-    final borderColor = isDark ? Colors.white12 : const Color(0xFFE5BDBA).withValues(alpha: 0.3);
+    final titleColor = isDark
+        ? const Color(0xFFE1E2E4)
+        : const Color(0xFF191C1E);
+    final subtextColor = isDark
+        ? const Color(0xFFC6C6C7)
+        : const Color(0xFF545D80);
+    final borderColor = isDark
+        ? Colors.white12
+        : const Color(0xFFE5BDBA).withValues(alpha: 0.3);
 
     return Scaffold(
       backgroundColor: surfaceBg,
@@ -95,7 +107,10 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
                       Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: primaryRed,
                               borderRadius: BorderRadius.circular(6),
@@ -166,7 +181,10 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
 
                 Expanded(
                   child: ListView(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 16,
+                    ),
                     children: [
                       _buildSidebarNavItem(
                         icon: Icons.dashboard_outlined,
@@ -207,11 +225,23 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
                     children: [
                       TextButton.icon(
                         onPressed: () => Navigator.pop(context),
-                        icon: const Icon(Icons.arrow_back, size: 16, color: Colors.grey),
-                        label: Text('Volver', style: GoogleFonts.hankenGrotesk(color: Colors.grey)),
+                        icon: const Icon(
+                          Icons.arrow_back,
+                          size: 16,
+                          color: Colors.grey,
+                        ),
+                        label: Text(
+                          'Volver',
+                          style: GoogleFonts.hankenGrotesk(color: Colors.grey),
+                        ),
                       ),
                       IconButton(
-                        icon: Icon(isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined, color: titleColor),
+                        icon: Icon(
+                          isDark
+                              ? Icons.light_mode_outlined
+                              : Icons.dark_mode_outlined,
+                          color: titleColor,
+                        ),
                         onPressed: _toggleTheme,
                         tooltip: 'Cambiar Tema',
                       ),
@@ -242,40 +272,70 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
                             onTap: () => Navigator.pop(context),
                             child: Text(
                               'Turnos',
-                              style: GoogleFonts.hankenGrotesk(fontSize: 13, color: subtextColor, fontWeight: FontWeight.w500),
+                              style: GoogleFonts.hankenGrotesk(
+                                fontSize: 13,
+                                color: subtextColor,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ),
                           const SizedBox(width: 8),
-                          const Icon(Icons.chevron_right, size: 16, color: Colors.grey),
+                          const Icon(
+                            Icons.chevron_right,
+                            size: 16,
+                            color: Colors.grey,
+                          ),
                           const SizedBox(width: 8),
                           Text(
                             'Programación de Horarios (DRO\'001.1)',
-                            style: GoogleFonts.hankenGrotesk(fontSize: 13, fontWeight: FontWeight.bold, color: titleColor),
+                            style: GoogleFonts.hankenGrotesk(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: titleColor,
+                            ),
                           ),
                         ],
                       ),
                       Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
                             decoration: BoxDecoration(
-                              color: isDark ? Colors.white10 : const Color(0xFFF3F4F6),
+                              color: isDark
+                                  ? Colors.white10
+                                  : const Color(0xFFF3F4F6),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Row(
                               children: [
-                                const Icon(Icons.storefront, size: 14, color: primaryRed),
+                                const Icon(
+                                  Icons.storefront,
+                                  size: 14,
+                                  color: primaryRed,
+                                ),
                                 const SizedBox(width: 6),
                                 Text(
                                   widget.currentStore,
-                                  style: GoogleFonts.hankenGrotesk(fontSize: 12, fontWeight: FontWeight.w600, color: titleColor),
+                                  style: GoogleFonts.hankenGrotesk(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: titleColor,
+                                  ),
                                 ),
                               ],
                             ),
                           ),
                           const SizedBox(width: 12),
                           IconButton(
-                            icon: Icon(isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined, color: titleColor),
+                            icon: Icon(
+                              isDark
+                                  ? Icons.light_mode_outlined
+                                  : Icons.dark_mode_outlined,
+                              color: titleColor,
+                            ),
                             onPressed: _toggleTheme,
                             tooltip: 'Cambiar Tema',
                           ),
@@ -287,7 +347,10 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
 
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 20,
+                    ),
                     child: FrisbyWeeklyScheduleSheet(
                       restaurantName: widget.currentStore,
                       isDark: isDark,
@@ -308,10 +371,14 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
   // ==========================================
   Widget _buildIOSLayout(bool isDark) {
     const primaryRed = Color(0xFFC8102E);
-    final surfaceBg = isDark ? const Color(0xFF1A1A1A) : const Color(0xFFF9F9F9);
+    final surfaceBg = isDark
+        ? const Color(0xFF1A1A1A)
+        : const Color(0xFFF9F9F9);
     final cardBg = isDark ? const Color(0xFF2C2C2E) : Colors.white;
     final titleColor = isDark ? Colors.white : const Color(0xFF1A1A1A);
-    final subtextColor = isDark ? const Color(0xFFB0B0B0) : const Color(0xFF757575);
+    final subtextColor = isDark
+        ? const Color(0xFFB0B0B0)
+        : const Color(0xFF757575);
     final borderColor = isDark ? Colors.white12 : const Color(0xFFE0E0E0);
 
     return Scaffold(
@@ -335,7 +402,10 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
         ),
         actions: [
           IconButton(
-            icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode, color: primaryRed),
+            icon: Icon(
+              isDark ? Icons.light_mode : Icons.dark_mode,
+              color: primaryRed,
+            ),
             onPressed: _toggleTheme,
             tooltip: 'Cambiar Tema',
           ),
@@ -361,13 +431,28 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
             selectedItemColor: primaryRed,
             unselectedItemColor: subtextColor,
             type: BottomNavigationBarType.fixed,
-            selectedLabelStyle: GoogleFonts.sora(fontSize: 11, fontWeight: FontWeight.bold),
+            selectedLabelStyle: GoogleFonts.sora(
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+            ),
             unselectedLabelStyle: GoogleFonts.sora(fontSize: 11),
             items: const [
-              BottomNavigationBarItem(icon: Icon(Icons.event_note), label: 'Turnos'),
-              BottomNavigationBarItem(icon: Icon(Icons.swap_horiz), label: 'Cambios'),
-              BottomNavigationBarItem(icon: Icon(Icons.medical_services_outlined), label: 'Permisos'),
-              BottomNavigationBarItem(icon: Icon(Icons.group_outlined), label: 'Equipo'),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.event_note),
+                label: 'Turnos',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.swap_horiz),
+                label: 'Cambios',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.medical_services_outlined),
+                label: 'Permisos',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.group_outlined),
+                label: 'Equipo',
+              ),
             ],
             onTap: (_) => Navigator.pop(context),
           ),
@@ -381,10 +466,16 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
   // ==========================================
   Widget _buildAndroidLayout(bool isDark) {
     const primaryRed = Color(0xFFAC0017);
-    final surfaceBg = isDark ? const Color(0xFF121212) : const Color(0xFFF8F9FB);
+    final surfaceBg = isDark
+        ? const Color(0xFF121212)
+        : const Color(0xFFF8F9FB);
     final cardBg = isDark ? const Color(0xFF1E1E1E) : Colors.white;
-    final subtextColor = isDark ? const Color(0xFFC6C6C7) : const Color(0xFF545D80);
-    final borderColor = isDark ? Colors.white12 : const Color(0xFFE5BDBA).withValues(alpha: 0.3);
+    final subtextColor = isDark
+        ? const Color(0xFFC6C6C7)
+        : const Color(0xFF545D80);
+    final borderColor = isDark
+        ? Colors.white12
+        : const Color(0xFFE5BDBA).withValues(alpha: 0.3);
 
     return Scaffold(
       backgroundColor: surfaceBg,
@@ -399,11 +490,17 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
         ),
         title: Text(
           'Programación Semanal',
-          style: GoogleFonts.hankenGrotesk(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+          style: GoogleFonts.hankenGrotesk(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
         actions: [
           IconButton(
-            icon: Icon(isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined),
+            icon: Icon(
+              isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+            ),
             onPressed: _toggleTheme,
             tooltip: 'Cambiar Tema',
           ),
@@ -429,10 +526,22 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
           unselectedItemColor: subtextColor,
           type: BottomNavigationBarType.fixed,
           items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.event_note), label: 'Turnos'),
-            BottomNavigationBarItem(icon: Icon(Icons.swap_horiz), label: 'Cambios'),
-            BottomNavigationBarItem(icon: Icon(Icons.medical_services_outlined), label: 'Permisos'),
-            BottomNavigationBarItem(icon: Icon(Icons.group_outlined), label: 'Equipo'),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.event_note),
+              label: 'Turnos',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.swap_horiz),
+              label: 'Cambios',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.medical_services_outlined),
+              label: 'Permisos',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.group_outlined),
+              label: 'Equipo',
+            ),
           ],
           onTap: (_) => Navigator.pop(context),
         ),
@@ -447,9 +556,15 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
     required bool isDark,
     required VoidCallback onTap,
   }) {
-    final activeBg = isDark ? const Color(0xFFD2232A).withValues(alpha: 0.2) : const Color(0xFFCCD6FE);
-    final activeText = isDark ? const Color(0xFFFFB3AD) : const Color(0xFF101A39);
-    final inactiveText = isDark ? const Color(0xFFC6C6C7) : const Color(0xFF545D80);
+    final activeBg = isDark
+        ? const Color(0xFFD2232A).withValues(alpha: 0.2)
+        : const Color(0xFFCCD6FE);
+    final activeText = isDark
+        ? const Color(0xFFFFB3AD)
+        : const Color(0xFF101A39);
+    final inactiveText = isDark
+        ? const Color(0xFFC6C6C7)
+        : const Color(0xFF545D80);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 6),

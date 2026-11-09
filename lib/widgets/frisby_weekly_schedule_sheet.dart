@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../google_fonts_wrapper.dart';
 
 /// Modelo para una fila de la Malla Semanal DRO'001.1
@@ -9,16 +10,20 @@ class WeeklyScheduleRow {
   final String collaboratorName;
   final String role; // Cargo: Super #, Auxiliar P, Combos D, Salón, Oficios Varios, Domicilio
   final Map<int, String> dayShifts; // 1: Lunes -> 7: Domingo. Valor ej: '8-15', '☺', '14-21', '12-14\n16-21'
-  final Map<int, String> dayNotes; // Notas especiales por turno: 'Biodanza (7:30 AM)', 'Reunión', etc.
+  final Map<int, String>
+  dayNotes; // Notas especiales por turno: 'Biodanza (7:30 AM)', 'Reunión', etc.
 
   WeeklyScheduleRow({
     required this.idNumber,
     required this.collaboratorId,
     required this.collaboratorName,
     required this.role,
-    required this.dayShifts,
-    this.dayNotes = const {},
-  });
+    required Map<int, String> dayShifts,
+    Map<int, String>? dayNotes,
+  }) : dayShifts = Map<int, String>.from(dayShifts),
+       dayNotes = dayNotes != null
+           ? Map<int, String>.from(dayNotes)
+           : <int, String>{};
 
   WeeklyScheduleRow copyWith({
     int? idNumber,
@@ -33,8 +38,12 @@ class WeeklyScheduleRow {
       collaboratorId: collaboratorId ?? this.collaboratorId,
       collaboratorName: collaboratorName ?? this.collaboratorName,
       role: role ?? this.role,
-      dayShifts: dayShifts ?? Map<int, String>.from(this.dayShifts),
-      dayNotes: dayNotes ?? Map<int, String>.from(this.dayNotes),
+      dayShifts: dayShifts != null
+          ? Map<int, String>.from(dayShifts)
+          : Map<int, String>.from(this.dayShifts),
+      dayNotes: dayNotes != null
+          ? Map<int, String>.from(dayNotes)
+          : Map<int, String>.from(this.dayNotes),
     );
   }
 
@@ -42,7 +51,10 @@ class WeeklyScheduleRow {
   double calculateTotalHours() {
     double total = 0.0;
     for (final shift in dayShifts.values) {
-      if (shift.isEmpty || shift.contains('☺') || shift.contains('D') || shift == '-') {
+      if (shift.isEmpty ||
+          shift.contains('☺') ||
+          shift.contains('D') ||
+          shift == '-') {
         continue;
       }
       total += _parseShiftDuration(shift);
@@ -100,7 +112,8 @@ class FrisbyWeeklyScheduleSheet extends StatefulWidget {
   });
 
   @override
-  State<FrisbyWeeklyScheduleSheet> createState() => _FrisbyWeeklyScheduleSheetState();
+  State<FrisbyWeeklyScheduleSheet> createState() =>
+      _FrisbyWeeklyScheduleSheetState();
 }
 
 class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
@@ -318,7 +331,9 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
   }
 
   List<WeeklyScheduleRow> get _displayedRows {
-    if (!widget.isCollaboratorView && widget.filterCollaboratorId == null && widget.filterCollaboratorName == null) {
+    if (!widget.isCollaboratorView &&
+        widget.filterCollaboratorId == null &&
+        widget.filterCollaboratorName == null) {
       return _scheduleRows;
     }
 
@@ -330,7 +345,9 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
       final rowName = row.collaboratorName.toLowerCase();
 
       if (targetId != null && targetId.isNotEmpty) {
-        if (rowId == targetId || targetId.contains(rowId) || rowId.contains(targetId)) {
+        if (rowId == targetId ||
+            targetId.contains(rowId) ||
+            rowId.contains(targetId)) {
           return true;
         }
       }
@@ -344,7 +361,8 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
       }
 
       // Default fallback if username is passed (e.g. 10002 or cristian)
-      if (targetId != null && (rowName.contains(targetId) || targetId.contains(rowName))) {
+      if (targetId != null &&
+          (rowName.contains(targetId) || targetId.contains(rowName))) {
         return true;
       }
 
@@ -390,23 +408,83 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
     required String currentShift,
   }) {
     final isDark = widget.isDark;
-    final dayNames = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+    final dayNames = [
+      'Lunes',
+      'Martes',
+      'Miércoles',
+      'Jueves',
+      'Viernes',
+      'Sábado',
+      'Domingo',
+    ];
     final dayName = dayNames[dayIndex - 1];
 
-    final customCtrl = TextEditingController(text: currentShift == '☺' || currentShift == '-' ? '' : currentShift);
+    final customCtrl = TextEditingController(
+      text: currentShift == '☺' || currentShift == '-' ? '' : currentShift,
+    );
     final noteCtrl = TextEditingController(text: row.dayNotes[dayIndex] ?? '');
 
     final shiftPresets = [
-      {'label': '8 - 15', 'desc': 'Apertura (7h)', 'val': '8-15', 'color': const Color(0xFF1E88E5)},
-      {'label': '14 - 21', 'desc': 'Cierre (7h)', 'val': '14-21', 'color': const Color(0xFFD2232A)},
-      {'label': '8 - 16', 'desc': 'Completo (8h)', 'val': '8-16', 'color': const Color(0xFF43A047)},
-      {'label': '9 - 16', 'desc': 'Intermedio (7h)', 'val': '9-16', 'color': const Color(0xFF00ACC1)},
-      {'label': '12 - 19', 'desc': 'Refuerzo Tarde (7h)', 'val': '12-19', 'color': const Color(0xFFFB8C00)},
-      {'label': '10 - 17', 'desc': 'Fin de Semana (7h)', 'val': '10-17', 'color': const Color(0xFF8E24AA)},
-      {'label': '13 - 20', 'desc': 'Domicilios Tarde (7h)', 'val': '13-20', 'color': const Color(0xFF3949AB)},
-      {'label': '12-14 / 16-21', 'desc': 'Turno Partido (7h)', 'val': '12-14\n16-21', 'color': const Color(0xFFE53935)},
-      {'label': '☺ Descanso', 'desc': 'Descanso Programado', 'val': '☺', 'color': const Color(0xFF2E7D32)},
-      {'label': '- Sin Turno', 'desc': 'No programado', 'val': '-', 'color': Colors.grey},
+      {
+        'label': '8 - 15',
+        'desc': 'Apertura (7h)',
+        'val': '8-15',
+        'color': const Color(0xFF1E88E5),
+      },
+      {
+        'label': '14 - 21',
+        'desc': 'Cierre (7h)',
+        'val': '14-21',
+        'color': const Color(0xFFD2232A),
+      },
+      {
+        'label': '8 - 16',
+        'desc': 'Completo (8h)',
+        'val': '8-16',
+        'color': const Color(0xFF43A047),
+      },
+      {
+        'label': '9 - 16',
+        'desc': 'Intermedio (7h)',
+        'val': '9-16',
+        'color': const Color(0xFF00ACC1),
+      },
+      {
+        'label': '12 - 19',
+        'desc': 'Refuerzo Tarde (7h)',
+        'val': '12-19',
+        'color': const Color(0xFFFB8C00),
+      },
+      {
+        'label': '10 - 17',
+        'desc': 'Fin de Semana (7h)',
+        'val': '10-17',
+        'color': const Color(0xFF8E24AA),
+      },
+      {
+        'label': '13 - 20',
+        'desc': 'Domicilios Tarde (7h)',
+        'val': '13-20',
+        'color': const Color(0xFF3949AB),
+      },
+      {
+        'label': '12-14 / 16-21',
+        'desc': 'Turno Partido (7h)',
+        'val': '12-14\n16-21',
+        'color': const Color(0xFFE53935),
+      },
+      {
+        'label': '☺ Descanso',
+        'desc': 'Descanso Programado',
+        'val': '☺',
+        'color': const Color(0xFF2E7D32),
+      },
+      {
+        'label': '- Sin Turno',
+        'desc': 'No programado',
+        'val': '-',
+        'color': Colors.grey,
+      },
     ];
 
     showModalBottomSheet(
@@ -418,7 +496,12 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
       ),
       builder: (ctx) => StatefulBuilder(
         builder: (context, setModalState) => Padding(
-          padding: EdgeInsets.fromLTRB(20, 16, 20, MediaQuery.of(context).viewInsets.bottom + 24),
+          padding: EdgeInsets.fromLTRB(
+            20,
+            16,
+            20,
+            MediaQuery.of(context).viewInsets.bottom + 24,
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -446,9 +529,13 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                       Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFAC0017).withValues(alpha: 0.15),
+                              color: const Color(0xFFAC0017)
+                                  .withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
@@ -466,7 +553,9 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                             style: GoogleFonts.hankenGrotesk(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: isDark ? Colors.white : const Color(0xFF191C1E),
+                              color: isDark
+                                  ? Colors.white
+                                  : const Color(0xFF191C1E),
                             ),
                           ),
                         ],
@@ -494,8 +583,12 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
               // --- ASISTENTE DE COBERTURA DE LA ESTACIÓN (APERTURA, INTERMEDIO, CIERRE) ---
               () {
                 // Obtener los compañeros del mismo cargo en este día
-                final sameRoleRows = _scheduleRows.where((r) => r.role == row.role && r.idNumber != row.idNumber).toList();
-                
+                final sameRoleRows = _scheduleRows
+                    .where(
+                      (r) => r.role == row.role && r.idNumber != row.idNumber,
+                    )
+                    .toList();
+
                 String? aperturaPerson;
                 String? intermedioPerson;
                 String? cierrePerson;
@@ -503,10 +596,14 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                 for (final r in sameRoleRows) {
                   final s = r.dayShifts[dayIndex] ?? '';
                   if (s.isEmpty || s == '-' || s == '☺') continue;
-                  
-                  if (s.startsWith('8-') || s.startsWith('08-') || s.startsWith('9-')) {
+
+                  if (s.startsWith('8-') ||
+                      s.startsWith('08-') ||
+                      s.startsWith('9-')) {
                     aperturaPerson = r.collaboratorName;
-                  } else if (s.contains('14-') || s.contains('15-') || s.contains('16-')) {
+                  } else if (s.contains('14-') ||
+                      s.contains('15-') ||
+                      s.contains('16-')) {
                     cierrePerson = r.collaboratorName;
                   } else {
                     intermedioPerson = r.collaboratorName;
@@ -523,7 +620,8 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                   smartSuggestion = 'Falta cubrir Cierre (14:00 - 21:00)';
                   suggestedVal = '14-21';
                 } else if (intermedioPerson == null) {
-                  smartSuggestion = 'Falta cubrir Refuerzo/Intermedio (12:00 - 19:00)';
+                  smartSuggestion =
+                      'Falta cubrir Refuerzo/Intermedio (12:00 - 19:00)';
                   suggestedVal = '12-19';
                 }
 
@@ -531,9 +629,13 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                   margin: const EdgeInsets.only(bottom: 16),
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: isDark ? Colors.white.withValues(alpha: 0.04) : const Color(0xFFF8F9FB),
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.04)
+                        : const Color(0xFFF8F9FB),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: isDark ? Colors.white12 : const Color(0xFFE5E7EB)),
+                    border: Border.all(
+                      color: isDark ? Colors.white12 : const Color(0xFFE5E7EB),
+                    ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -543,14 +645,20 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                         children: [
                           Row(
                             children: [
-                              const Icon(Icons.hub_outlined, size: 16, color: Color(0xFFAC0017)),
+                              const Icon(
+                                Icons.hub_outlined,
+                                size: 16,
+                                color: Color(0xFFAC0017),
+                              ),
                               const SizedBox(width: 6),
                               Text(
                                 'Cobertura de Estación (${row.role})',
                                 style: GoogleFonts.hankenGrotesk(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
-                                  color: isDark ? Colors.white : const Color(0xFF191C1E),
+                                  color: isDark
+                                      ? Colors.white
+                                      : const Color(0xFF191C1E),
                                 ),
                               ),
                             ],
@@ -572,30 +680,59 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                           // Apertura
                           Expanded(
                             child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 8,
+                                horizontal: 6,
+                              ),
                               decoration: BoxDecoration(
                                 color: aperturaPerson != null
-                                    ? const Color(0xFF0284C7).withValues(alpha: isDark ? 0.25 : 0.12)
-                                    : (isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey[200]),
+                                    ? const Color(
+                                        0xFF0284C7,
+                                      ).withValues(alpha: isDark ? 0.25 : 0.12)
+                                    : (isDark
+                                          ? Colors.white.withValues(alpha: 0.05)
+                                          : Colors.grey[200]),
                                 borderRadius: BorderRadius.circular(10),
                                 border: Border.all(
                                   color: aperturaPerson != null
-                                      ? const Color(0xFF0284C7).withValues(alpha: 0.5)
+                                      ? const Color(0xFF0284C7)
+                                            .withValues(alpha: 0.5)
                                       : Colors.transparent,
                                 ),
                               ),
                               child: Column(
                                 children: [
-                                  Text('Apertura', style: GoogleFonts.hankenGrotesk(fontSize: 10, fontWeight: FontWeight.bold, color: aperturaPerson != null ? const Color(0xFF0284C7) : Colors.grey)),
+                                  Text(
+                                    'Apertura',
+                                    style: GoogleFonts.hankenGrotesk(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      color: aperturaPerson != null
+                                          ? const Color(0xFF0284C7)
+                                          : Colors.grey,
+                                    ),
+                                  ),
                                   const SizedBox(height: 2),
-                                  Text('8:00 - 15:00', style: GoogleFonts.hankenGrotesk(fontSize: 9, color: isDark ? Colors.white70 : Colors.black87)),
+                                  Text(
+                                    '8:00 - 15:00',
+                                    style: GoogleFonts.hankenGrotesk(
+                                      fontSize: 9,
+                                      color: isDark
+                                          ? Colors.white70
+                                          : Colors.black87,
+                                    ),
+                                  ),
                                   const SizedBox(height: 4),
                                   Text(
                                     aperturaPerson ?? '⚠️ Libre',
                                     style: GoogleFonts.hankenGrotesk(
                                       fontSize: 10,
                                       fontWeight: FontWeight.bold,
-                                      color: aperturaPerson != null ? (isDark ? Colors.white : const Color(0xFF0284C7)) : const Color(0xFFD97706),
+                                      color: aperturaPerson != null
+                                          ? (isDark
+                                                ? Colors.white
+                                                : const Color(0xFF0284C7))
+                                          : const Color(0xFFD97706),
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
@@ -608,30 +745,59 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                           // Intermedio
                           Expanded(
                             child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 8,
+                                horizontal: 6,
+                              ),
                               decoration: BoxDecoration(
                                 color: intermedioPerson != null
-                                    ? const Color(0xFFD97706).withValues(alpha: isDark ? 0.25 : 0.12)
-                                    : (isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey[200]),
+                                    ? const Color(
+                                        0xFFD97706,
+                                      ).withValues(alpha: isDark ? 0.25 : 0.12)
+                                    : (isDark
+                                          ? Colors.white.withValues(alpha: 0.05)
+                                          : Colors.grey[200]),
                                 borderRadius: BorderRadius.circular(10),
                                 border: Border.all(
                                   color: intermedioPerson != null
-                                      ? const Color(0xFFD97706).withValues(alpha: 0.5)
+                                      ? const Color(0xFFD97706)
+                                            .withValues(alpha: 0.5)
                                       : Colors.transparent,
                                 ),
                               ),
                               child: Column(
                                 children: [
-                                  Text('Intermedio', style: GoogleFonts.hankenGrotesk(fontSize: 10, fontWeight: FontWeight.bold, color: intermedioPerson != null ? const Color(0xFFD97706) : Colors.grey)),
+                                  Text(
+                                    'Intermedio',
+                                    style: GoogleFonts.hankenGrotesk(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      color: intermedioPerson != null
+                                          ? const Color(0xFFD97706)
+                                          : Colors.grey,
+                                    ),
+                                  ),
                                   const SizedBox(height: 2),
-                                  Text('12:00 - 19:00', style: GoogleFonts.hankenGrotesk(fontSize: 9, color: isDark ? Colors.white70 : Colors.black87)),
+                                  Text(
+                                    '12:00 - 19:00',
+                                    style: GoogleFonts.hankenGrotesk(
+                                      fontSize: 9,
+                                      color: isDark
+                                          ? Colors.white70
+                                          : Colors.black87,
+                                    ),
+                                  ),
                                   const SizedBox(height: 4),
                                   Text(
                                     intermedioPerson ?? '⚠️ Libre',
                                     style: GoogleFonts.hankenGrotesk(
                                       fontSize: 10,
                                       fontWeight: FontWeight.bold,
-                                      color: intermedioPerson != null ? (isDark ? Colors.white : const Color(0xFFD97706)) : const Color(0xFFD97706),
+                                      color: intermedioPerson != null
+                                          ? (isDark
+                                                ? Colors.white
+                                                : const Color(0xFFD97706))
+                                          : const Color(0xFFD97706),
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
@@ -644,30 +810,59 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                           // Cierre
                           Expanded(
                             child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 8,
+                                horizontal: 6,
+                              ),
                               decoration: BoxDecoration(
                                 color: cierrePerson != null
-                                    ? const Color(0xFFC8102E).withValues(alpha: isDark ? 0.25 : 0.12)
-                                    : (isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey[200]),
+                                    ? const Color(
+                                        0xFFC8102E,
+                                      ).withValues(alpha: isDark ? 0.25 : 0.12)
+                                    : (isDark
+                                          ? Colors.white.withValues(alpha: 0.05)
+                                          : Colors.grey[200]),
                                 borderRadius: BorderRadius.circular(10),
                                 border: Border.all(
                                   color: cierrePerson != null
-                                      ? const Color(0xFFC8102E).withValues(alpha: 0.5)
+                                      ? const Color(0xFFC8102E)
+                                            .withValues(alpha: 0.5)
                                       : Colors.transparent,
                                 ),
                               ),
                               child: Column(
                                 children: [
-                                  Text('Cierre', style: GoogleFonts.hankenGrotesk(fontSize: 10, fontWeight: FontWeight.bold, color: cierrePerson != null ? const Color(0xFFC8102E) : Colors.grey)),
+                                  Text(
+                                    'Cierre',
+                                    style: GoogleFonts.hankenGrotesk(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      color: cierrePerson != null
+                                          ? const Color(0xFFC8102E)
+                                          : Colors.grey,
+                                    ),
+                                  ),
                                   const SizedBox(height: 2),
-                                  Text('14:00 - 21:00', style: GoogleFonts.hankenGrotesk(fontSize: 9, color: isDark ? Colors.white70 : Colors.black87)),
+                                  Text(
+                                    '14:00 - 21:00',
+                                    style: GoogleFonts.hankenGrotesk(
+                                      fontSize: 9,
+                                      color: isDark
+                                          ? Colors.white70
+                                          : Colors.black87,
+                                    ),
+                                  ),
                                   const SizedBox(height: 4),
                                   Text(
                                     cierrePerson ?? '⚠️ Libre',
                                     style: GoogleFonts.hankenGrotesk(
                                       fontSize: 10,
                                       fontWeight: FontWeight.bold,
-                                      color: cierrePerson != null ? (isDark ? Colors.white : const Color(0xFFC8102E)) : const Color(0xFFD97706),
+                                      color: cierrePerson != null
+                                          ? (isDark
+                                                ? Colors.white
+                                                : const Color(0xFFC8102E))
+                                          : const Color(0xFFD97706),
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
@@ -687,15 +882,26 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                           },
                           borderRadius: BorderRadius.circular(8),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 6,
+                            ),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF2E7D32).withValues(alpha: isDark ? 0.2 : 0.1),
+                              color: const Color(0xFF2E7D32)
+                                  .withValues(alpha: isDark ? 0.2 : 0.1),
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: const Color(0xFF2E7D32).withValues(alpha: 0.4)),
+                              border: Border.all(
+                                color: const Color(0xFF2E7D32)
+                                    .withValues(alpha: 0.4),
+                              ),
                             ),
                             child: Row(
                               children: [
-                                const Icon(Icons.auto_awesome, size: 14, color: Color(0xFF2E7D32)),
+                                const Icon(
+                                  Icons.auto_awesome,
+                                  size: 14,
+                                  color: Color(0xFF2E7D32),
+                                ),
                                 const SizedBox(width: 6),
                                 Expanded(
                                   child: Text(
@@ -703,7 +909,9 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                                     style: GoogleFonts.hankenGrotesk(
                                       fontSize: 11,
                                       fontWeight: FontWeight.bold,
-                                      color: isDark ? const Color(0xFFA5D6A7) : const Color(0xFF1B5E20),
+                                      color: isDark
+                                          ? const Color(0xFFA5D6A7)
+                                          : const Color(0xFF1B5E20),
                                     ),
                                   ),
                                 ),
@@ -737,19 +945,28 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                   final pColor = p['color'] as Color;
 
                   // Detectar si otro compañero del mismo cargo ya tiene exactamente este turno
-                  final sameRoleRows = _scheduleRows.where((r) => r.role == row.role && r.idNumber != row.idNumber).toList();
-                  final conflictRow = sameRoleRows.cast<WeeklyScheduleRow?>().firstWhere(
+                  final sameRoleRows = _scheduleRows
+                      .where(
+                        (r) => r.role == row.role && r.idNumber != row.idNumber,
+                      )
+                      .toList();
+                  final conflictRow = sameRoleRows
+                      .cast<WeeklyScheduleRow?>()
+                      .firstWhere(
                         (r) => r?.dayShifts[dayIndex] == val,
                         orElse: () => null,
                       );
-                  final hasConflict = conflictRow != null && val != '-' && val != '☺';
+                  final hasConflict =
+                      conflictRow != null && val != '-' && val != '☺';
 
                   return InkWell(
                     onTap: () {
                       if (hasConflict) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('⚠️ Nota: ${conflictRow.collaboratorName} ya tiene este horario asignado en ${row.role}.'),
+                            content: Text(
+                              '⚠️ Nota: ${conflictRow.collaboratorName} ya tiene este horario asignado en ${row.role}.',
+                            ),
                             backgroundColor: const Color(0xFFD97706),
                             duration: const Duration(seconds: 2),
                           ),
@@ -760,20 +977,30 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                     },
                     borderRadius: BorderRadius.circular(12),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
                         color: isSelected
                             ? pColor.withValues(alpha: 0.25)
                             : (hasConflict
-                                ? (isDark ? Colors.white.withValues(alpha: 0.03) : const Color(0xFFFFFBEB))
-                                : (isDark ? Colors.white10 : const Color(0xFFF3F4F6))),
+                                  ? (isDark
+                                        ? Colors.white.withValues(alpha: 0.03)
+                                        : const Color(0xFFFFFBEB))
+                                  : (isDark
+                                        ? Colors.white10
+                                        : const Color(0xFFF3F4F6))),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: isSelected
                               ? pColor
                               : (hasConflict
-                                  ? const Color(0xFFD97706).withValues(alpha: 0.5)
-                                  : (isDark ? Colors.white12 : Colors.grey[300]!)),
+                                    ? const Color(0xFFD97706)
+                                          .withValues(alpha: 0.5)
+                                    : (isDark
+                                          ? Colors.white12
+                                          : Colors.grey[300]!)),
                           width: isSelected ? 2 : 1,
                         ),
                       ),
@@ -781,12 +1008,21 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           if (val == '☺')
-                            const Text('☺ ', style: TextStyle(fontSize: 16, color: Color(0xFF2E7D32)))
+                            const Text(
+                              '☺ ',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Color(0xFF2E7D32),
+                              ),
+                            )
                           else
                             Container(
                               width: 8,
                               height: 8,
-                              decoration: BoxDecoration(color: pColor, shape: BoxShape.circle),
+                              decoration: BoxDecoration(
+                                color: pColor,
+                                shape: BoxShape.circle,
+                              ),
                             ),
                           const SizedBox(width: 6),
                           Column(
@@ -799,7 +1035,9 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                                   fontSize: 13,
                                   color: isSelected
                                       ? (isDark ? Colors.white : pColor)
-                                      : (isDark ? Colors.white : Colors.black87),
+                                      : (isDark
+                                            ? Colors.white
+                                            : Colors.black87),
                                 ),
                               ),
                               if (hasConflict)
@@ -835,65 +1073,110 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
               Wrap(
                 spacing: 6,
                 runSpacing: 6,
-                children: [
-                  {'label': '🌿 Biodanza (7:30 AM)', 'color': const Color(0xFF2E7D32)},
-                  {'label': '🌿 Biodanza (3:30 PM)', 'color': const Color(0xFF2E7D32)},
-                  {'label': '👥 Reunión Operativa', 'color': const Color(0xFFD2232A)},
-                  {'label': '🧹 Aseo General', 'color': const Color(0xFF0288D1)},
-                  {'label': '🎓 Capacitación', 'color': const Color(0xFF7C3AED)},
-                ].map((ev) {
-                  final evLabel = ev['label'] as String;
-                  final evColor = ev['color'] as Color;
-                  final isEvSelected = noteCtrl.text == evLabel;
+                children:
+                    [
+                      {
+                        'label': '🌿 Biodanza (7:30 AM)',
+                        'color': const Color(0xFF2E7D32),
+                      },
+                      {
+                        'label': '🌿 Biodanza (3:30 PM)',
+                        'color': const Color(0xFF2E7D32),
+                      },
+                      {
+                        'label': '👥 Reunión Operativa',
+                        'color': const Color(0xFFD2232A),
+                      },
+                      {
+                        'label': '🧹 Aseo General',
+                        'color': const Color(0xFF0288D1),
+                      },
+                      {
+                        'label': '🎓 Capacitación',
+                        'color': const Color(0xFF7C3AED),
+                      },
+                    ].map((ev) {
+                      final evLabel = ev['label'] as String;
+                      final evColor = ev['color'] as Color;
+                      final isEvSelected = noteCtrl.text == evLabel;
 
-                  return InkWell(
-                    onTap: () {
-                      setModalState(() {
-                        if (isEvSelected) {
-                          noteCtrl.clear();
-                        } else {
-                          noteCtrl.text = evLabel;
-                        }
-                      });
-                    },
-                    borderRadius: BorderRadius.circular(10),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: isEvSelected
-                            ? evColor.withValues(alpha: isDark ? 0.3 : 0.15)
-                            : (isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFF3F4F6)),
+                      return InkWell(
+                        onTap: () {
+                          setModalState(() {
+                            if (isEvSelected) {
+                              noteCtrl.clear();
+                            } else {
+                              noteCtrl.text = evLabel;
+                            }
+                          });
+                        },
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: isEvSelected ? evColor : (isDark ? Colors.white12 : Colors.grey[300]!),
-                          width: isEvSelected ? 1.5 : 1,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isEvSelected
+                                ? evColor.withValues(alpha: isDark ? 0.3 : 0.15)
+                                : (isDark
+                                      ? Colors.white.withValues(alpha: 0.05)
+                                      : const Color(0xFFF3F4F6)),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: isEvSelected
+                                  ? evColor
+                                  : (isDark
+                                        ? Colors.white12
+                                        : Colors.grey[300]!),
+                              width: isEvSelected ? 1.5 : 1,
+                            ),
+                          ),
+                          child: Text(
+                            evLabel,
+                            style: GoogleFonts.hankenGrotesk(
+                              fontSize: 11,
+                              fontWeight: isEvSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.w500,
+                              color: isEvSelected
+                                  ? (isDark ? Colors.white : evColor)
+                                  : (isDark ? Colors.white70 : Colors.black87),
+                            ),
+                          ),
                         ),
-                      ),
-                      child: Text(
-                        evLabel,
-                        style: GoogleFonts.hankenGrotesk(
-                          fontSize: 11,
-                          fontWeight: isEvSelected ? FontWeight.bold : FontWeight.w500,
-                          color: isEvSelected ? (isDark ? Colors.white : evColor) : (isDark ? Colors.white70 : Colors.black87),
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
+                      );
+                    }).toList(),
               ),
 
               const SizedBox(height: 10),
               TextField(
                 controller: noteCtrl,
-                style: GoogleFonts.hankenGrotesk(fontSize: 12, color: isDark ? Colors.white : Colors.black87),
+                style: GoogleFonts.hankenGrotesk(
+                  fontSize: 12,
+                  color: isDark ? Colors.white : Colors.black87,
+                ),
                 decoration: InputDecoration(
                   hintText: 'O escribe una nota (Ej: Examen médico, Entrega uniforme)',
-                  hintStyle: GoogleFonts.hankenGrotesk(fontSize: 12, color: Colors.grey),
+                  hintStyle: GoogleFonts.hankenGrotesk(
+                    fontSize: 12,
+                    color: Colors.grey,
+                  ),
                   filled: true,
                   fillColor: isDark ? Colors.white10 : const Color(0xFFF9FAFB),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
-                  prefixIcon: const Icon(Icons.edit_note, size: 18, color: Color(0xFFAC0017)),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide.none,
+                  ),
+                  prefixIcon: const Icon(
+                    Icons.edit_note,
+                    size: 18,
+                    color: Color(0xFFAC0017),
+                  ),
                 ),
               ),
 
@@ -911,14 +1194,27 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                   Expanded(
                     child: TextField(
                       controller: customCtrl,
-                      style: GoogleFonts.hankenGrotesk(color: isDark ? Colors.white : Colors.black87),
+                      style: GoogleFonts.hankenGrotesk(
+                        color: isDark ? Colors.white : Colors.black87,
+                      ),
                       decoration: InputDecoration(
                         hintText: 'Ej: 11-18 o 12-15 / 17-21',
-                        hintStyle: GoogleFonts.hankenGrotesk(fontSize: 13, color: Colors.grey),
+                        hintStyle: GoogleFonts.hankenGrotesk(
+                          fontSize: 13,
+                          color: Colors.grey,
+                        ),
                         filled: true,
-                        fillColor: isDark ? Colors.white10 : const Color(0xFFF9FAFB),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+                        fillColor: isDark
+                            ? Colors.white10
+                            : const Color(0xFFF9FAFB),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 10,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide.none,
+                        ),
                       ),
                     ),
                   ),
@@ -928,17 +1224,32 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                       final val = customCtrl.text.trim();
                       final note = noteCtrl.text.trim();
                       if (val.isNotEmpty) {
-                        _updateShift(row.idNumber, dayIndex, val, note: note.isNotEmpty ? note : null);
+                        _updateShift(
+                          row.idNumber,
+                          dayIndex,
+                          val,
+                          note: note.isNotEmpty ? note : null,
+                        );
                       } else if (note.isNotEmpty) {
-                        _updateShift(row.idNumber, dayIndex, currentShift, note: note);
+                        _updateShift(
+                          row.idNumber,
+                          dayIndex,
+                          currentShift,
+                          note: note,
+                        );
                       }
                       Navigator.pop(ctx);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFAC0017),
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                     child: const Text('Guardar'),
                   ),
@@ -951,31 +1262,50 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
     );
   }
 
-  void _updateShift(int idNumber, int dayIndex, String newShift, {String? note}) {
+  void _updateShift(
+    int idNumber,
+    int dayIndex,
+    String newShift, {
+    String? note,
+  }) {
     setState(() {
       final index = _scheduleRows.indexWhere((r) => r.idNumber == idNumber);
       if (index != -1) {
         final row = _scheduleRows[index];
         final updatedShifts = Map<int, String>.from(row.dayShifts);
         final updatedNotes = Map<int, String>.from(row.dayNotes);
-        
+
         updatedShifts[dayIndex] = newShift;
         if (note != null && note.isNotEmpty) {
           updatedNotes[dayIndex] = note;
-          
+
           // Sincronizar automáticamente en la sección inferior de Observaciones y Eventos
-          final dayNames = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+          final dayNames = [
+            'Lunes',
+            'Martes',
+            'Miércoles',
+            'Jueves',
+            'Viernes',
+            'Sábado',
+            'Domingo',
+          ];
           final dayName = dayNames[dayIndex - 1];
           final cleanTitle = note.replaceAll(RegExp(r'^[🌿👥🧹🎓]\s*'), '');
 
           final existingObsIndex = _observations.indexWhere(
-            (o) => (o['title'] as String).toLowerCase().contains(cleanTitle.toLowerCase()) && o['day'] == dayName,
+            (o) =>
+                (o['title'] as String).toLowerCase().contains(
+                  cleanTitle.toLowerCase(),
+                ) &&
+                o['day'] == dayName,
           );
 
           if (existingObsIndex != -1) {
-            final currentParticipants = _observations[existingObsIndex]['participants'] as String;
+            final currentParticipants =
+                _observations[existingObsIndex]['participants'] as String;
             if (!currentParticipants.contains(row.collaboratorName)) {
-              _observations[existingObsIndex]['participants'] = '$currentParticipants, ${row.collaboratorName}';
+              _observations[existingObsIndex]['participants'] =
+                  '$currentParticipants, ${row.collaboratorName}';
             }
           } else {
             _observations.add({
@@ -984,8 +1314,10 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
               'color': note.contains('Biodanza')
                   ? const Color(0xFF2E7D32)
                   : (note.contains('Reunión')
-                      ? const Color(0xFFD2232A)
-                      : (note.contains('Aseo') ? const Color(0xFF0288D1) : const Color(0xFF7C3AED))),
+                        ? const Color(0xFFD2232A)
+                        : (note.contains('Aseo')
+                              ? const Color(0xFF0288D1)
+                              : const Color(0xFF7C3AED))),
               'day': dayName,
             });
           }
@@ -1002,7 +1334,9 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Turno actualizado: $newShift ${note != null && note.isNotEmpty ? "($note)" : ""}'),
+        content: Text(
+          'Turno actualizado: $newShift ${note != null && note.isNotEmpty ? "($note)" : ""}',
+        ),
         duration: const Duration(seconds: 2),
         behavior: SnackBarBehavior.floating,
         backgroundColor: const Color(0xFF2E7D32),
@@ -1020,10 +1354,15 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
       builder: (ctx) => StatefulBuilder(
         builder: (context, setDlgState) => AlertDialog(
           backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
           title: Text(
             'Agregar Colaborador a la Malla',
-            style: GoogleFonts.hankenGrotesk(fontWeight: FontWeight.bold, fontSize: 17),
+            style: GoogleFonts.hankenGrotesk(
+              fontWeight: FontWeight.bold,
+              fontSize: 17,
+            ),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -1034,7 +1373,10 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                   labelText: 'Nombre del Colaborador',
                   filled: true,
                   fillColor: isDark ? Colors.white10 : Colors.grey[100],
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
@@ -1045,11 +1387,23 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                   labelText: 'Cargo / Estación',
                   filled: true,
                   fillColor: isDark ? Colors.white10 : Colors.grey[100],
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
-                items: ['Super #', 'Auxiliar P', 'Combos D', 'Salón', 'Oficios Varios', 'Domicilio', 'Cocina']
-                    .map((r) => DropdownMenuItem(value: r, child: Text(r)))
-                    .toList(),
+                items:
+                    [
+                          'Super #',
+                          'Auxiliar P',
+                          'Combos D',
+                          'Salón',
+                          'Oficios Varios',
+                          'Domicilio',
+                          'Cocina',
+                        ]
+                        .map((r) => DropdownMenuItem(value: r, child: Text(r)))
+                        .toList(),
                 onChanged: (v) {
                   if (v != null) setDlgState(() => role = v);
                 },
@@ -1073,14 +1427,25 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                         collaboratorId: '100$nextId',
                         collaboratorName: name,
                         role: role,
-                        dayShifts: {1: '-', 2: '-', 3: '-', 4: '-', 5: '-', 6: '-', 7: '-'},
+                        dayShifts: {
+                          1: '-',
+                          2: '-',
+                          3: '-',
+                          4: '-',
+                          5: '-',
+                          6: '-',
+                          7: '-',
+                        },
                       ),
                     );
                   });
                   Navigator.pop(ctx);
                 }
               },
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFAC0017), foregroundColor: Colors.white),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFAC0017),
+                foregroundColor: Colors.white,
+              ),
               child: const Text('Agregar'),
             ),
           ],
@@ -1101,8 +1466,19 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
     const primaryRed = Color(0xFFAC0017);
 
     final weekEndDate = _weekStartDate.add(const Duration(days: 6));
-    final weekDaysList = List.generate(7, (i) => _weekStartDate.add(Duration(days: i)));
-    final dayNames = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+    final weekDaysList = List.generate(
+      7,
+      (i) => _weekStartDate.add(Duration(days: i)),
+    );
+    final dayNames = [
+      'Lunes',
+      'Martes',
+      'Miércoles',
+      'Jueves',
+      'Viernes',
+      'Sábado',
+      'Domingo',
+    ];
 
     return Container(
       decoration: BoxDecoration(
@@ -1124,8 +1500,12 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
             decoration: BoxDecoration(
-              color: isDark ? Colors.white.withValues(alpha: 0.04) : const Color(0xFFFAFBFD),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.04)
+                  : const Color(0xFFFAFBFD),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(16),
+              ),
               border: Border(bottom: BorderSide(color: borderColor)),
             ),
             child: Column(
@@ -1139,7 +1519,10 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                       child: Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: primaryRed,
                               borderRadius: BorderRadius.circular(6),
@@ -1185,20 +1568,15 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                         ],
                       ),
                     ),
-
-                    if (!widget.isCollaboratorView)
-                      ElevatedButton.icon(
-                        onPressed: _addNewCollaboratorRow,
-                        icon: const Icon(Icons.person_add, size: 13),
-                        label: const Text('Agregar Fila', style: TextStyle(fontSize: 11)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: primaryRed,
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        ),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.person_add_alt_1_rounded,
+                        size: 20,
                       ),
+                      color: primaryRed,
+                      tooltip: 'Agregar Colaborador a la Malla',
+                      onPressed: _addNewCollaboratorRow,
+                    ),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -1216,11 +1594,18 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                     ),
                     const SizedBox(width: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
-                        color: isDark ? Colors.white10 : const Color(0xFFF3F4F6),
+                        color: isDark
+                            ? Colors.white10
+                            : const Color(0xFFF3F4F6),
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: isDark ? Colors.white12 : Colors.grey[300]!),
+                        border: Border.all(
+                          color: isDark ? Colors.white12 : Colors.grey[300]!,
+                        ),
                       ),
                       child: Text(
                         'Semana: ${_weekStartDate.day} ${_getMonthName(_weekStartDate.month)} - ${weekEndDate.day} ${_getMonthName(weekEndDate.month)}',
@@ -1250,8 +1635,12 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
               decoration: BoxDecoration(
-                color: isDark ? Colors.white.withValues(alpha: 0.02) : const Color(0xFFF9FAFC),
-                border: Border(bottom: BorderSide(color: borderColor.withValues(alpha: 0.5))),
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.02)
+                    : const Color(0xFFF9FAFC),
+                border: Border(
+                  bottom: BorderSide(color: borderColor.withValues(alpha: 0.5)),
+                ),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -1282,11 +1671,15 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                 horizontalMargin: 16,
                 columnSpacing: 18,
                 headingRowColor: WidgetStateProperty.all(
-                  isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFF9FAFB),
+                  isDark
+                      ? Colors.white.withValues(alpha: 0.05)
+                      : const Color(0xFFF9FAFB),
                 ),
                 border: TableBorder(
                   horizontalInside: BorderSide(
-                    color: isDark ? Colors.white.withValues(alpha: 0.06) : const Color(0xFFF0F1F3),
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.06)
+                        : const Color(0xFFF0F1F3),
                     width: 1,
                   ),
                   verticalInside: BorderSide.none,
@@ -1296,7 +1689,10 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                     label: Text('#', style: _headerTextStyle(primaryRed)),
                   ),
                   DataColumn(
-                    label: Text('Colaborador', style: _headerTextStyle(titleColor)),
+                    label: Text(
+                      'Colaborador',
+                      style: _headerTextStyle(titleColor),
+                    ),
                   ),
                   DataColumn(
                     label: Text('Cargo', style: _headerTextStyle(titleColor)),
@@ -1329,7 +1725,11 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                     );
                   }),
                   DataColumn(
-                    label: Text('Total', textAlign: TextAlign.center, style: _headerTextStyle(primaryRed)),
+                    label: Text(
+                      'Total',
+                      textAlign: TextAlign.center,
+                      style: _headerTextStyle(primaryRed),
+                    ),
                   ),
                 ],
                 rows: _displayedRows.asMap().entries.map((entry) {
@@ -1340,7 +1740,9 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                   final isEvenRow = index % 2 == 0;
                   final rowBg = isEvenRow
                       ? Colors.transparent
-                      : (isDark ? Colors.white.withValues(alpha: 0.02) : const Color(0xFFFBFBFD));
+                      : (isDark
+                            ? Colors.white.withValues(alpha: 0.02)
+                            : const Color(0xFFFBFBFD));
 
                   return DataRow(
                     color: WidgetStateProperty.all(rowBg),
@@ -1370,7 +1772,9 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                               ),
                               alignment: Alignment.center,
                               child: Text(
-                                row.collaboratorName.substring(0, 1).toUpperCase(),
+                                row.collaboratorName
+                                    .substring(0, 1)
+                                    .toUpperCase(),
                                 style: GoogleFonts.hankenGrotesk(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
@@ -1393,9 +1797,14 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                       // Cargo
                       DataCell(
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
                           decoration: BoxDecoration(
-                            color: isDark ? Colors.white10 : const Color(0xFFF3F4F6),
+                            color: isDark
+                                ? Colors.white10
+                                : const Color(0xFFF3F4F6),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
@@ -1420,16 +1829,23 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                             onTap: widget.isCollaboratorView
                                 ? null
                                 : () => _showQuickShiftEditor(
-                                      context: context,
-                                      row: row,
-                                      dayIndex: dayIndex,
-                                      dayDate: dayDate,
-                                      currentShift: shift,
-                                    ),
+                                    context: context,
+                                    row: row,
+                                    dayIndex: dayIndex,
+                                    dayDate: dayDate,
+                                    currentShift: shift,
+                                  ),
                             borderRadius: BorderRadius.circular(10),
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
-                              child: _buildShiftCellContent(shift, isDark, note: note),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 4,
+                                horizontal: 2,
+                              ),
+                              child: _buildShiftCellContent(
+                                shift,
+                                isDark,
+                                note: note,
+                              ),
                             ),
                           ),
                         );
@@ -1437,11 +1853,16 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                       // Horas Laboradas
                       DataCell(
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 9,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: isOvertime
-                                ? const Color(0xFFBA1A1A).withValues(alpha: 0.15)
-                                : const Color(0xFF2E7D32).withValues(alpha: 0.12),
+                                ? const Color(0xFFBA1A1A)
+                                      .withValues(alpha: 0.15)
+                                : const Color(0xFF2E7D32)
+                                      .withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text(
@@ -1449,7 +1870,9 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                             style: GoogleFonts.hankenGrotesk(
                               fontSize: 11,
                               fontWeight: FontWeight.bold,
-                              color: isOvertime ? const Color(0xFFBA1A1A) : const Color(0xFF2E7D32),
+                              color: isOvertime
+                                  ? const Color(0xFFBA1A1A)
+                                  : const Color(0xFF2E7D32),
                             ),
                           ),
                         ),
@@ -1465,8 +1888,12 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: isDark ? Colors.white.withValues(alpha: 0.02) : const Color(0xFFF9FAFB),
-              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.02)
+                  : const Color(0xFFF9FAFB),
+              borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(16),
+              ),
               border: Border(top: BorderSide(color: borderColor)),
             ),
             child: Column(
@@ -1481,7 +1908,11 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.sticky_note_2_outlined, size: 18, color: primaryRed),
+                        const Icon(
+                          Icons.sticky_note_2_outlined,
+                          size: 18,
+                          color: primaryRed,
+                        ),
                         const SizedBox(width: 8),
                         Text(
                           'Observaciones y Eventos Especiales:',
@@ -1496,7 +1927,11 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                     if (!widget.isCollaboratorView)
                       Text(
                         'Toca cualquier celda para editar el turno',
-                        style: GoogleFonts.hankenGrotesk(fontSize: 11, color: subtextColor, fontStyle: FontStyle.italic),
+                        style: GoogleFonts.hankenGrotesk(
+                          fontSize: 11,
+                          color: subtextColor,
+                          fontStyle: FontStyle.italic,
+                        ),
                       ),
                   ],
                 ),
@@ -1507,32 +1942,49 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                     final obsColor = obs['color'] as Color;
                     return Container(
                       margin: const EdgeInsets.only(bottom: 6),
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
                         color: obsColor.withValues(alpha: isDark ? 0.15 : 0.08),
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: obsColor.withValues(alpha: isDark ? 0.3 : 0.2)),
+                        border: Border.all(
+                          color: obsColor.withValues(alpha: isDark ? 0.3 : 0.2),
+                        ),
                       ),
                       child: Row(
                         children: [
                           Container(
                             width: 6,
                             height: 6,
-                            decoration: BoxDecoration(color: obsColor, shape: BoxShape.circle),
+                            decoration: BoxDecoration(
+                              color: obsColor,
+                              shape: BoxShape.circle,
+                            ),
                           ),
                           const SizedBox(width: 8),
                           Expanded(
                             child: RichText(
                               text: TextSpan(
-                                style: GoogleFonts.hankenGrotesk(fontSize: 12, color: titleColor),
+                                style: GoogleFonts.hankenGrotesk(
+                                  fontSize: 12,
+                                  color: titleColor,
+                                ),
                                 children: [
                                   TextSpan(
                                     text: '[${obs['day']}] ${obs['title']}: ',
-                                    style: const TextStyle(fontWeight: FontWeight.bold),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                   TextSpan(
                                     text: obs['participants'] as String,
-                                    style: TextStyle(color: isDark ? Colors.white70 : const Color(0xFF555555)),
+                                    style: TextStyle(
+                                      color: isDark
+                                          ? Colors.white70
+                                          : const Color(0xFF555555),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -1565,7 +2017,11 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.bedtime_outlined, size: 13, color: Color(0xFF2E7D32)),
+            const Icon(
+              Icons.bedtime_outlined,
+              size: 13,
+              color: Color(0xFF2E7D32),
+            ),
             const SizedBox(width: 4),
             Text(
               'Libre',
@@ -1585,13 +2041,18 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
           decoration: BoxDecoration(
-            color: const Color(0xFF7C3AED).withValues(alpha: isDark ? 0.25 : 0.12),
+            color: const Color(0xFF7C3AED)
+                .withValues(alpha: isDark ? 0.25 : 0.12),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
             note,
             textAlign: TextAlign.center,
-            style: GoogleFonts.hankenGrotesk(fontSize: 10, fontWeight: FontWeight.bold, color: const Color(0xFF7C3AED)),
+            style: GoogleFonts.hankenGrotesk(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFF7C3AED),
+            ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -1603,7 +2064,10 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
         alignment: Alignment.center,
         child: Text(
           '—',
-          style: GoogleFonts.hankenGrotesk(fontSize: 12, color: isDark ? Colors.white24 : Colors.grey[400]),
+          style: GoogleFonts.hankenGrotesk(
+            fontSize: 12,
+            color: isDark ? Colors.white24 : Colors.grey[400],
+          ),
         ),
       );
     }
@@ -1612,11 +2076,15 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
     Color chipBg;
     Color chipText;
 
-    if (shift.startsWith('8-') || shift.startsWith('08-') || shift.startsWith('9-')) {
+    if (shift.startsWith('8-') ||
+        shift.startsWith('08-') ||
+        shift.startsWith('9-')) {
       // Apertura / Mañana (Azul suave)
       chipBg = const Color(0xFF0284C7).withValues(alpha: isDark ? 0.2 : 0.1);
       chipText = isDark ? const Color(0xFF7DD3FC) : const Color(0xFF0369A1);
-    } else if (shift.contains('14-') || shift.contains('15-') || shift.contains('16-')) {
+    } else if (shift.contains('14-') ||
+        shift.contains('15-') ||
+        shift.contains('16-')) {
       // Cierre / Tarde (Rojo / Salmón suave)
       chipBg = const Color(0xFFC8102E).withValues(alpha: isDark ? 0.2 : 0.1);
       chipText = isDark ? const Color(0xFFFFB3AD) : const Color(0xFFC8102E);
@@ -1656,9 +2124,13 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
               decoration: BoxDecoration(
-                color: (note.contains('Biodanza')
-                    ? const Color(0xFF2E7D32)
-                    : (note.contains('Reunión') ? const Color(0xFFD2232A) : const Color(0xFF7C3AED))).withValues(alpha: 0.2),
+                color:
+                    (note.contains('Biodanza')
+                            ? const Color(0xFF2E7D32)
+                            : (note.contains('Reunión')
+                                  ? const Color(0xFFD2232A)
+                                  : const Color(0xFF7C3AED)))
+                        .withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
@@ -1668,7 +2140,9 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
                   fontWeight: FontWeight.w800,
                   color: note.contains('Biodanza')
                       ? const Color(0xFF2E7D32)
-                      : (note.contains('Reunión') ? const Color(0xFFD2232A) : const Color(0xFF7C3AED)),
+                      : (note.contains('Reunión')
+                            ? const Color(0xFFD2232A)
+                            : const Color(0xFF7C3AED)),
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -1689,7 +2163,20 @@ class _FrisbyWeeklyScheduleSheetState extends State<FrisbyWeeklyScheduleSheet> {
   }
 
   String _getMonthName(int month) {
-    const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    const months = [
+      'Ene',
+      'Feb',
+      'Mar',
+      'Abr',
+      'May',
+      'Jun',
+      'Jul',
+      'Ago',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dic',
+    ];
     return months[month - 1];
   }
 }
