@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'login_page.dart';
+import 'admin_dashboard_page.dart';
+import 'dashboard_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,7 +34,15 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       initialRoute: '/',
-      routes: {'/': (context) => const LoginPage()},
+      routes: {
+        '/': (context) => const DashboardPage(username: '10002'),
+        '/admin': (context) => const AdminDashboardPage(
+              username: '10001',
+              profileName: 'Laura Restrepo (Admin)',
+              role: 'administrador',
+            ),
+        '/login': (context) => const LoginPage(),
+      },
     );
   }
 }

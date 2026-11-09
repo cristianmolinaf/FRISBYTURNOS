@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'google_fonts_wrapper.dart';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'widgets/shiftbase/shiftbase.dart';
 
 class DashboardPage extends StatefulWidget {
   final String username;
@@ -158,7 +159,10 @@ class _DashboardPageState extends State<DashboardPage> {
 
   // ==================== Android/Web Layout ====================
   Widget _buildHomeTabAndroid(bool isDark) {
-    final cleanName = widget.username.split('@').first;
+    String cleanName = widget.username.split('@').first;
+    if (cleanName == '10002') cleanName = 'Carlos Molina';
+    if (cleanName == '10003') cleanName = 'Andrés Castro';
+    if (cleanName == '10001') cleanName = 'Laura Restrepo';
 
     final titleColor = isDark
         ? const Color(0xFFE1E2E4)
@@ -667,7 +671,10 @@ class _DashboardPageState extends State<DashboardPage> {
 
   // ==================== iOS Layout ====================
   Widget _buildHomeTabIOS(bool isDark) {
-    final cleanName = widget.username.split('@').first;
+    String cleanName = widget.username.split('@').first;
+    if (cleanName == '10002') cleanName = 'Carlos Molina';
+    if (cleanName == '10003') cleanName = 'Andrés Castro';
+    if (cleanName == '10001') cleanName = 'Laura Restrepo';
 
     final titleColor = isDark
         ? const Color(0xFFFBDBD8)
@@ -675,19 +682,12 @@ class _DashboardPageState extends State<DashboardPage> {
     final subtextColor = isDark
         ? const Color(0xFFE5BDBA)
         : const Color(0xFF5C403D);
-    final cardBgColor = isDark
-        ? Colors.white.withValues(alpha: 0.06)
-        : Colors.white.withValues(alpha: 0.65);
     final cardBorderColor = isDark
         ? Colors.white.withValues(alpha: 0.12)
         : Colors.black.withValues(alpha: 0.08);
-    final dividerColor = isDark ? Colors.white12 : Colors.black12;
     final iconWrapperBg = isDark
         ? Colors.white.withValues(alpha: 0.05)
         : Colors.black.withValues(alpha: 0.04);
-    final iconWrapperBorder = isDark
-        ? Colors.white.withValues(alpha: 0.15)
-        : Colors.black.withValues(alpha: 0.06);
 
     return ListView(
       padding: EdgeInsets.fromLTRB(
@@ -721,7 +721,23 @@ class _DashboardPageState extends State<DashboardPage> {
         ),
         const SizedBox(height: 32),
 
-        // Mi Turno de Hoy Card
+        // Shiftbase Hero Punch Clock Card
+        ShiftbasePunchClock(
+          collaboratorName: cleanName,
+          storeName: 'Frisby Parque Arboleda',
+          station: 'Freidoras',
+          scheduledShift: '08:00 - 16:00',
+          isDark: isDark,
+          onClockToggle: () {
+            HapticFeedback.mediumImpact();
+          },
+          onSwitchShift: () {
+            setState(() => _currentIndex = 2);
+          },
+        ),
+        const SizedBox(height: 24),
+
+        // Shiftbase "Mi Horario" (My schedule) Grouped Section
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -729,216 +745,200 @@ class _DashboardPageState extends State<DashboardPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Mi Turno de Hoy',
+                  'Mi Horario',
                   style: GoogleFonts.sora(
                     fontSize: 20,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.bold,
                     color: titleColor,
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFD2232A).withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: const Color(0xFFD2232A).withValues(alpha: 0.3),
-                    ),
-                  ),
+                TextButton(
+                  onPressed: () => setState(() => _currentIndex = 1),
                   child: Text(
-                    'PRÓXIMO',
+                    'Ver semana >',
                     style: GoogleFonts.hankenGrotesk(
-                      fontSize: 11,
+                      fontSize: 13,
                       fontWeight: FontWeight.bold,
-                      color: isDark
-                          ? const Color(0xFFFFB3AD)
-                          : const Color(0xFFAC0017),
-                      letterSpacing: 0.08,
+                      color: isDark ? const Color(0xFFFFB3AD) : const Color(0xFFAC0017),
                     ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
 
-            // Glassmorphic Card container
-            ClipRRect(
-              borderRadius: BorderRadius.circular(24),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                child: Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: cardBgColor,
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: cardBorderColor),
+            Container(
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E222A) : Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: cardBorderColor),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.04),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
                   ),
-                  child: Stack(
-                    children: [
-                      // Accent Glow Background (Glows only in dark mode)
-                      if (isDark)
-                        Positioned(
-                          left: -50,
-                          top: -50,
-                          child: Container(
-                            width: 120,
-                            height: 120,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: const Color(0xFFD2232A)
-                                  .withValues(alpha: 0.08),
+                ],
+              ),
+              child: Column(
+                children: [
+                  ShiftbaseShiftCard(
+                    dayCode: 'HOY',
+                    dayNumber: '09',
+                    title: 'Turno Activo',
+                    timeRange: '08:00 - 16:00',
+                    station: 'Freidoras',
+                    store: 'Frisby Parque Arboleda',
+                    accentColor: const Color(0xFF00C853),
+                    statusBadge: '1/3',
+                    isDark: isDark,
+                    onSwapTap: () => setState(() => _currentIndex = 2),
+                  ),
+                  Divider(height: 1, indent: 68, color: isDark ? Colors.white10 : const Color(0xFFF0F1ED)),
+                  ShiftbaseShiftCard(
+                    dayCode: 'MAR',
+                    dayNumber: '10',
+                    title: 'Tarde',
+                    timeRange: '12:00 - 20:30',
+                    station: 'Plancha',
+                    store: 'Frisby Parque Arboleda',
+                    accentColor: const Color(0xFFFF9100),
+                    isDark: isDark,
+                    onSwapTap: () => setState(() => _currentIndex = 2),
+                  ),
+                  Divider(height: 1, indent: 68, color: isDark ? Colors.white10 : const Color(0xFFF0F1ED)),
+                  ShiftbaseShiftCard(
+                    dayCode: 'MIÉ',
+                    dayNumber: '11',
+                    title: 'Mañana',
+                    timeRange: '09:00 - 17:30',
+                    station: 'Armado',
+                    store: 'Frisby Parque Arboleda',
+                    accentColor: const Color(0xFF7C4DFF),
+                    isDark: isDark,
+                    onSwapTap: () => setState(() => _currentIndex = 2),
+                  ),
+                  Divider(height: 1, indent: 16, color: isDark ? Colors.white10 : const Color(0xFFF0F1ED)),
+                  InkWell(
+                    onTap: () {
+                      _showNotificationDialog(
+                        'Especificar Disponibilidad',
+                        'Tu disponibilidad para este ciclo se encuentra registrada. Comunícate con Laura Restrepo (Admin) si necesitas modificarla.',
+                        'Válido hasta Domingo',
+                        true,
+                        isDark,
+                      );
+                    },
+                    borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      child: Row(
+                        children: [
+                          Icon(Icons.person_pin_outlined, size: 20, color: isDark ? Colors.white70 : const Color(0xFF4A5568)),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              'Especificar Disponibilidad',
+                              style: GoogleFonts.hankenGrotesk(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: titleColor,
+                              ),
                             ),
                           ),
-                        ),
-
-                      // Content
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    '8:00 AM - 4:00 PM',
-                                    style: GoogleFonts.sora(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: titleColor,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    '8 horas',
-                                    style: GoogleFonts.hankenGrotesk(
-                                      fontSize: 14,
-                                      color: subtextColor,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Container(
-                                width: 44,
-                                height: 44,
-                                decoration: BoxDecoration(
-                                  color: iconWrapperBg,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: iconWrapperBorder),
-                                ),
-                                child: Icon(
-                                  Icons.schedule,
-                                  color: isDark
-                                      ? const Color(0xFFFFB3AD)
-                                      : const Color(0xFFAC0017),
-                                  size: 22,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          Container(height: 1, color: dividerColor),
-                          const SizedBox(height: 16),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'ESTACIÓN',
-                                      style: GoogleFonts.hankenGrotesk(
-                                        fontSize: 11,
-                                        color: subtextColor,
-                                        letterSpacing: 0.08,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 6),
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          Icons.local_fire_department,
-                                          color: isDark
-                                              ? const Color(0xFFFFB3AD)
-                                              : const Color(0xFFAC0017),
-                                          size: 20,
-                                        ),
-                                        const SizedBox(width: 6),
-                                        Text(
-                                          'Plancha',
-                                          style: GoogleFonts.hankenGrotesk(
-                                            fontSize: 16,
-                                            color: titleColor,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'SUPERVISOR',
-                                      style: GoogleFonts.hankenGrotesk(
-                                        fontSize: 11,
-                                        color: subtextColor,
-                                        letterSpacing: 0.08,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 6),
-                                    Row(
-                                      children: [
-                                        Container(
-                                          width: 24,
-                                          height: 24,
-                                          decoration: const BoxDecoration(
-                                            color: Color(0xFFD2232A),
-                                            shape: BoxShape.circle,
-                                          ),
-                                          alignment: Alignment.center,
-                                          child: Text(
-                                            'MV',
-                                            style: GoogleFonts.hankenGrotesk(
-                                              fontSize: 11,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          'María V.',
-                                          style: GoogleFonts.hankenGrotesk(
-                                            fontSize: 16,
-                                            color: titleColor,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
+                          Icon(Icons.chevron_right_rounded, size: 20, color: isDark ? Colors.white38 : const Color(0xFFB0B4BC)),
                         ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
           ],
         ),
-        const SizedBox(height: 32),
+        const SizedBox(height: 24),
+
+        // Shiftbase "Balances de Permisos" (Time off balances)
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Balances de Permisos',
+                  style: GoogleFonts.sora(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: titleColor,
+                  ),
+                ),
+                Text(
+                  '1 Ene - 31 Dic',
+                  style: GoogleFonts.hankenGrotesk(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: subtextColor,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+
+            Container(
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E222A) : Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: cardBorderColor),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.04),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  ShiftbaseBalanceRing(
+                    title: 'Descansos y Vacaciones',
+                    subtitle: '64h 0m restantes acumuladas',
+                    progress: 0.80,
+                    ringColor: const Color(0xFF2E66E5),
+                    isDark: isDark,
+                    onTap: () {
+                      _showNotificationDialog(
+                        'Descansos y Vacaciones',
+                        'Tienes 64 horas acumuladas de descanso compensatorio y vacaciones legales.',
+                        'Corte a la fecha',
+                        true,
+                        isDark,
+                      );
+                    },
+                  ),
+                  Divider(height: 1, indent: 60, color: isDark ? Colors.white10 : const Color(0xFFF0F1ED)),
+                  ShiftbaseBalanceRing(
+                    title: 'Permisos Médicos y Calamidad',
+                    subtitle: '16h 0m utilizadas este mes',
+                    progress: 0.25,
+                    ringColor: const Color(0xFF00C853),
+                    isDark: isDark,
+                    onTap: () {
+                      _showNotificationDialog(
+                        'Permisos y Citas',
+                        'Has utilizado 16 horas con soporte médico aprobado por administración.',
+                        'Mes en curso',
+                        true,
+                        isDark,
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 24),
 
         // Bento buttons
         Column(
@@ -2764,7 +2764,10 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Widget _buildProfileTab(bool isIOS, bool isDark) {
-    final cleanName = widget.username.split('@').first;
+    String cleanName = widget.username.split('@').first;
+    if (cleanName == '10002') cleanName = 'Carlos Molina';
+    if (cleanName == '10003') cleanName = 'Andrés Castro';
+    if (cleanName == '10001') cleanName = 'Laura Restrepo';
 
     final titleColor = isIOS
         ? (isDark ? const Color(0xFFFBDBD8) : const Color(0xFF410003))
@@ -3470,7 +3473,10 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Widget _buildDrawer(bool isIOS, bool isDark) {
-    final cleanName = widget.username.split('@').first;
+    String cleanName = widget.username.split('@').first;
+    if (cleanName == '10002') cleanName = 'Carlos Molina';
+    if (cleanName == '10003') cleanName = 'Andrés Castro';
+    if (cleanName == '10001') cleanName = 'Laura Restrepo';
     final titleColor = isIOS
         ? (isDark ? const Color(0xFFFBDBD8) : const Color(0xFF410003))
         : (isDark ? const Color(0xFFE1E2E4) : const Color(0xFF121C3B));

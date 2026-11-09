@@ -25,6 +25,13 @@ class _LoginPageState extends State<LoginPage> {
   bool? _isDarkModeOverride;
 
   @override
+  void initState() {
+    super.initState();
+    _usernameController.text = '10001';
+    _passwordController.text = '123456';
+  }
+
+  @override
   void dispose() {
     _usernameController.dispose();
     _passwordController.dispose();
@@ -1210,6 +1217,87 @@ class _LoginPageState extends State<LoginPage> {
                             color: linkColor,
                             fontWeight: FontWeight.w600,
                           ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Quick Demo Access Container on Mobile
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? Colors.white10
+                              : Colors.white.withValues(alpha: 0.8),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: inputBorderColor),
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              'Acceso Rápido de Prueba (Demo)',
+                              style: GoogleFonts.hankenGrotesk(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: titleTextColor,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              alignment: WrapAlignment.center,
+                              children: [
+                                ActionChip(
+                                  avatar: const Icon(
+                                    Icons.admin_panel_settings,
+                                    size: 14,
+                                    color: Color(0xFFAC0017),
+                                  ),
+                                  label: Text(
+                                    'Admin: 10001',
+                                    style: GoogleFonts.hankenGrotesk(
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                  onPressed: () =>
+                                      _fillDemoCredentials('10001'),
+                                ),
+                                ActionChip(
+                                  avatar: const Icon(
+                                    Icons.person,
+                                    size: 14,
+                                    color: Color(0xFF545D80),
+                                  ),
+                                  label: Text(
+                                    'Colaborador: 10002',
+                                    style: GoogleFonts.hankenGrotesk(
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                  onPressed: () =>
+                                      _fillDemoCredentials('10002'),
+                                ),
+                                ActionChip(
+                                  avatar: const Icon(
+                                    Icons.person_outline,
+                                    size: 14,
+                                    color: Color(0xFF545D80),
+                                  ),
+                                  label: Text(
+                                    'Colaborador: 10003',
+                                    style: GoogleFonts.hankenGrotesk(
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                  onPressed: () =>
+                                      _fillDemoCredentials('10003'),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
                       const SizedBox(height: 24),
