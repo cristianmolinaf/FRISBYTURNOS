@@ -26,10 +26,16 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFFAC0017),
-          primary: const Color(0xFFAC0017),
-          secondary: const Color(0xFFF7B640),
-          surface: const Color(0xFFF8F9FB),
+          seedColor: const Color(0xFFC8102E),
+          primary: const Color(0xFFC8102E),
+          secondary: const Color(0xFFFFC72C),
+          surface: const Color(0xFFF9F9FB),
+        ),
+        scaffoldBackgroundColor: const Color(0xFFF9F9FB),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFFC8102E),
+          foregroundColor: Colors.white,
+          elevation: 0,
         ),
         useMaterial3: true,
       ),

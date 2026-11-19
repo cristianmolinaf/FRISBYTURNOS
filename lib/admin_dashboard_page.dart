@@ -4962,10 +4962,10 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
                                 boxShadow: [
                                   BoxShadow(
                                     color: isDarkMode
-                                        ? const Color(0xFF007AFF)
+                                        ? const Color(0xFFC8102E)
                                               .withValues(alpha: 0.30)
-                                        : const Color(0xFF007AFF)
-                                              .withValues(alpha: 0.15),
+                                        : const Color(0xFFC8102E)
+                                              .withValues(alpha: 0.20),
                                     blurRadius: 10,
                                     offset: const Offset(0, 3),
                                   ),
@@ -4986,11 +4986,10 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
                             children: List.generate(totalItems, (index) {
                               final item = navItems[index];
                               final isActive = safeIndex == index;
-                              const activeColor = Color(0xFF007AFF);
+                              const activeColor = Color(0xFFC8102E);
                               final inactiveColor = isDarkMode
                                   ? Colors.white.withValues(alpha: 0.65)
-                                  : const Color(0xFF1C1C1E)
-                                        .withValues(alpha: 0.65);
+                                  : const Color(0xFF5A6065);
 
                               return Expanded(
                                 child: GestureDetector(

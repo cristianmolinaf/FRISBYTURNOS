@@ -24,7 +24,7 @@ class LiquidGlassNavBar extends StatelessWidget {
     required this.onTap,
     required this.items,
     this.isDark = false,
-    this.activeColor = const Color(0xFF007AFF),
+    this.activeColor = const Color(0xFFC8102E),
   });
 
   @override

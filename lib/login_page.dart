@@ -1034,23 +1034,55 @@ class _LoginPageState extends State<LoginPage> {
                     children: [
                       const SizedBox(height: 20),
 
-                      // Logo
+                      // Official Frisby App Mascot & Branding (App Store id6748953356)
+                      Container(
+                        width: 90,
+                        height: 90,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFFC8102E).withValues(alpha: 0.18),
+                              blurRadius: 18,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
+                          border: Border.all(
+                            color: const Color(0xFFC8102E).withValues(alpha: 0.15),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Image.asset(
+                          'assets/images/frisby_mascot.png',
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) => const Icon(
+                            Icons.restaurant_rounded,
+                            size: 40,
+                            color: Color(0xFFC8102E),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+
+                      // Frisby Wordmark
                       Image.network(
                         'https://lh3.googleusercontent.com/aida-public/AB6AXuDqvuqN7g75NbJqkJOIB9ZNtyOPPUPel08Jl-bMBVKX-kK1Z00iI0gMCb0N-RelUihdC1hm4RgiCUSFPQuoG7zypByIhgs3XTFNfzs35KPmid_T1rmBiuwpyqmn7r4ZSeVOqAmlxGJfcVtojoGQd4Qx6Duui0Exc1uc1kfQucfnX6jTiKQ0P0JkMhZKbtUlbc6e-xiOW3dQc5IVYi5cROAJwz59sMgg4a2WkqX5mifMfd7GrWF2lm74IILQdNVypw8feZE',
-                        width: 180,
+                        width: 160,
                         errorBuilder: (context, error, stackTrace) {
                           return Text(
                             'Frisby',
                             style: GoogleFonts.hankenGrotesk(
-                              fontSize: 44,
+                              fontSize: 40,
                               fontWeight: FontWeight.w900,
-                              color: const Color(0xFFAC0017),
+                              color: const Color(0xFFC8102E),
                               fontStyle: FontStyle.italic,
                             ),
                           );
                         },
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 16),
 
                       // Title
                       Text(
