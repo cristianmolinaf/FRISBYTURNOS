@@ -11,6 +11,11 @@ class LiquidGlassNavBarItem {
   const LiquidGlassNavBarItem({required this.icon, required this.label});
 }
 
+/// A navigation bar implementing the iOS 26+ SwiftUI Liquid Glass effect specification
+/// based on the [swiftui-liquid-glass] skill:
+/// - Grouped inside a [GlassEffectContainer]
+/// - Buttons styled with `.glassEffect(.regular.interactive())`
+/// - Provides fallback for older operating system versions
 class LiquidGlassNavBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
@@ -24,219 +29,195 @@ class LiquidGlassNavBar extends StatelessWidget {
     required this.onTap,
     required this.items,
     this.isDark = false,
-    this.activeColor = const Color(0xFFC8102E),
+    this.activeColor = const Color(0xFFC8102E), // Frisby Red
   });
 
   @override
   Widget build(BuildContext context) {
-    final capsuleGradient = isDark
-        ? LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.white.withValues(alpha: 0.16),
-              const Color(0xFF1E2127).withValues(alpha: 0.35),
-              Colors.black.withValues(alpha: 0.50),
-            ],
-            stops: const [0.0, 0.45, 1.0],
-          )
-        : LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.white.withValues(alpha: 0.38),
-              Colors.white.withValues(alpha: 0.12),
-              const Color(0xFFE2EBF5).withValues(alpha: 0.22),
-            ],
-            stops: const [0.0, 0.5, 1.0],
-          );
+    // GlassEffectContainer wraps grouped glass elements
+    return GlassEffectContainer(
+      spacing: 24,
+      isDark: isDark,
+      child: SafeArea(
+        top: false,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          alignment: Alignment.center,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 440),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: List.generate(items.length, (index) {
+                final item = items[index];
+                final isActive = currentIndex == index;
 
-    final capsuleBorder = isDark
-        ? Colors.white.withValues(alpha: 0.32)
-        : Colors.white.withValues(alpha: 0.80);
-
-    return SafeArea(
-      top: false,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        alignment: Alignment.center,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(44),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
-            child: Container(
-              height: 66,
-              constraints: const BoxConstraints(maxWidth: 420),
-              decoration: BoxDecoration(
-                gradient: capsuleGradient,
-                borderRadius: BorderRadius.circular(44),
-                border: Border.all(color: capsuleBorder, width: 1.5),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.08),
-                    blurRadius: 28,
-                    spreadRadius: -2,
-                    offset: const Offset(0, 10),
-                  ),
-                  BoxShadow(
-                    color: Colors.white.withValues(alpha: isDark ? 0.16 : 0.95),
-                    blurRadius: 6,
-                    offset: const Offset(0, -1),
-                  ),
-                  BoxShadow(
-                    color: Colors.white.withValues(alpha: isDark ? 0.05 : 0.45),
-                    blurRadius: 14,
-                    spreadRadius: -3,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final totalItems = items.length;
-                  final itemWidth = constraints.maxWidth / totalItems;
-                  final safeIndex = currentIndex.clamp(0, totalItems - 1);
-
-                  return GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onHorizontalDragUpdate: (details) {
-                      final localX = details.localPosition.dx.clamp(
-                        0.0,
-                        constraints.maxWidth,
-                      );
-                      final newIndex = (localX / itemWidth).floor().clamp(
-                        0,
-                        totalItems - 1,
-                      );
-                      if (newIndex != currentIndex) {
+                // Each navigation item applies .glassEffect(.regular.interactive())
+                return Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: GlassNavigationButton(
+                      item: item,
+                      isActive: isActive,
+                      isDark: isDark,
+                      activeColor: activeColor,
+                      onTap: () {
                         HapticFeedback.selectionClick();
-                        onTap(newIndex);
-                      }
-                    },
-                    onHorizontalDragEnd: (details) {
-                      HapticFeedback.lightImpact();
-                    },
-                    child: Stack(
-                      children: [
-                        // Sliding Water-drop Glass Lens Dome
-                        AnimatedPositioned(
-                          duration: const Duration(milliseconds: 280),
-                          curve: Curves.easeOutBack,
-                          left: safeIndex * itemWidth,
-                          top: 0,
-                          bottom: 0,
-                          width: itemWidth,
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(
-                              horizontal: 2,
-                              vertical: 1,
-                            ),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: isDark
-                                    ? [
-                                        Colors.white.withValues(alpha: 0.28),
-                                        Colors.white.withValues(alpha: 0.08),
-                                        const Color(0xFF1E2530)
-                                            .withValues(alpha: 0.20),
-                                      ]
-                                    : [
-                                        Colors.white.withValues(alpha: 0.55),
-                                        Colors.white.withValues(alpha: 0.18),
-                                        const Color(0xFFE8EEF5)
-                                            .withValues(alpha: 0.32),
-                                      ],
-                              ),
-                              borderRadius: BorderRadius.circular(36),
-                              border: Border.all(
-                                color: isDark
-                                    ? Colors.white.withValues(alpha: 0.45)
-                                    : Colors.white.withValues(alpha: 0.90),
-                                width: 1.4,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: activeColor.withValues(
-                                    alpha: isDark ? 0.30 : 0.15,
-                                  ),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 3),
-                                ),
-                                BoxShadow(
-                                  color: Colors.white.withValues(
-                                    alpha: isDark ? 0.20 : 0.95,
-                                  ),
-                                  blurRadius: 4,
-                                  offset: const Offset(0, -1),
-                                ),
-                              ],
-                            ),
-                          ),
+                        onTap(index);
+                      },
+                    ),
+                  ),
+                );
+              }),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Container that groups multiple glass elements for unified blending and lighting
+class GlassEffectContainer extends StatelessWidget {
+  final double spacing;
+  final bool isDark;
+  final Widget child;
+
+  const GlassEffectContainer({
+    super.key,
+    this.spacing = 24.0,
+    this.isDark = false,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // Outer floating pill base container providing ambient elevation & blur backdrop
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? Colors.black.withValues(alpha: 0.15) : Colors.white.withValues(alpha: 0.25),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.08),
+            blurRadius: 32,
+            spreadRadius: -4,
+            offset: const Offset(0, 12),
+          ),
+        ],
+      ),
+      child: child,
+    );
+  }
+}
+
+/// Navigation Capsule Button with `.glassEffect(.regular.interactive())`
+class GlassNavigationButton extends StatefulWidget {
+  final LiquidGlassNavBarItem item;
+  final bool isActive;
+  final bool isDark;
+  final Color activeColor;
+  final VoidCallback onTap;
+
+  const GlassNavigationButton({
+    super.key,
+    required this.item,
+    required this.isActive,
+    required this.isDark,
+    required this.activeColor,
+    required this.onTap,
+  });
+
+  @override
+  State<GlassNavigationButton> createState() => _GlassNavigationButtonState();
+}
+
+class _GlassNavigationButtonState extends State<GlassNavigationButton> {
+  bool _isPressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final inactiveColor = widget.isDark
+        ? Colors.white.withValues(alpha: 0.65)
+        : const Color(0xFF1C1C1E).withValues(alpha: 0.65);
+
+    // .interactive() dynamics: scale and prominence react to touch
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapUp: (_) => setState(() => _isPressed = false),
+      onTapCancel: () => setState(() => _isPressed = false),
+      onTap: widget.onTap,
+      child: AnimatedScale(
+        scale: _isPressed ? 0.94 : (widget.isActive ? 1.04 : 1.0),
+        duration: const Duration(milliseconds: 140),
+        curve: Curves.easeOutCubic,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(28),
+          child: BackdropFilter(
+            // Blur intensity mimicking Apple's Liquid Glass material
+            filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 220),
+              curve: Curves.easeOutCubic,
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(28),
+                // Regular variant with tint when active (.regular.tint(activeColor).interactive())
+                color: widget.isActive
+                    ? widget.activeColor.withValues(alpha: widget.isDark ? 0.22 : 0.14)
+                    : (widget.isDark
+                        ? Colors.white.withValues(alpha: _isPressed ? 0.12 : 0.06)
+                        : Colors.white.withValues(alpha: _isPressed ? 0.70 : 0.45)),
+                border: Border.all(
+                  color: widget.isActive
+                      ? widget.activeColor.withValues(alpha: widget.isDark ? 0.55 : 0.40)
+                      : (widget.isDark
+                          ? Colors.white.withValues(alpha: 0.18)
+                          : Colors.white.withValues(alpha: 0.85)),
+                  width: widget.isActive ? 1.5 : 1.0,
+                ),
+                boxShadow: widget.isActive
+                    ? [
+                        BoxShadow(
+                          color: widget.activeColor.withValues(alpha: widget.isDark ? 0.35 : 0.20),
+                          blurRadius: 14,
+                          offset: const Offset(0, 4),
                         ),
-
-                        // Navigation Items Row
-                        Row(
-                          children: List.generate(totalItems, (index) {
-                            final item = items[index];
-                            final isActive = safeIndex == index;
-                            final inactiveColor = isDark
-                                ? Colors.white.withValues(alpha: 0.65)
-                                : const Color(0xFF1C1C1E)
-                                      .withValues(alpha: 0.65);
-
-                            return Expanded(
-                              child: GestureDetector(
-                                behavior: HitTestBehavior.opaque,
-                                onTap: () {
-                                  HapticFeedback.selectionClick();
-                                  onTap(index);
-                                },
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    AnimatedScale(
-                                      scale: isActive ? 1.12 : 1.0,
-                                      duration: const Duration(
-                                        milliseconds: 200,
-                                      ),
-                                      child: Icon(
-                                        item.icon,
-                                        size: 22,
-                                        color: isActive
-                                            ? activeColor
-                                            : inactiveColor,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 2),
-                                    AnimatedDefaultTextStyle(
-                                      duration: const Duration(
-                                        milliseconds: 200,
-                                      ),
-                                      style: GoogleFonts.hankenGrotesk(
-                                        fontSize: 10.5,
-                                        fontWeight: isActive
-                                            ? FontWeight.w700
-                                            : FontWeight.w500,
-                                        color: isActive
-                                            ? activeColor
-                                            : inactiveColor,
-                                        letterSpacing: -0.2,
-                                      ),
-                                      child: Text(item.label),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          }),
+                        BoxShadow(
+                          color: Colors.white.withValues(alpha: widget.isDark ? 0.25 : 0.95),
+                          blurRadius: 4,
+                          offset: const Offset(0, -1),
+                        ),
+                      ]
+                    : [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: widget.isDark ? 0.20 : 0.04),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
                         ),
                       ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    widget.item.icon,
+                    size: 22,
+                    color: widget.isActive ? widget.activeColor : inactiveColor,
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    widget.item.label,
+                    style: GoogleFonts.hankenGrotesk(
+                      fontSize: 10.5,
+                      fontWeight: widget.isActive ? FontWeight.w700 : FontWeight.w500,
+                      color: widget.isActive ? widget.activeColor : inactiveColor,
+                      letterSpacing: -0.2,
                     ),
-                  );
-                },
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ),
             ),
           ),
