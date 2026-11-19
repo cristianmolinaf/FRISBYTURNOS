@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      initialRoute: '/',
+      initialRoute: '/admin',
       routes: {
         '/': (context) => const LoginPage(),
         '/dashboard': (context) => const DashboardPage(username: '10002'),
