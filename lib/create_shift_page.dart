@@ -64,16 +64,37 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
   final Set<int> _selectedDays = {1, 2, 3, 4, 5}; // 1: Lun, 2: Mar, 3: Mié, 4: Jue, 5: Vie
 
   // Selected Shift Preset
-  int _selectedPresetIndex = 0; // 0: Apertura, 1: Intermedio, 2: Cierre, 3: Cierre Ext, 4: Descanso, 5: Manual
+  int _selectedPresetIndex = 0; // 0: Escribe Horario Personalizado (Primero por solicitud de usuario)
   String _overrideStation = 'Auto'; // 'Auto' or specific station
-  final TimeOfDay _customStartTime = const TimeOfDay(hour: 8, minute: 0);
-  final TimeOfDay _customEndTime = const TimeOfDay(hour: 16, minute: 0);
+
+  // Controller for custom schedule input
+  final TextEditingController _customHoursController =
+      TextEditingController(text: '08:00 - 16:00');
+
+  final Map<int, String> _dayNames = {
+    1: 'Lunes',
+    2: 'Martes',
+    3: 'Miércoles',
+    4: 'Jueves',
+    5: 'Viernes',
+    6: 'Sábado',
+    7: 'Domingo',
+  };
 
   // Turnos Service
   final TurnosService _turnosService = TurnosService();
 
-  // Shift Presets definition
+  // Shift Presets definition: "Escribe Horario Personalizado" PRIMERO para los roles administrativos
   final List<Map<String, dynamic>> _shiftPresets = [
+    {
+      'title': 'Escribe Horario Personalizado',
+      'hours': 'Escribe horario libre',
+      'duration': 8.0,
+      'icon': Icons.edit_calendar_rounded,
+      'color': const Color(0xFFAC0017), // Frisby Red
+      'desc': 'Escribe la hora exacta de entrada y salida',
+      'isCustom': true,
+    },
     {
       'title': 'Apertura',
       'hours': '08:00 - 16:00',
@@ -81,6 +102,7 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
       'icon': Icons.wb_sunny_outlined,
       'color': const Color(0xFF00C853), // Green
       'desc': 'Fritura, alistamiento y apertura',
+      'isCustom': false,
     },
     {
       'title': 'Intermedio',
@@ -89,6 +111,7 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
       'icon': Icons.wb_twilight_rounded,
       'color': const Color(0xFFFF9100), // Orange
       'desc': 'Refuerzo de almuerzo y plancha',
+      'isCustom': false,
     },
     {
       'title': 'Tarde / Cierre',
@@ -97,6 +120,7 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
       'icon': Icons.nights_stay_outlined,
       'color': const Color(0xFF2E66E5), // Blue
       'desc': 'Servicio noche, aseo y cierre POS',
+      'isCustom': false,
     },
     {
       'title': 'Cierre Extendido',
@@ -105,6 +129,7 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
       'icon': Icons.dark_mode_outlined,
       'color': const Color(0xFF7C4DFF), // Purple
       'desc': 'Fin de semana y eventos especiales',
+      'isCustom': false,
     },
     {
       'title': 'Descanso (D)',
@@ -113,16 +138,32 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
       'icon': Icons.beach_access_rounded,
       'color': const Color(0xFF009688), // Teal
       'desc': 'Día libre rotativo compensatorio',
-    },
-    {
-      'title': 'Personalizado',
-      'hours': 'Horario Manual',
-      'duration': 8.0,
-      'icon': Icons.tune_rounded,
-      'color': const Color(0xFFAC0017), // Frisby Red
-      'desc': 'Configura hora exacta y pausa',
+      'isCustom': false,
     },
   ];
+
+  @override
+  void dispose() {
+    _customHoursController.dispose();
+    super.dispose();
+  }
+
+  double _getCustomCalculatedHours() {
+    final text = _customHoursController.text;
+    final match = RegExp(
+            r'(\d{1,2})(?::\d{2})?\s*[-–]\s*(\d{1,2})(?::\d{2})?')
+        .firstMatch(text);
+    if (match != null) {
+      final start = int.tryParse(match.group(1)!) ?? 8;
+      final end = int.tryParse(match.group(2)!) ?? 16;
+      if (end > start) {
+        return (end - start).toDouble();
+      } else if (end < start) {
+        return (24 - start + end).toDouble();
+      }
+    }
+    return 8.0;
+  }
 
   @override
   void initState() {
@@ -337,7 +378,7 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
     HapticFeedback.mediumImpact();
     if (_selectedCollaboratorIndices.isEmpty) {
       if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Por favor selecciona al menos un colaborador'),
           backgroundColor: Color(0xFFBA1A1A),
@@ -349,7 +390,7 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
 
     if (_selectedDays.isEmpty) {
       if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Por favor selecciona al menos un día de la semana'),
           backgroundColor: Color(0xFFBA1A1A),
@@ -360,11 +401,14 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
     }
 
     final preset = _shiftPresets[_selectedPresetIndex];
+    final isCustom = preset['isCustom'] == true;
     final shiftTitle = preset['title'] as String;
-    final shiftHours = _selectedPresetIndex == 5
-        ? '${_customStartTime.format(context)} - ${_customEndTime.format(context)}'
+    final shiftHours = isCustom
+        ? (_customHoursController.text.trim().isEmpty ? '08:00 - 16:00' : _customHoursController.text.trim())
         : (preset['hours'] as String);
-    final hoursPerDay = preset['duration'] as double;
+    final hoursPerDay = isCustom
+        ? _getCustomCalculatedHours()
+        : (preset['duration'] as double);
     final totalAddedHours = hoursPerDay * _selectedDays.length;
 
     setState(() {
@@ -409,24 +453,257 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
     });
 
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                '¡$shiftTitle ($shiftHours) asignado exitosamente a ${_selectedCollaboratorIndices.length} colaborador(es)!',
-                style: GoogleFonts.hankenGrotesk(color: Colors.white, fontWeight: FontWeight.bold),
+    final assignedCols = _selectedCollaboratorIndices.map((i) => _collaborators[i]).toList();
+    final isDark = _isDarkMode(context);
+
+    _showAssignmentSuccessPopup(
+      shiftTitle: shiftTitle,
+      shiftHours: shiftHours,
+      hoursPerDay: hoursPerDay,
+      assignedCollaborators: assignedCols,
+      days: _selectedDays.toList(),
+      station: _overrideStation,
+      store: _activeStore,
+      isDark: isDark,
+    );
+  }
+
+  void _showAssignmentSuccessPopup({
+    required String shiftTitle,
+    required String shiftHours,
+    required double hoursPerDay,
+    required List<Map<String, dynamic>> assignedCollaborators,
+    required List<int> days,
+    required String station,
+    required String store,
+    required bool isDark,
+  }) {
+    HapticFeedback.heavyImpact();
+    final sortedDays = List<int>.from(days)..sort();
+    final dayNamesList = sortedDays.map((d) => _dayNames[d] ?? 'Día $d').join(', ');
+    final totalHoursPerPerson = (hoursPerDay * days.length).toStringAsFixed(1);
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        return AlertDialog(
+          backgroundColor: isDark ? const Color(0xFF1E222A) : Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          contentPadding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF00C853).withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.check_circle_rounded,
+                  color: Color(0xFF00C853),
+                  size: 40,
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              Text(
+                '¡Turno Asignado Exitosamente!',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.sora(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : const Color(0xFF191C1E),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'El horario ha sido registrado en el sistema Frisby',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.hankenGrotesk(
+                  fontSize: 12,
+                  color: isDark ? Colors.white60 : Colors.grey[600],
+                ),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFF9F9FB),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: isDark ? Colors.white12 : const Color(0xFFE5E7EB),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    _buildPopupDetailRow(
+                      icon: Icons.storefront_outlined,
+                      label: 'Sucursal',
+                      value: store,
+                      isDark: isDark,
+                    ),
+                    const Divider(height: 14),
+                    _buildPopupDetailRow(
+                      icon: Icons.access_time_rounded,
+                      label: 'Horario',
+                      value: shiftHours,
+                      valueColor: const Color(0xFFAC0017),
+                      isDark: isDark,
+                    ),
+                    const Divider(height: 14),
+                    _buildPopupDetailRow(
+                      icon: Icons.soup_kitchen_outlined,
+                      label: 'Estación',
+                      value: station == 'Auto' ? 'Automática por perfil' : station,
+                      isDark: isDark,
+                    ),
+                    const Divider(height: 14),
+                    _buildPopupDetailRow(
+                      icon: Icons.calendar_month_outlined,
+                      label: 'Días',
+                      value: '${days.length} día(s): $dayNamesList',
+                      isDark: isDark,
+                    ),
+                    const Divider(height: 14),
+                    _buildPopupDetailRow(
+                      icon: Icons.timelapse_rounded,
+                      label: 'Total Horas',
+                      value: '$totalHoursPerPerson hrs por colaborador',
+                      valueColor: const Color(0xFF00C853),
+                      isDark: isDark,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 14),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Colaborador(es) asignado(s) (${assignedCollaborators.length}):',
+                  style: GoogleFonts.hankenGrotesk(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white70 : Colors.grey[800],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Wrap(
+                spacing: 6,
+                runSpacing: 4,
+                children: assignedCollaborators.map((c) {
+                  return Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFAC0017).withValues(alpha: isDark ? 0.2 : 0.1),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: const Color(0xFFAC0017).withValues(alpha: 0.3)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.person_rounded, size: 12, color: Color(0xFFAC0017)),
+                        const SizedBox(width: 4),
+                        Text(
+                          c['name'] as String,
+                          style: GoogleFonts.hankenGrotesk(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFFAC0017),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        setState(() => _selectedMode = 2); // Ver en Malla Semanal
+                      },
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        side: const BorderSide(color: Color(0xFFAC0017)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                      ),
+                      child: Text(
+                        'Ver Malla',
+                        style: GoogleFonts.hankenGrotesk(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFFAC0017),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFAC0017),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                        elevation: 0,
+                      ),
+                      child: Text(
+                        'Aceptar',
+                        style: GoogleFonts.hankenGrotesk(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildPopupDetailRow({
+    required IconData icon,
+    required String label,
+    required String value,
+    Color? valueColor,
+    required bool isDark,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 16, color: isDark ? Colors.white60 : Colors.grey[600]),
+        const SizedBox(width: 8),
+        Text(
+          '$label: ',
+          style: GoogleFonts.hankenGrotesk(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: isDark ? Colors.white70 : Colors.grey[700],
+          ),
         ),
-        backgroundColor: const Color(0xFF00C853),
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 3),
-      ),
+        Expanded(
+          child: Text(
+            value,
+            textAlign: TextAlign.end,
+            style: GoogleFonts.hankenGrotesk(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: valueColor ?? (isDark ? Colors.white : const Color(0xFF191C1E)),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -518,15 +795,18 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
         children: [
           Row(
             children: [
-              Text(
-                'Asignación de Horarios',
-                style: GoogleFonts.sora(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: titleColor,
+              Flexible(
+                child: Text(
+                  'Asignación de Horarios',
+                  style: GoogleFonts.sora(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: titleColor,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 6),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
@@ -534,13 +814,14 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(_getRoleIcon(), size: 12, color: primaryRed),
-                    const SizedBox(width: 4),
+                    Icon(_getRoleIcon(), size: 11, color: primaryRed),
+                    const SizedBox(width: 3),
                     Text(
-                      _getRoleLabel(),
+                      _getRoleLabel().split('•').first.trim(),
                       style: GoogleFonts.hankenGrotesk(
-                        fontSize: 10,
+                        fontSize: 9,
                         fontWeight: FontWeight.bold,
                         color: primaryRed,
                       ),
@@ -1046,6 +1327,162 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
           },
         ),
 
+        // Horario Personalizado (Visible cuando está seleccionado el preset 0)
+        if (_shiftPresets[_selectedPresetIndex]['isCustom'] == true) ...[
+          const SizedBox(height: 14),
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF1E222A) : Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFAC0017), width: 1.5),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFFAC0017).withValues(alpha: isDark ? 0.2 : 0.08),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.edit_calendar_rounded, color: Color(0xFFAC0017), size: 20),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Escribe un Horario Personalizado:',
+                          style: GoogleFonts.sora(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: isDark ? Colors.white : const Color(0xFF191C1E),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF00C853).withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        '${_getCustomCalculatedHours().toStringAsFixed(1)} hrs/día',
+                        style: GoogleFonts.hankenGrotesk(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFF00C853),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: _customHoursController,
+                  style: GoogleFonts.hankenGrotesk(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : const Color(0xFF191C1E),
+                  ),
+                  decoration: InputDecoration(
+                    hintText: 'Ej. 07:00 - 15:00 o 10:30 - 19:00',
+                    hintStyle: GoogleFonts.hankenGrotesk(
+                      fontSize: 13,
+                      color: isDark ? Colors.white38 : Colors.grey[400],
+                    ),
+                    prefixIcon: const Icon(Icons.alarm, color: Color(0xFFAC0017), size: 20),
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.clear, size: 18),
+                      onPressed: () {
+                        _customHoursController.clear();
+                        setState(() {});
+                      },
+                    ),
+                    filled: true,
+                    fillColor: isDark ? Colors.black.withValues(alpha: 0.2) : const Color(0xFFF9F9FB),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: isDark ? Colors.white12 : const Color(0xFFE5E7EB)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: isDark ? Colors.white12 : const Color(0xFFE5E7EB)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFFAC0017), width: 1.5),
+                    ),
+                  ),
+                  onChanged: (val) {
+                    setState(() {});
+                  },
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Horarios rápidos de sugerencia:',
+                  style: GoogleFonts.hankenGrotesk(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white60 : Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: [
+                    '06:00 - 14:00',
+                    '07:00 - 15:00',
+                    '09:30 - 17:30',
+                    '10:00 - 18:00',
+                    '12:00 - 20:00',
+                    '13:00 - 21:00',
+                    '15:00 - 23:00',
+                    '17:00 - 01:00',
+                  ].map((quickH) {
+                    final isCurrent = _customHoursController.text.trim() == quickH;
+                    return InkWell(
+                      onTap: () {
+                        setState(() {
+                          _customHoursController.text = quickH;
+                        });
+                        HapticFeedback.selectionClick();
+                      },
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: isCurrent
+                              ? const Color(0xFFAC0017)
+                              : (isDark ? Colors.white10 : const Color(0xFFF0F2F5)),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: isCurrent ? const Color(0xFFAC0017) : Colors.transparent,
+                          ),
+                        ),
+                        child: Text(
+                          quickH,
+                          style: GoogleFonts.hankenGrotesk(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: isCurrent ? Colors.white : (isDark ? Colors.white70 : const Color(0xFF191C1E)),
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ],
+            ),
+          ),
+        ],
+
         const SizedBox(height: 18),
 
         // Optional Station Override Picker
@@ -1332,9 +1769,13 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
   // Floating Action Bottom Bar for Quick Assignment
   Widget _buildFloatingActionBottomBar(bool isIOS, bool isDark) {
     final preset = _shiftPresets[_selectedPresetIndex];
-    final hoursPerDay = preset['duration'] as double;
-    final totalHours = hoursPerDay * _selectedDays.length;
+    final isCustom = preset['isCustom'] == true;
+    final hoursPerDay = isCustom ? _getCustomCalculatedHours() : (preset['duration'] as double);
+    final totalHours = (hoursPerDay * _selectedDays.length).toStringAsFixed(1);
     final totalShifts = _selectedCollaboratorIndices.length * _selectedDays.length;
+    final displayHours = isCustom
+        ? (_customHoursController.text.trim().isEmpty ? '08:00 - 16:00' : _customHoursController.text.trim())
+        : (preset['hours'] as String);
 
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
@@ -1363,9 +1804,9 @@ class _CreateShiftPageState extends State<CreateShiftPage> {
                     style: GoogleFonts.hankenGrotesk(fontSize: 11, color: isDark ? Colors.white60 : Colors.grey[600]),
                   ),
                   Text(
-                    '${preset['title']} • $totalShifts turno(s)',
+                    isCustom ? 'Personalizado ($displayHours)' : '${preset['title']} • $totalShifts turno(s)',
                     style: GoogleFonts.sora(
-                      fontSize: 14,
+                      fontSize: 13,
                       fontWeight: FontWeight.bold,
                       color: isDark ? Colors.white : const Color(0xFF191C1E),
                     ),
