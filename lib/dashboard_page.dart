@@ -4886,12 +4886,17 @@ class _DashboardPageState extends State<DashboardPage> {
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
         isDark: isDark,
-        activeColor: const Color(0xFFC8102E),
-        items: const [
-          LiquidGlassNavBarItem(icon: Icons.event_note_rounded, label: 'Turnos'),
-          LiquidGlassNavBarItem(icon: Icons.swap_horiz_rounded, label: 'Cambios'),
-          LiquidGlassNavBarItem(icon: Icons.medical_services_outlined, label: 'Permisos'),
-          LiquidGlassNavBarItem(icon: Icons.group_rounded, label: 'Equipo'),
+        activeColor: const Color(0xFFFF9E58),
+        items: [
+          const LiquidGlassNavBarItem(icon: Icons.campaign_outlined, label: 'Inicio'),
+          const LiquidGlassNavBarItem(icon: Icons.chat_bubble_outline_rounded, label: 'Chat'),
+          const LiquidGlassNavBarItem(icon: Icons.menu_book_rounded, label: 'Noticias'),
+          const LiquidGlassNavBarItem(
+            icon: Icons.notifications_none_rounded,
+            label: 'Notificaciones',
+            badgeCount: 1,
+          ),
+          const LiquidGlassNavBarItem(icon: Icons.menu_rounded, label: 'Menú'),
         ],
       );
     }
