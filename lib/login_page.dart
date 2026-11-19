@@ -87,16 +87,24 @@ class _LoginPageState extends State<LoginPage> {
               userRole == 'administrador' ||
               userRole == 'superadmin' ||
               userRole == 'jefe_zona' ||
+              username == '10000' ||
               username == '10001' ||
               username.toLowerCase().contains('admin');
 
           if (isAdmin) {
+            final effectiveRole = username == '10000'
+                ? 'superadmin'
+                : (username == '10001' ? 'jefe_zona' : userRole);
+            final effectiveName = username == '10000'
+                ? 'Santiago Vélez (Super Admin)'
+                : (username == '10001' ? 'Laura Restrepo (Jefe de Zona)' : profileName);
+
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
                 builder: (context) => AdminDashboardPage(
                   username: username,
-                  profileName: profileName,
-                  role: userRole,
+                  profileName: effectiveName,
+                  role: effectiveRole,
                 ),
               ),
             );
@@ -112,20 +120,31 @@ class _LoginPageState extends State<LoginPage> {
       } on AuthException catch (error) {
         // Demo fallback for seed accounts
         if (password == '123456' &&
-            (username == '10001' ||
+            (username == '10000' ||
+                username == '10001' ||
                 username == '10002' ||
                 username == '10003')) {
           if (mounted) {
             setState(() {
               _isLoading = false;
             });
-            if (username == '10001') {
+            if (username == '10000') {
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
                   builder: (context) => AdminDashboardPage(
                     username: username,
-                    profileName: 'Laura Restrepo (Admin)',
-                    role: 'administrador',
+                    profileName: 'Santiago Vélez (Super Admin)',
+                    role: 'superadmin',
+                  ),
+                ),
+              );
+            } else if (username == '10001') {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (context) => AdminDashboardPage(
+                    username: username,
+                    profileName: 'Laura Restrepo (Jefe de Zona)',
+                    role: 'jefe_zona',
                   ),
                 ),
               );
@@ -157,18 +176,28 @@ class _LoginPageState extends State<LoginPage> {
         }
       } catch (error) {
         if (password == '123456' &&
-            (username == '10001' || username == '10002')) {
+            (username == '10000' || username == '10001' || username == '10002')) {
           if (mounted) {
             setState(() {
               _isLoading = false;
             });
-            if (username == '10001') {
+            if (username == '10000') {
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
                   builder: (context) => AdminDashboardPage(
                     username: username,
-                    profileName: 'Laura Restrepo (Admin)',
-                    role: 'administrador',
+                    profileName: 'Santiago Vélez (Super Admin)',
+                    role: 'superadmin',
+                  ),
+                ),
+              );
+            } else if (username == '10001') {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (context) => AdminDashboardPage(
+                    username: username,
+                    profileName: 'Laura Restrepo (Jefe de Zona)',
+                    role: 'jefe_zona',
                   ),
                 ),
               );
@@ -786,12 +815,27 @@ class _LoginPageState extends State<LoginPage> {
                               children: [
                                 ActionChip(
                                   avatar: const Icon(
+                                    Icons.shield_outlined,
+                                    size: 14,
+                                    color: Color(0xFFAC0017),
+                                  ),
+                                  label: Text(
+                                    'Super Admin: 10000',
+                                    style: GoogleFonts.hankenGrotesk(
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                  onPressed: () =>
+                                      _fillDemoCredentials('10000'),
+                                ),
+                                ActionChip(
+                                  avatar: const Icon(
                                     Icons.admin_panel_settings,
                                     size: 14,
                                     color: Color(0xFFAC0017),
                                   ),
                                   label: Text(
-                                    'Admin: 10001',
+                                    'Jefe Zona: 10001',
                                     style: GoogleFonts.hankenGrotesk(
                                       fontSize: 11,
                                     ),
@@ -813,6 +857,21 @@ class _LoginPageState extends State<LoginPage> {
                                   ),
                                   onPressed: () =>
                                       _fillDemoCredentials('10002'),
+                                ),
+                                ActionChip(
+                                  avatar: const Icon(
+                                    Icons.person_outline,
+                                    size: 14,
+                                    color: Color(0xFF545D80),
+                                  ),
+                                  label: Text(
+                                    'Colaborador: 10003',
+                                    style: GoogleFonts.hankenGrotesk(
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                  onPressed: () =>
+                                      _fillDemoCredentials('10003'),
                                 ),
                                 ActionChip(
                                   avatar: const Icon(
@@ -1252,12 +1311,27 @@ class _LoginPageState extends State<LoginPage> {
                               children: [
                                 ActionChip(
                                   avatar: const Icon(
+                                    Icons.shield_outlined,
+                                    size: 14,
+                                    color: Color(0xFFAC0017),
+                                  ),
+                                  label: Text(
+                                    'Super Admin: 10000',
+                                    style: GoogleFonts.hankenGrotesk(
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                  onPressed: () =>
+                                      _fillDemoCredentials('10000'),
+                                ),
+                                ActionChip(
+                                  avatar: const Icon(
                                     Icons.admin_panel_settings,
                                     size: 14,
                                     color: Color(0xFFAC0017),
                                   ),
                                   label: Text(
-                                    'Admin: 10001',
+                                    'Jefe Zona: 10001',
                                     style: GoogleFonts.hankenGrotesk(
                                       fontSize: 11,
                                     ),
@@ -1279,6 +1353,21 @@ class _LoginPageState extends State<LoginPage> {
                                   ),
                                   onPressed: () =>
                                       _fillDemoCredentials('10002'),
+                                ),
+                                ActionChip(
+                                  avatar: const Icon(
+                                    Icons.person_outline,
+                                    size: 14,
+                                    color: Color(0xFF545D80),
+                                  ),
+                                  label: Text(
+                                    'Colaborador: 10003',
+                                    style: GoogleFonts.hankenGrotesk(
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                  onPressed: () =>
+                                      _fillDemoCredentials('10003'),
                                 ),
                                 ActionChip(
                                   avatar: const Icon(

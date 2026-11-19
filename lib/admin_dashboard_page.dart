@@ -1029,6 +1029,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
       MaterialPageRoute(
         builder: (_) => CreateShiftPage(
           username: widget.username,
+          role: widget.role ?? 'jefe_zona',
           currentStore: _currentStore,
           teamMembers: _teamMembers,
           forceIOS: useIOS,
