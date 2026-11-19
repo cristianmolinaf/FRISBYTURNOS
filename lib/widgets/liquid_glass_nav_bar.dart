@@ -15,12 +15,12 @@ class LiquidGlassNavBarItem {
   });
 }
 
-/// A navigation bar implementing the true iOS 26+ SwiftUI Liquid Glass effect
-/// as seen in the official Frisby reference screenshot:
-/// - A continuous dark tinted glass pill capsule floating at the bottom with frosted blur.
-/// - The active item is an elevated, enlarged refractive glass bubble with chromatic refraction & prism edge reflections.
-/// - Inactive items are clean white icons and text.
-/// - Support for badges (like notification count).
+/// A navigation bar implementing the authentic Apple Liquid Glass (iOS 26) design system:
+/// 1. Translucent main container: Frosted glass (.ultraThinMaterial) with backdrop blur(24px)
+///    and delicate semitransparent border allowing background content to shine through.
+/// 2. Active indicator as an internal capsule: Fully contained within the dock (Capsule / rounded-full),
+///    soft translucent glass tint, delicate specular top highlight, without artificial rainbow reflections.
+/// 3. Clean typography & crisp icons: High contrast, uncluttered glyphs, and fine text.
 class LiquidGlassNavBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
@@ -33,8 +33,8 @@ class LiquidGlassNavBar extends StatelessWidget {
     required this.currentIndex,
     required this.onTap,
     required this.items,
-    this.isDark = true,
-    this.activeColor = const Color(0xFFFF9E58), // Warm orange/peach accent from Frisby app screenshot
+    this.isDark = false,
+    this.activeColor = const Color(0xFFC8102E), // Frisby Red or custom accent
   });
 
   @override
@@ -42,207 +42,123 @@ class LiquidGlassNavBar extends StatelessWidget {
     return SafeArea(
       top: false,
       child: Padding(
-        padding: const EdgeInsets.only(left: 12, right: 12, bottom: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: SizedBox(
           height: 64,
-          child: Stack(
-            clipBehavior: Clip.none,
-            alignment: Alignment.center,
-            children: [
-              // 1. MAIN GLASS CAPSULE DOCK (Frosted dark glassy pill)
-              Positioned.fill(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(32),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final totalWidth = constraints.maxWidth;
+              final itemWidth = totalWidth / items.length;
+              final capsulePaddingH = 4.0;
+              final capsuleWidth = itemWidth - (capsulePaddingH * 2);
+              final capsuleLeft = currentIndex * itemWidth + capsulePaddingH;
+
+              return Stack(
+                children: [
+                  // 1. MAIN FROSTED TRANSLUCENT GLASS DOCK (.ultraThinMaterial)
+                  Positioned.fill(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(32),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(32),
+                            // Translucent frosted glass tint
+                            color: isDark
+                                ? const Color(0xFF2C2C2E).withValues(alpha: 0.55)
+                                : Colors.white.withValues(alpha: 0.65),
+                            // Thin semitransparent perimeter border letting background bleed through
+                            border: Border.all(
+                              color: isDark
+                                  ? Colors.white.withValues(alpha: 0.16)
+                                  : Colors.white.withValues(alpha: 0.60),
+                              width: 1.0,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: isDark ? 0.30 : 0.08),
+                                blurRadius: 20,
+                                spreadRadius: -2,
+                                offset: const Offset(0, 8),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // 2. INTERNAL ACTIVE CAPSULE (Contained inside, no protruding bubble)
+                  AnimatedPositioned(
+                    duration: const Duration(milliseconds: 260),
+                    curve: Curves.easeOutCubic,
+                    left: capsuleLeft,
+                    top: 6,
+                    bottom: 6,
+                    width: capsuleWidth,
                     child: Container(
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(32),
-                        // Dark translucent smoky glass
+                        borderRadius: BorderRadius.circular(26),
+                        // Soft translucent glass tint with gentle specular highlight
                         gradient: LinearGradient(
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
-                          colors: [
-                            const Color(0xFF4A4A4D).withValues(alpha: 0.65),
-                            const Color(0xFF222225).withValues(alpha: 0.82),
-                          ],
+                          colors: isDark
+                              ? [
+                                  Colors.white.withValues(alpha: 0.22),
+                                  Colors.white.withValues(alpha: 0.08),
+                                ]
+                              : [
+                                  Colors.white.withValues(alpha: 0.90),
+                                  Colors.white.withValues(alpha: 0.55),
+                                ],
                         ),
-                        // Fine perimeter rim light
+                        // Subtle specular top edge rim
                         border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.28),
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.30)
+                              : Colors.white.withValues(alpha: 0.90),
                           width: 1.0,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.40),
-                            blurRadius: 28,
-                            spreadRadius: 2,
-                            offset: const Offset(0, 10),
+                            color: Colors.black.withValues(alpha: isDark ? 0.20 : 0.06),
+                            blurRadius: 8,
+                            spreadRadius: -1,
+                            offset: const Offset(0, 3),
                           ),
                         ],
                       ),
                     ),
                   ),
-                ),
-              ),
 
-              // 2. ITEMS ROW WITH INTERACTIVE BUBBLE
-              Positioned.fill(
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    final itemWidth = constraints.maxWidth / items.length;
-                    const bubbleWidth = 74.0;
-                    final activeBubbleLeft = (currentIndex * itemWidth + (itemWidth - bubbleWidth) / 2).clamp(
-                      0.0,
-                      constraints.maxWidth - bubbleWidth,
-                    );
+                  // 3. INTERACTIVE ITEMS ROW (Clean crisp icons and typography)
+                  Row(
+                    children: List.generate(items.length, (index) {
+                      final item = items[index];
+                      final isActive = currentIndex == index;
 
-                    return Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        // ACTIVE REFRACTIVE LIQUID GLASS BUBBLE (Morphing lens)
-                        AnimatedPositioned(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeOutBack,
-                          left: activeBubbleLeft,
-                          top: -7,
-                          bottom: -7,
-                          width: bubbleWidth,
-                          child: const _LiquidGlassLens(),
+                      return Expanded(
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {
+                            HapticFeedback.selectionClick();
+                            onTap(index);
+                          },
+                          child: _CleanGlassNavItem(
+                            item: item,
+                            isActive: isActive,
+                            isDark: isDark,
+                            activeColor: activeColor,
+                          ),
                         ),
-
-                        // INTERACTIVE ITEM TOUCH TARGETS & ICONS
-                        Row(
-                          children: List.generate(items.length, (index) {
-                            final item = items[index];
-                            final isActive = currentIndex == index;
-
-                            return Expanded(
-                              child: GestureDetector(
-                                behavior: HitTestBehavior.opaque,
-                                onTap: () {
-                                  HapticFeedback.selectionClick();
-                                  onTap(index);
-                                },
-                                child: _GlassNavItemContent(
-                                  item: item,
-                                  isActive: isActive,
-                                  activeColor: activeColor,
-                                ),
-                              ),
-                            );
-                          }),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// The refractive liquid glass bubble lens that floats over the active icon
-class _LiquidGlassLens extends StatelessWidget {
-  const _LiquidGlassLens();
-
-  @override
-  Widget build(BuildContext context) {
-    return IgnorePointer(
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(39),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(39),
-              // Glass gradient fill
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.white.withValues(alpha: 0.25),
-                  Colors.white.withValues(alpha: 0.06),
-                  const Color(0xFF2A2A2E).withValues(alpha: 0.35),
+                      );
+                    }),
+                  ),
                 ],
-              ),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.55),
-                width: 1.4,
-              ),
-              boxShadow: [
-                // Prism chromatic aberration simulation (rainbow edge glow)
-                BoxShadow(
-                  color: const Color(0xFF4A90E2).withValues(alpha: 0.40), // blue dispersion edge
-                  blurRadius: 10,
-                  spreadRadius: -1,
-                  offset: const Offset(-2, 0),
-                ),
-                BoxShadow(
-                  color: const Color(0xFFFF9E58).withValues(alpha: 0.40), // warm orange dispersion
-                  blurRadius: 10,
-                  spreadRadius: -1,
-                  offset: const Offset(2, 0),
-                ),
-                // Outer elevation drop shadow
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.35),
-                  blurRadius: 16,
-                  offset: const Offset(0, 6),
-                ),
-                // Inner highlight ring
-                BoxShadow(
-                  color: Colors.white.withValues(alpha: 0.40),
-                  blurRadius: 4,
-                  spreadRadius: -1,
-                  offset: const Offset(0, 1),
-                ),
-              ],
-            ),
-            child: Stack(
-              children: [
-                // Top curved glass reflection highlight
-                Align(
-                  alignment: Alignment.topCenter,
-                  child: Container(
-                    height: 12,
-                    margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 3),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.white.withValues(alpha: 0.75),
-                          Colors.white.withValues(alpha: 0.0),
-                        ],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                      ),
-                    ),
-                  ),
-                ),
-                // Bottom chromatic rim
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Container(
-                    height: 6,
-                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      gradient: LinearGradient(
-                        colors: [
-                          const Color(0xFF64D2FF).withValues(alpha: 0.55),
-                          const Color(0xFFFF9F0A).withValues(alpha: 0.55),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              );
+            },
           ),
         ),
       ),
@@ -250,20 +166,25 @@ class _LiquidGlassLens extends StatelessWidget {
   }
 }
 
-class _GlassNavItemContent extends StatelessWidget {
+class _CleanGlassNavItem extends StatelessWidget {
   final LiquidGlassNavBarItem item;
   final bool isActive;
+  final bool isDark;
   final Color activeColor;
 
-  const _GlassNavItemContent({
+  const _CleanGlassNavItem({
     required this.item,
     required this.isActive,
+    required this.isDark,
     required this.activeColor,
   });
 
   @override
   Widget build(BuildContext context) {
-    final color = isActive ? activeColor : Colors.white;
+    final activeTextColor = isDark ? Colors.white : activeColor;
+    final inactiveTextColor = isDark
+        ? Colors.white.withValues(alpha: 0.55)
+        : const Color(0xFF6E6E73);
 
     return Center(
       child: Column(
@@ -273,35 +194,33 @@ class _GlassNavItemContent extends StatelessWidget {
           Stack(
             clipBehavior: Clip.none,
             children: [
-              Icon(
-                item.icon,
-                size: 24,
-                color: color,
+              AnimatedScale(
+                scale: isActive ? 1.05 : 1.0,
+                duration: const Duration(milliseconds: 200),
+                child: Icon(
+                  item.icon,
+                  size: 22,
+                  color: isActive ? activeTextColor : inactiveTextColor,
+                ),
               ),
               if (item.badgeCount > 0)
                 Positioned(
-                  top: -4,
-                  right: -8,
+                  top: -3,
+                  right: -7,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 4.5, vertical: 1.5),
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFF453A), // iOS system red badge
+                      color: const Color(0xFFFF3B30), // Apple iOS system red
                       borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFFFF453A).withValues(alpha: 0.5),
-                          blurRadius: 6,
-                        ),
-                      ],
                     ),
-                    constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                    constraints: const BoxConstraints(minWidth: 15, minHeight: 15),
                     child: Center(
                       child: Text(
                         item.badgeCount > 99 ? '99+' : '${item.badgeCount}',
                         style: GoogleFonts.hankenGrotesk(
                           color: Colors.white,
-                          fontSize: 9.5,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 9.0,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),
@@ -310,16 +229,19 @@ class _GlassNavItemContent extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 3),
-          Text(
-            item.label,
+          AnimatedDefaultTextStyle(
+            duration: const Duration(milliseconds: 200),
             style: GoogleFonts.hankenGrotesk(
               fontSize: 10.5,
-              fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-              color: color,
+              fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
+              color: isActive ? activeTextColor : inactiveTextColor,
               letterSpacing: -0.1,
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+            child: Text(
+              item.label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       ),
