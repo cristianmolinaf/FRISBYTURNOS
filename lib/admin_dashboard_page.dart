@@ -12,6 +12,7 @@ import 'login_page.dart';
 import 'create_shift_page.dart';
 import 'widgets/frisby_weekly_schedule_sheet.dart';
 import 'widgets/liquid_glass_nav_bar.dart';
+import 'widgets/smart_alerts_and_notifications.dart';
 
 class AdminDashboardPage extends StatefulWidget {
   final String username;
@@ -2393,110 +2394,15 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
           ),
         ),
 
-        // 2. Pulsing Live Operational Alert Banner
-        AnimatedBuilder(
-          animation: _alertPulseController,
-          builder: (context, child) {
-            final glow = _pulseGlowAnimation.value;
-            const alertRed = Color(0xFFC8102E);
-
-            return InkWell(
-              onTap: () => _showOperationalAlertsModal(isIOS, isDark),
-              borderRadius: BorderRadius.circular(16),
-              child: Container(
-                margin: const EdgeInsets.only(bottom: 16),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: isDark
-                      ? alertRed.withValues(alpha: 0.12 + 0.08 * glow)
-                      : const Color(0xFFFFF1F2)
-                            .withValues(alpha: 0.85 + 0.15 * glow),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: alertRed.withValues(alpha: 0.35 + 0.35 * glow),
-                    width: 1.2,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: alertRed.withValues(alpha: 0.15 * glow),
-                      blurRadius: 10 * glow,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: alertRed.withValues(alpha: 0.85 + 0.15 * glow),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.bolt_rounded,
-                        color: Colors.white,
-                        size: 18,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                '${_operationalAlerts.length} Alertas Operativas Críticas',
-                                style: GoogleFonts.hankenGrotesk(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                  color: isDark
-                                      ? const Color(0xFFFFB3AD)
-                                      : alertRed,
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                              Container(
-                                width: 7,
-                                height: 7,
-                                decoration: BoxDecoration(
-                                  color: alertRed,
-                                  shape: BoxShape.circle,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: alertRed.withValues(alpha: glow),
-                                      blurRadius: 4,
-                                      spreadRadius: 1,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            'Déficit en Freidoras 12:30 PM • Exceso de horas detectado.',
-                            style: GoogleFonts.hankenGrotesk(
-                              fontSize: 11,
-                              color: subtextColor,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Icon(
-                      Icons.arrow_forward_ios_rounded,
-                      color: alertRed,
-                      size: 14,
-                    ),
-                  ],
-                ),
-              ),
-            );
+        // 2. Smart Operational Alerts Card (Swipeable with 1-Click Action)
+        SmartOperationalAlertsCard(
+          alerts: _operationalAlerts,
+          isIOS: isIOS,
+          isDark: isDark,
+          onQuickAction: (alert) {
+            _navigateToCreateShiftPage();
           },
+          onViewAll: () => _showOperationalAlertsModal(isIOS, isDark),
         ),
 
         // 3. Bento Grid KPI Dashboard (3 Cards Modern Layout)
@@ -4736,10 +4642,17 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
                   ),
                   Row(
                     children: [
-                      _buildPulsingAlertButton(
-                        isIOS: true,
+                      DynamicStatusPill(
+                        criticalCount: _operationalAlerts
+                            .where((a) =>
+                                a['level'] == 'critical' ||
+                                a['level'] == 'urgent')
+                            .length,
+                        warningCount: _operationalAlerts
+                            .where((a) => a['level'] == 'warning')
+                            .length,
                         isDark: isDark,
-                        isCompact: true,
+                        onTap: () => _showOperationalAlertsModal(true, isDark),
                       ),
                       const SizedBox(width: 4),
                       IconButton(
@@ -4755,7 +4668,19 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
                           Icons.notifications_outlined,
                           color: accentIconColor,
                         ),
-                        onPressed: () => _showNotificationDialog(true, isDark),
+                        onPressed: () {
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            backgroundColor: Colors.transparent,
+                            builder: (_) => UnifiedNotificationCenterModal(
+                              operationalAlerts: _operationalAlerts,
+                              isDark: isDark,
+                              onResolveAlert: (alert) =>
+                                  _navigateToCreateShiftPage(),
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),
