@@ -13,6 +13,7 @@ import 'create_shift_page.dart';
 import 'widgets/frisby_weekly_schedule_sheet.dart';
 import 'widgets/liquid_glass_nav_bar.dart';
 import 'widgets/smart_alerts_and_notifications.dart';
+import 'widgets/adaptive_platform_ui.dart';
 
 class AdminDashboardPage extends StatefulWidget {
   final String username;
@@ -4863,7 +4864,27 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
               left: 0,
               right: 0,
               bottom: 0,
-              child: isIOS ? bottomNavBarIOS() : bottomNavBarAndroid(),
+              child: AdaptiveNavigationBar(
+                currentIndex: _currentIndex,
+                onTap: (index) => setState(() => _currentIndex = index),
+                isDark: isDark,
+                activeColor: const Color(0xFFC8102E),
+                items: const [
+                  LiquidGlassNavBarItem(
+                      icon: Icons.campaign_outlined, label: 'Inicio'),
+                  LiquidGlassNavBarItem(
+                      icon: Icons.chat_bubble_outline_rounded, label: 'Chat'),
+                  LiquidGlassNavBarItem(
+                      icon: Icons.menu_book_rounded, label: 'Noticias'),
+                  LiquidGlassNavBarItem(
+                    icon: Icons.notifications_none_rounded,
+                    label: 'Notificaciones',
+                    badgeCount: 1,
+                  ),
+                  LiquidGlassNavBarItem(
+                      icon: Icons.menu_rounded, label: 'Menú'),
+                ],
+              ),
             ),
           ],
         ),
