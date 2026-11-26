@@ -60,25 +60,25 @@ class LiquidGlassNavBar extends StatelessWidget {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(32),
                       child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+                        filter: ImageFilter.blur(sigmaX: 28, sigmaY: 28),
                         child: Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(32),
-                            // Translucent frosted glass tint
+                            // Translucent frosted glass tint letting scrolling content refract through
                             color: isDark
-                                ? const Color(0xFF2C2C2E).withValues(alpha: 0.55)
-                                : Colors.white.withValues(alpha: 0.65),
+                                ? const Color(0xFF2C2C2E).withValues(alpha: 0.38)
+                                : Colors.white.withValues(alpha: 0.35),
                             // Thin semitransparent perimeter border letting background bleed through
                             border: Border.all(
                               color: isDark
-                                  ? Colors.white.withValues(alpha: 0.16)
-                                  : Colors.white.withValues(alpha: 0.60),
-                              width: 1.0,
+                                  ? Colors.white.withValues(alpha: 0.22)
+                                  : Colors.white.withValues(alpha: 0.75),
+                              width: 1.2,
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: isDark ? 0.30 : 0.08),
-                                blurRadius: 20,
+                                color: Colors.black.withValues(alpha: isDark ? 0.30 : 0.10),
+                                blurRadius: 24,
                                 spreadRadius: -2,
                                 offset: const Offset(0, 8),
                               ),
