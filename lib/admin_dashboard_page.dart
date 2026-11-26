@@ -4731,18 +4731,16 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
                 activeColor: const Color(0xFFC8102E),
                 items: const [
                   LiquidGlassNavBarItem(
-                      icon: Icons.campaign_outlined, label: 'Inicio'),
+                      icon: Icons.event_note_rounded, label: 'Turnos'),
                   LiquidGlassNavBarItem(
-                      icon: Icons.chat_bubble_outline_rounded, label: 'Chat'),
+                      icon: Icons.swap_horiz_rounded, label: 'Cambios'),
                   LiquidGlassNavBarItem(
-                      icon: Icons.menu_book_rounded, label: 'Noticias'),
-                  LiquidGlassNavBarItem(
-                    icon: Icons.notifications_none_rounded,
-                    label: 'Notificaciones',
-                    badgeCount: 1,
+                    icon: Icons.medical_services_outlined,
+                    label: 'Permisos',
+                    badgeCount: 2,
                   ),
                   LiquidGlassNavBarItem(
-                      icon: Icons.menu_rounded, label: 'Menú'),
+                      icon: Icons.group_rounded, label: 'Equipo'),
                 ],
               ),
             ),
